@@ -1,6 +1,14 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { DataTable, PageScaffold, Pagination, PrimaryButton, SelectFilter, StatusPill, Toolbar } from "@/components/ui-kit/PageKit";
+import {
+  DataTable,
+  PageScaffold,
+  Pagination,
+  PrimaryButton,
+  SelectFilter,
+  StatusPill,
+  Toolbar,
+} from "@/components/ui-kit/PageKit";
 import { CaseCard } from "@/components/ui-kit/Cards";
 import { investigationApi } from "@/services/investigationApi";
 import type { InvestigationCase } from "@/services/types";
@@ -24,7 +32,8 @@ function Page() {
       const data = await investigationApi.listCases({
         page,
         page_size: 15,
-        status: status === "All" ? undefined : (status.toLowerCase().replace(/ /g, "_") as any),
+        status:
+          status === "All" ? undefined : (status.toLowerCase().replace(/ /g, "_") as CaseStatus),
         q: searchQuery || undefined,
       });
       setCases(data.items || []);
@@ -60,7 +69,15 @@ function Page() {
             <SelectFilter
               value={status}
               onChange={setStatus}
-              options={["All", "Open", "Under Review", "Evidence Collection", "Analysis", "Completed", "Archived"]}
+              options={[
+                "All",
+                "Open",
+                "Under Review",
+                "Evidence Collection",
+                "Analysis",
+                "Completed",
+                "Archived",
+              ]}
             />
             <button
               type="button"
@@ -99,7 +116,11 @@ function Page() {
                 ),
               },
               { key: "title", header: "Title", render: (r) => r.title },
-              { key: "priority", header: "Priority", render: (r) => <StatusPill value={r.priority} /> },
+              {
+                key: "priority",
+                header: "Priority",
+                render: (r) => <StatusPill value={r.priority} />,
+              },
               { key: "status", header: "Status", render: (r) => <StatusPill value={r.status} /> },
               {
                 key: "assignee",
@@ -122,13 +143,18 @@ function Page() {
                   id: c.id,
                   caseNumber: c.case_number,
                   title: c.title,
-                  priority: (c.priority ? (c.priority.charAt(0).toUpperCase() + c.priority.slice(1)) : "Medium") as "Low" | "Medium" | "High" | "Critical",
+                  priority: (c.priority
+                    ? c.priority.charAt(0).toUpperCase() + c.priority.slice(1)
+                    : "Medium") as "Low" | "Medium" | "High" | "Critical",
                   status: c.status,
                   assignee:
                     c.assignments && c.assignments.length > 0
                       ? c.assignments[0].user?.full_name || "Agent"
                       : "Unassigned",
+                  department: "Cybercrime",
+                  created: new Date(c.created_at).toLocaleDateString(),
                   updated: new Date(c.updated_at).toLocaleDateString(),
+                  description: c.description || "",
                 }}
               />
             </Link>

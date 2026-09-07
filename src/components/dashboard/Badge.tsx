@@ -47,7 +47,12 @@ export function priorityBadgeClass(priority: string) {
 
 export function Badge({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <span className={cn("inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-medium", className)}>
+    <span
+      className={cn(
+        "inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-medium",
+        className,
+      )}
+    >
       {children}
     </span>
   );

@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Upload, X } from "lucide-react";
 import { PrimaryButton, GhostButton } from "@/components/ui-kit/PageKit";
 import { addEvidenceItem, useCaseList } from "@/data/mock/platformState";
 import { MockEvidence } from "@/data/mock/platform";
+import { investigationApi } from "@/services/investigationApi";
 
 export function UploadEvidenceModal({
   isOpen,
@@ -15,22 +16,55 @@ export function UploadEvidenceModal({
   defaultCaseNumber?: string;
   onUploaded?: (item: MockEvidence) => void;
 }) {
-  const cases = useCaseList();
+  const storedCases = useCaseList();
+  const [apiCases, setApiCases] = useState<{ id: string; caseNumber: string; title: string }[]>([]);
+  const [uploadMode, setUploadMode] = useState<"file" | "folder">("file");
   const [name, setName] = useState("");
   const [type, setType] = useState<MockEvidence["type"]>("document");
-  const [caseNumber, setCaseNumber] = useState(defaultCaseNumber || cases[0]?.caseNumber || "CS-2026-0142");
+  const [caseNumber, setCaseNumber] = useState(defaultCaseNumber || "CS-2026-0142");
   const [tags, setTags] = useState("");
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    investigationApi
+      .listCases({ page_size: 100 })
+      .then((res) => {
+        if (res.items) {
+          setApiCases(
+            res.items.map((c) => ({ id: c.id, caseNumber: c.case_number, title: c.title })),
+          );
+        }
+      })
+      .catch(() => {});
+  }, [isOpen]);
+
+  const combinedCases = [...apiCases];
+  for (const sc of storedCases) {
+    if (!combinedCases.some((c) => c.caseNumber === sc.caseNumber || c.id === sc.id)) {
+      combinedCases.push({ id: sc.id, caseNumber: sc.caseNumber, title: sc.title });
+    }
+  }
+  const caseOptions = combinedCases.length > 0 ? combinedCases : storedCases;
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const fileName = file ? file.name : name.trim() || "evidence_upload.bin";
-    const fileSize = file ? `${(file.size / (1024 * 1024)).toFixed(2)} MB` : "1.5 MB";
+    const primaryFile = files[0];
+    const fileName = primaryFile
+      ? files.length > 1
+        ? `${primaryFile.name} (+${files.length - 1} files)`
+        : primaryFile.name
+      : name.trim() || "evidence_upload.bin";
+    const totalBytes = files.reduce((acc, f) => acc + f.size, 0);
+    const fileSize = files.length ? `${(totalBytes / (1024 * 1024)).toFixed(2)} MB` : "1.5 MB";
     const tagArray = tags
-      ? tags.split(",").map((t) => t.trim()).filter(Boolean)
-      : ["uploaded", "supervisor"];
+      ? tags
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean)
+      : [uploadMode === "folder" ? "folder_import" : "file_upload", "supervisor"];
 
     const created = addEvidenceItem({
       name: fileName,
@@ -47,7 +81,7 @@ export function UploadEvidenceModal({
     onClose();
     setName("");
     setTags("");
-    setFile(null);
+    setFiles([]);
   };
 
   return (
@@ -65,23 +99,87 @@ export function UploadEvidenceModal({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+        {/* Mode selector */}
+        <div className="mt-4 flex rounded-xl bg-[#0b1220] p-1 border border-white/5">
+          <button
+            type="button"
+            onClick={() => {
+              setUploadMode("file");
+              setFiles([]);
+            }}
+            className={`flex-1 rounded-lg py-1 text-xs font-semibold transition-colors ${
+              uploadMode === "file"
+                ? "bg-cyan text-slate-950"
+                : "text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            📄 File(s)
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setUploadMode("folder");
+              setFiles([]);
+            }}
+            className={`flex-1 rounded-lg py-1 text-xs font-semibold transition-colors ${
+              uploadMode === "folder"
+                ? "bg-cyan text-slate-950"
+                : "text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            📁 Folder
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="mt-3 space-y-4">
           <div>
-            <label className="block text-xs font-medium text-slate-400">File Attachment</label>
-            <input
-              type="file"
-              onChange={(e) => {
-                if (e.target.files && e.target.files[0]) {
-                  setFile(e.target.files[0]);
-                  if (!name) setName(e.target.files[0].name);
-                }
-              }}
-              className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1220] p-2 text-xs text-slate-300 file:mr-3 file:rounded-lg file:border-0 file:bg-cyan/20 file:px-3 file:py-1 file:text-xs file:text-cyan hover:file:bg-cyan/30"
-            />
+            <label className="block text-xs font-medium text-slate-400">
+              {uploadMode === "folder" ? "Folder Attachment *" : "File Attachment *"}
+            </label>
+            {uploadMode === "file" ? (
+              <input
+                type="file"
+                multiple
+                onChange={(e) => {
+                  if (e.target.files) {
+                    const list = Array.from(e.target.files);
+                    setFiles(list);
+                    if (!name && list[0]) setName(list[0].name);
+                  }
+                }}
+                className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1220] p-2 text-xs text-slate-300 file:mr-3 file:rounded-lg file:border-0 file:bg-cyan/20 file:px-3 file:py-1 file:text-xs file:text-cyan hover:file:bg-cyan/30"
+              />
+            ) : (
+              <input
+                type="file"
+                {...({
+                  webkitdirectory: "",
+                  directory: "",
+                } as React.InputHTMLAttributes<HTMLInputElement>)}
+                multiple
+                onChange={(e) => {
+                  if (e.target.files) {
+                    const list = Array.from(e.target.files);
+                    setFiles(list);
+                    if (!name && list[0])
+                      setName(list[0].webkitRelativePath.split("/")[0] || list[0].name);
+                  }
+                }}
+                className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1220] p-2 text-xs text-slate-300 file:mr-3 file:rounded-lg file:border-0 file:bg-cyan/20 file:px-3 file:py-1 file:text-xs file:text-cyan hover:file:bg-cyan/30"
+              />
+            )}
+            {files.length > 0 && (
+              <p className="mt-1 text-[11px] text-cyan">
+                ✓ {files.length} file(s) selected (
+                {uploadMode === "folder" ? "Folder structure preserved" : "Batch upload"})
+              </p>
+            )}
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-400">Evidence Name / Title</label>
+            <label className="block text-xs font-medium text-slate-400">
+              Evidence Name / Title
+            </label>
             <input
               type="text"
               required
@@ -116,9 +214,9 @@ export function UploadEvidenceModal({
                 onChange={(e) => setCaseNumber(e.target.value)}
                 className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm text-slate-100 focus:border-cyan focus:outline-none"
               >
-                {cases.map((c) => (
+                {caseOptions.map((c) => (
                   <option key={c.id} value={c.caseNumber}>
-                    {c.caseNumber} - {c.title.slice(0, 18)}...
+                    {c.caseNumber} - {c.title.length > 25 ? `${c.title.slice(0, 25)}...` : c.title}
                   </option>
                 ))}
               </select>
@@ -126,7 +224,9 @@ export function UploadEvidenceModal({
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-400">Tags (comma separated)</label>
+            <label className="block text-xs font-medium text-slate-400">
+              Tags (comma separated)
+            </label>
             <input
               type="text"
               placeholder="forensics, disk, cctv"

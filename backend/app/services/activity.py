@@ -17,6 +17,8 @@ def log_activity(
     user_id: UUID | None,
     action: ActivityAction,
     description: str,
+    case_id: UUID | None = None,
+    actor_role: str | None = None,
     resource_type: str | None = None,
     resource_id: str | None = None,
     ip_address: str | None = None,
@@ -25,6 +27,8 @@ def log_activity(
 ) -> ActivityLog:
     entry = ActivityLog(
         user_id=user_id,
+        case_id=case_id,
+        actor_role=actor_role,
         action=action,
         resource_type=resource_type,
         resource_id=resource_id,

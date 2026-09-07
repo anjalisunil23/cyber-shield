@@ -46,7 +46,10 @@ export function UploadWidget() {
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
         {TYPES.map((t) => (
-          <span key={t} className="rounded-full border border-white/10 px-2.5 py-1 text-[10px] text-slate-400">
+          <span
+            key={t}
+            className="rounded-full border border-white/10 px-2.5 py-1 text-[10px] text-slate-400"
+          >
             {t}
           </span>
         ))}
@@ -58,7 +61,10 @@ export function UploadWidget() {
             <span>{progress}%</span>
           </div>
           <div className="h-2 overflow-hidden rounded-full bg-white/10">
-            <div className="h-full rounded-full bg-gradient-to-r from-primary to-cyan transition-all" style={{ width: `${progress}%` }} />
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-primary to-cyan transition-all"
+              style={{ width: `${progress}%` }}
+            />
           </div>
         </div>
       )}

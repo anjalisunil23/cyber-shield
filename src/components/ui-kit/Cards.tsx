@@ -84,7 +84,10 @@ export function EvidenceCard({
         <p className="mt-2 text-[11px] text-cyan">{item.caseNumber}</p>
         <div className="mt-2 flex flex-wrap gap-1">
           {item.tags.map((t) => (
-            <span key={t} className="rounded-full border border-white/10 px-2 py-0.5 text-[10px] text-slate-400">
+            <span
+              key={t}
+              className="rounded-full border border-white/10 px-2 py-0.5 text-[10px] text-slate-400"
+            >
               {t}
             </span>
           ))}
@@ -96,7 +99,9 @@ export function EvidenceCard({
 
 export function NotificationCard({ item }: { item: MockNotification }) {
   return (
-    <div className={`rounded-2xl border px-4 py-3 ${item.read ? "border-white/5 bg-[#111827]/50" : "border-cyan/20 bg-cyan/5"}`}>
+    <div
+      className={`rounded-2xl border px-4 py-3 ${item.read ? "border-white/5 bg-[#111827]/50" : "border-cyan/20 bg-cyan/5"}`}
+    >
       <p className="text-sm font-medium text-slate-100">{item.title}</p>
       <p className="text-sm text-slate-400">{item.message}</p>
       <p className="mt-1 text-xs text-slate-500">{item.time}</p>
@@ -142,7 +147,15 @@ export function TaskCard({
   );
 }
 
-export function RelationshipCard({ source, target, type }: { source: string; target: string; type: string }) {
+export function RelationshipCard({
+  source,
+  target,
+  type,
+}: {
+  source: string;
+  target: string;
+  type: string;
+}) {
   return (
     <div className="rounded-2xl border border-white/10 bg-[#111827]/90 px-4 py-3 text-sm">
       <p className="text-cyan">{source}</p>
@@ -152,9 +165,25 @@ export function RelationshipCard({ source, target, type }: { source: string; tar
   );
 }
 
-export function ReportCard({ title, format, author, created, onPreview }: { title: string; format: string; author: string; created: string; onPreview?: () => void }) {
+export function ReportCard({
+  title,
+  format,
+  author,
+  created,
+  onPreview,
+}: {
+  title: string;
+  format: string;
+  author: string;
+  created: string;
+  onPreview?: () => void;
+}) {
   return (
-    <button type="button" onClick={onPreview} className="w-full rounded-2xl border border-white/10 bg-[#111827]/90 p-4 text-left hover:border-cyan/40">
+    <button
+      type="button"
+      onClick={onPreview}
+      className="w-full rounded-2xl border border-white/10 bg-[#111827]/90 p-4 text-left hover:border-cyan/40"
+    >
       <p className="text-sm font-medium text-slate-100">{title}</p>
       <p className="mt-2 text-xs text-slate-500">
         {format} · {author} · {created}
@@ -163,7 +192,17 @@ export function ReportCard({ title, format, author, created, onPreview }: { titl
   );
 }
 
-export function ProfileCard({ name, email, role, department }: { name: string; email: string; role: string; department: string }) {
+export function ProfileCard({
+  name,
+  email,
+  role,
+  department,
+}: {
+  name: string;
+  email: string;
+  role: string;
+  department: string;
+}) {
   const initials = name
     .split(" ")
     .map((p) => p[0])

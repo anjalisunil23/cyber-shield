@@ -110,6 +110,11 @@ class CaseAssignmentOut(BaseModel):
     user: UserBrief | None = None
 
 
+class CaseReviewRequest(BaseModel):
+    action: str = Field(..., pattern="^(approve|request_changes)$")
+    review_comment: str | None = None
+
+
 class CaseOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: UUID
@@ -119,11 +124,18 @@ class CaseOut(BaseModel):
     priority: CasePriority
     status: CaseStatus
     notes: str | None
+    department_id: UUID | None = None
+    supervisor_id: UUID | None = None
+    review_comment: str | None = None
+    submitted_at: datetime | None = None
+    reviewed_at: datetime | None = None
     created_by_id: UUID
     created_at: datetime
     updated_at: datetime
     created_by: UserBrief | None = None
+    supervisor: UserBrief | None = None
     assignments: list[CaseAssignmentOut] = Field(default_factory=list)
+
 
 
 # ---- Evidence ----
@@ -138,6 +150,8 @@ class EvidenceOut(BaseModel):
     mime_type: str | None
     file_size: int
     sha256_hash: str
+    file_hash: str | None = None
+    warning: str | None = None
     description: str | None
     tags: list[Any] | None
     metadata_json: dict[str, Any] | None
@@ -162,6 +176,7 @@ class EvidenceOut(BaseModel):
 class EvidenceMetaUpdate(BaseModel):
     description: str | None = None
     tags: list[str] | None = None
+    file_hash: str | None = None
 
 
 # ---- Notes ----
@@ -198,6 +213,7 @@ class TimelineCreate(BaseModel):
     description: str | None = None
     event_type: TimelineEventType = TimelineEventType.manual
     event_at: datetime | None = None
+    related_evidence_id: UUID | None = None
 
 
 class TimelineOut(BaseModel):
@@ -208,6 +224,7 @@ class TimelineOut(BaseModel):
     title: str
     description: str | None
     event_at: datetime
+    related_evidence_id: UUID | None = None
     created_by_id: UUID | None
     metadata_json: dict[str, Any] | None
     created_at: datetime
@@ -253,6 +270,8 @@ class LeadCreate(BaseModel):
     priority: LeadPriority = LeadPriority.medium
     status: LeadStatus = LeadStatus.open
     related_evidence_id: UUID | None = None
+    related_evidence_ids: list[UUID] = Field(default_factory=list)
+    justification: str | None = None
     assigned_to_id: UUID | None = None
 
 
@@ -262,6 +281,9 @@ class LeadUpdate(BaseModel):
     priority: LeadPriority | None = None
     status: LeadStatus | None = None
     related_evidence_id: UUID | None = None
+    related_evidence_ids: list[UUID] | None = None
+    justification: str | None = None
+    review_comment: str | None = None
     assigned_to_id: UUID | None = None
 
 
@@ -273,8 +295,11 @@ class LeadOut(BaseModel):
     description: str | None
     priority: LeadPriority
     status: LeadStatus
-    related_evidence_id: UUID | None
-    assigned_to_id: UUID | None
+    related_evidence_id: UUID | None = None
+    related_evidence_ids: list[UUID] | None = None
+    justification: str | None = None
+    review_comment: str | None = None
+    assigned_to_id: UUID | None = None
     created_by_id: UUID
     created_at: datetime
     updated_at: datetime
@@ -299,6 +324,8 @@ class ActivityOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: UUID
     user_id: UUID | None
+    case_id: UUID | None = None
+    actor_role: str | None = None
     action: str
     resource_type: str | None
     resource_id: str | None
@@ -309,6 +336,7 @@ class ActivityOut(BaseModel):
 
 class ReportCreate(BaseModel):
     title: str | None = None
+    case_summary: str | None = None
     format: ReportFormat = ReportFormat.html
 
 

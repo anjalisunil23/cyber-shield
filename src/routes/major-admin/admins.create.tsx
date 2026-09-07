@@ -9,7 +9,11 @@ function Page() {
       crumbs={[{ label: "Admins", to: "/major-admin/admins" }, { label: "Create" }]}
       title="Create Admin"
       subtitle="Provision a new organization Admin"
-      actions={<Link to={"/major-admin/admins" as "/"}><GhostButton>Cancel</GhostButton></Link>}
+      actions={
+        <Link to={"/major-admin/admins" as "/"}>
+          <GhostButton>Cancel</GhostButton>
+        </Link>
+      }
     >
       <Panel>
         <form className="mx-auto grid max-w-2xl gap-4" onSubmit={(e) => e.preventDefault()}>

@@ -5,7 +5,6 @@ export { HowItWorksSection } from "./HowItWorks";
 export { AIModulesSection } from "./AIModules";
 export { DashboardPreviewSection } from "./DashboardPreview";
 export { StatisticsSection } from "./Statistics";
-export { SecuritySection } from "./Security";
 export { WhyCyberShieldSection } from "./WhyCyberShield";
 export { TestimonialsSection } from "./Testimonials";
 export { FAQSection } from "./FAQ";

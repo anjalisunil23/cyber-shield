@@ -43,7 +43,11 @@ export function EmptyState({
   );
 }
 
-export function ErrorState({ message = "Something went wrong loading this view." }: { message?: string }) {
+export function ErrorState({
+  message = "Something went wrong loading this view.",
+}: {
+  message?: string;
+}) {
   return (
     <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-6 text-center text-sm text-rose-200">
       <FileQuestion className="mx-auto mb-2 h-6 w-6" />
@@ -119,25 +123,51 @@ export function SelectFilter({
   );
 }
 
-export function PrimaryButton({ children, onClick, type = "button", className }: { children: ReactNode; onClick?: () => void; type?: "button" | "submit"; className?: string }) {
+export function PrimaryButton({
+  children,
+  onClick,
+  type = "button",
+  className,
+}: {
+  children: ReactNode;
+  onClick?: () => void;
+  type?: "button" | "submit";
+  className?: string;
+}) {
   return (
     <motion.button
       whileTap={{ scale: 0.98 }}
       type={type}
       onClick={onClick}
-      className={cn("rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90", className)}
+      className={cn(
+        "rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90",
+        className,
+      )}
     >
       {children}
     </motion.button>
   );
 }
 
-export function GhostButton({ children, onClick, type = "button", className }: { children: ReactNode; onClick?: () => void; type?: "button" | "submit"; className?: string }) {
+export function GhostButton({
+  children,
+  onClick,
+  type = "button",
+  className,
+}: {
+  children: ReactNode;
+  onClick?: () => void;
+  type?: "button" | "submit";
+  className?: string;
+}) {
   return (
     <button
       type={type}
       onClick={onClick}
-      className={cn("rounded-xl border border-white/10 px-4 py-2 text-sm text-slate-300 hover:bg-white/5", className)}
+      className={cn(
+        "rounded-xl border border-white/10 px-4 py-2 text-sm text-slate-300 hover:bg-white/5",
+        className,
+      )}
     >
       {children}
     </button>
@@ -268,7 +298,10 @@ export function Pagination({
         <GhostButton className="px-3 py-1.5 text-xs" onClick={() => onPage(Math.max(1, page - 1))}>
           Previous
         </GhostButton>
-        <GhostButton className="px-3 py-1.5 text-xs" onClick={() => onPage(Math.min(pages, page + 1))}>
+        <GhostButton
+          className="px-3 py-1.5 text-xs"
+          onClick={() => onPage(Math.min(pages, page + 1))}
+        >
           Next
         </GhostButton>
       </div>
@@ -300,7 +333,13 @@ export function StatusPill({ value }: { value: string }) {
         : v.includes("progress") || v.includes("review") || v.includes("pending")
           ? "border-amber-500/30 bg-amber-500/15 text-amber-300"
           : "border-white/10 bg-white/5 text-slate-300";
-  return <span className={cn("inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-medium", tone)}>{value}</span>;
+  return (
+    <span
+      className={cn("inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-medium", tone)}
+    >
+      {value}
+    </span>
+  );
 }
 
 export function PageScaffold({
@@ -317,7 +356,11 @@ export function PageScaffold({
   children: ReactNode;
 }) {
   return (
-    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.28 }}>
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.28 }}
+    >
       <Breadcrumb items={crumbs} />
       <PageHeader title={title} subtitle={subtitle} actions={actions} />
       {children}

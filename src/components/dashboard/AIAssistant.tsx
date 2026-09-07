@@ -31,7 +31,9 @@ export function AIAssistant() {
       <div className="mt-4 rounded-xl border border-amber-500/20 bg-amber-500/10 p-3">
         <p className="text-[11px] text-amber-300">Risk Score</p>
         <p className="text-2xl font-bold text-amber-400">92</p>
-        <p className="mt-1 text-xs text-slate-400">Suggested connections: 3 devices · 2 locations · 5 contacts</p>
+        <p className="mt-1 text-xs text-slate-400">
+          Suggested connections: 3 devices · 2 locations · 5 contacts
+        </p>
       </div>
 
       <button

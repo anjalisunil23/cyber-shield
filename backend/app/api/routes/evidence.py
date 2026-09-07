@@ -25,6 +25,14 @@ from app.services.case_service import CaseService
 router = APIRouter(tags=["evidence"])
 
 
+def _to_evidence_out(item: Evidence) -> EvidenceOut:
+    out = EvidenceOut.model_validate(item)
+    out.file_hash = item.sha256_hash
+    if item.is_duplicate and item.metadata_json and "duplicate_warning" in item.metadata_json:
+        out.warning = item.metadata_json["duplicate_warning"]
+    return out
+
+
 @router.get("/cases/{case_id}/evidence", response_model=PageOut[EvidenceOut])
 def list_evidence(
     case_id: UUID,
@@ -39,7 +47,7 @@ def list_evidence(
     items, total = EvidenceRepository(db).list_for_case(
         case_id, q=q, file_type=file_type, offset=(page - 1) * page_size, limit=page_size
     )
-    return paginate(total, page, page_size, [EvidenceOut.model_validate(i) for i in items])
+    return paginate(total, page, page_size, [_to_evidence_out(i) for i in items])
 
 
 @router.post("/cases/{case_id}/evidence", response_model=EvidenceOut, status_code=201)
@@ -60,7 +68,7 @@ async def upload_evidence(
         except json.JSONDecodeError:
             tag_list = [t.strip() for t in tags.split(",") if t.strip()]
     item = EvidenceService(db).upload(case_id, file, user, description=description, tags=tag_list)
-    return EvidenceOut.model_validate(item)
+    return _to_evidence_out(item)
 
 
 @router.get("/evidence/{evidence_id}", response_model=EvidenceOut)
@@ -71,7 +79,7 @@ def get_evidence(
 ) -> EvidenceOut:
     item = EvidenceService(db).get(evidence_id)
     CaseService(db).verify_case_access(user, item.case_id)
-    return EvidenceOut.model_validate(item)
+    return _to_evidence_out(item)
 
 
 @router.patch("/evidence/{evidence_id}", response_model=EvidenceOut)
@@ -90,7 +98,7 @@ def update_evidence_meta(
     db.add(item)
     db.commit()
     db.refresh(item)
-    return EvidenceOut.model_validate(item)
+    return _to_evidence_out(item)
 
 
 @router.get("/evidence/{evidence_id}/download")

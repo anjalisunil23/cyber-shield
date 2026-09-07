@@ -49,7 +49,11 @@ export function TopNavbar({ onMenu }: { onMenu: () => void }) {
           className="w-full rounded-xl border border-white/10 bg-[#111827] py-2.5 pl-10 pr-3 text-sm text-slate-100 outline-none placeholder:text-slate-500 focus:border-primary/50"
         />
         {debounced.length >= 2 && (
-          <SearchDropdown result={search.data} loading={search.isLoading} onClose={() => setQ("")} />
+          <SearchDropdown
+            result={search.data}
+            loading={search.isLoading}
+            onClose={() => setQ("")}
+          />
         )}
       </div>
 
@@ -70,7 +74,9 @@ export function TopNavbar({ onMenu }: { onMenu: () => void }) {
             {initials}
           </div>
           <div className="hidden leading-tight sm:block">
-            <p className="text-xs font-semibold text-slate-100">{me.data?.full_name || "Investigator"}</p>
+            <p className="text-xs font-semibold text-slate-100">
+              {me.data?.full_name || "Investigator"}
+            </p>
             <p className="text-[10px] text-slate-400">{me.data?.role || "…"}</p>
           </div>
         </div>
@@ -95,7 +101,13 @@ function SearchDropdown({
         <div className="space-y-3 text-sm">
           <Group title="Cases">
             {result.cases.map((c) => (
-              <Link key={c.id} to="/dashboard/cases/$caseId" params={{ caseId: c.id }} onClick={onClose} className="block rounded-lg px-2 py-1.5 hover:bg-white/5">
+              <Link
+                key={c.id}
+                to="/dashboard/cases/$caseId"
+                params={{ caseId: c.id }}
+                onClick={onClose}
+                className="block rounded-lg px-2 py-1.5 hover:bg-white/5"
+              >
                 {c.case_number} — {c.title}
               </Link>
             ))}

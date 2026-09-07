@@ -39,7 +39,11 @@ export function Navbar() {
         <div className="hidden items-center gap-7 text-sm text-muted-foreground lg:flex">
           {LINKS.map((l) =>
             "route" in l && l.route ? (
-              <Link key={l.href} to="/dashboard" className="transition-colors hover:text-foreground">
+              <Link
+                key={l.href}
+                to="/dashboard"
+                className="transition-colors hover:text-foreground"
+              >
                 {l.label}
               </Link>
             ) : (
@@ -101,7 +105,10 @@ export function Navbar() {
                 ),
               )}
               <div className="mt-3 flex gap-2">
-                <Link to="/login" className="flex-1 rounded-xl border border-white/15 py-2.5 text-center text-sm">
+                <Link
+                  to="/login"
+                  className="flex-1 rounded-xl border border-white/15 py-2.5 text-center text-sm"
+                >
                   Login
                 </Link>
                 <GradientLink to="/register" className="flex-1">

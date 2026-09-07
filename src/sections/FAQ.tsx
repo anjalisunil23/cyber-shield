@@ -38,7 +38,10 @@ export function FAQSection() {
           {FAQS.map((item, i) => {
             const isOpen = open === i;
             return (
-              <div key={item.q} className="overflow-hidden rounded-2xl border border-white/10 bg-[rgb(17_24_39/0.75)]">
+              <div
+                key={item.q}
+                className="overflow-hidden rounded-2xl border border-white/10 bg-[rgb(17_24_39/0.75)]"
+              >
                 <button
                   type="button"
                   className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left text-sm font-semibold"
@@ -46,7 +49,9 @@ export function FAQSection() {
                   aria-expanded={isOpen}
                 >
                   {item.q}
-                  <ChevronDown className={cn("h-4 w-4 shrink-0 transition", isOpen && "rotate-180 text-cyan")} />
+                  <ChevronDown
+                    className={cn("h-4 w-4 shrink-0 transition", isOpen && "rotate-180 text-cyan")}
+                  />
                 </button>
                 <AnimatePresence initial={false}>
                   {isOpen && (

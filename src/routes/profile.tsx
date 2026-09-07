@@ -17,7 +17,8 @@ function Page() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    investigationApi.me()
+    investigationApi
+      .me()
       .then((data) => {
         setUser(data);
       })
@@ -96,7 +97,9 @@ function Page() {
               </ul>
             </Panel>
             <Panel title="Session Management">
-              <p className="text-sm text-slate-400">Signed in via secure JWT token authentication.</p>
+              <p className="text-sm text-slate-400">
+                Signed in via secure JWT token authentication.
+              </p>
               <PrimaryButton onClick={handleSignOut} className="mt-3">
                 Sign Out
               </PrimaryButton>

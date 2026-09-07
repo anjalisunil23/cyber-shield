@@ -21,9 +21,14 @@ function Page() {
 
   if (!e) {
     return (
-      <PageScaffold crumbs={[{ label: "Evidence", to: "/superior/evidence" }, { label: "Not Found" }]} title="Evidence Not Found">
+      <PageScaffold
+        crumbs={[{ label: "Evidence", to: "/superior/evidence" }, { label: "Not Found" }]}
+        title="Evidence Not Found"
+      >
         <Panel>
-          <p className="text-sm text-slate-400">The requested evidence item does not exist or has been deleted.</p>
+          <p className="text-sm text-slate-400">
+            The requested evidence item does not exist or has been deleted.
+          </p>
         </Panel>
       </PageScaffold>
     );
@@ -35,7 +40,10 @@ function Page() {
       title={e.name}
       subtitle={`${e.type} · ${e.size}`}
       actions={
-        <GhostButton onClick={handleDelete} className="text-rose-400 hover:bg-rose-500/10 hover:text-rose-300">
+        <GhostButton
+          onClick={handleDelete}
+          className="text-rose-400 hover:bg-rose-500/10 hover:text-rose-300"
+        >
           <Trash2 className="mr-1.5 inline h-4 w-4" /> Delete Evidence
         </GhostButton>
       }

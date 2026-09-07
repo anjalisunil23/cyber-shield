@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UserCheck, X } from "lucide-react";
 import { PrimaryButton, GhostButton } from "@/components/ui-kit/PageKit";
 import { addTaskItem, useCaseList } from "@/data/mock/platformState";
 import { MOCK_USERS, MockTask } from "@/data/mock/platform";
+import { investigationApi } from "@/services/investigationApi";
 
 export function AssignTaskModal({
   isOpen,
@@ -17,14 +18,88 @@ export function AssignTaskModal({
   defaultCaseNumber?: string;
   onAssigned?: (task: MockTask) => void;
 }) {
-  const cases = useCaseList();
-  const investigators = MOCK_USERS.filter((u) => u.role === "Investigator" || u.role === "Forensic Officer" || u.role === "Superior Officer");
+  const storedCases = useCaseList();
+  const [apiCases, setApiCases] = useState<{ id: string; caseNumber: string; title: string }[]>([]);
+  const [apiInvestigators, setApiInvestigators] = useState<
+    { id: string; name: string; role: string; email: string }[]
+  >([]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    investigationApi
+      .listCases({ page_size: 100 })
+      .then((res) => {
+        if (res.items) {
+          setApiCases(
+            res.items.map((c) => ({ id: c.id, caseNumber: c.case_number, title: c.title })),
+          );
+        }
+      })
+      .catch(() => {});
+
+    investigationApi
+      .adminListUsers({ page_size: 100 })
+      .then((res) => {
+        if (res.items) {
+          setApiInvestigators(
+            res.items
+              .filter((u) => u.is_active !== false)
+              .map((u) => ({
+                id: u.id,
+                name: u.full_name,
+                role: u.role === "superior_officer" ? "Superior Officer" : "Investigator",
+                email: u.email,
+              })),
+          );
+        }
+      })
+      .catch(() => {});
+  }, [isOpen]);
+
+  const mockInvestigators = MOCK_USERS.map((u) => ({
+    id: u.id,
+    name: u.name,
+    role: u.role,
+    email: u.email,
+  }));
+  const combinedInvestigators = [...apiInvestigators];
+  for (const mu of mockInvestigators) {
+    if (
+      !combinedInvestigators.some(
+        (u) => u.name.toLowerCase() === mu.name.toLowerCase() || u.id === mu.id,
+      )
+    ) {
+      combinedInvestigators.push(mu);
+    }
+  }
+
+  const investigatorOptions =
+    combinedInvestigators.length > 0 ? combinedInvestigators : mockInvestigators;
+
+  const combinedCases = [...apiCases];
+  for (const sc of storedCases) {
+    if (!combinedCases.some((c) => c.caseNumber === sc.caseNumber || c.id === sc.id)) {
+      combinedCases.push({ id: sc.id, caseNumber: sc.caseNumber, title: sc.title });
+    }
+  }
+  const caseOptions = combinedCases.length > 0 ? combinedCases : storedCases;
 
   const [title, setTitle] = useState("");
-  const [assignee, setAssignee] = useState(defaultInvestigator || investigators[0]?.name || "Alex Mercer");
-  const [caseNumber, setCaseNumber] = useState(defaultCaseNumber || cases[0]?.caseNumber || "CS-2026-0142");
+  const [assignee, setAssignee] = useState(
+    defaultInvestigator || investigatorOptions[0]?.name || "Alex Mercer",
+  );
+  const [caseNumber, setCaseNumber] = useState(defaultCaseNumber || "CS-2026-0142");
   const [dueDate, setDueDate] = useState("2026-08-10");
   const [priority, setPriority] = useState("High");
+
+  useEffect(() => {
+    if (defaultInvestigator) {
+      setAssignee(defaultInvestigator);
+    } else if (investigatorOptions.length > 0 && !assignee) {
+      setAssignee(investigatorOptions[0].name);
+    }
+  }, [defaultInvestigator, investigatorOptions]);
 
   if (!isOpen) return null;
 
@@ -67,16 +142,18 @@ export function AssignTaskModal({
               onChange={(e) => setAssignee(e.target.value)}
               className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm text-slate-100 focus:border-cyan focus:outline-none"
             >
-              {investigators.map((u) => (
+              {investigatorOptions.map((u) => (
                 <option key={u.id} value={u.name}>
-                  {u.name} ({u.department})
+                  {u.name} ({u.role} — {u.email})
                 </option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-400">Task Title / Instructions</label>
+            <label className="block text-xs font-medium text-slate-400">
+              Task Title / Instructions
+            </label>
             <input
               type="text"
               required
@@ -95,9 +172,9 @@ export function AssignTaskModal({
                 onChange={(e) => setCaseNumber(e.target.value)}
                 className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm text-slate-100 focus:border-cyan focus:outline-none"
               >
-                {cases.map((c) => (
+                {caseOptions.map((c) => (
                   <option key={c.id} value={c.caseNumber}>
-                    {c.caseNumber} - {c.title.slice(0, 15)}...
+                    {c.caseNumber} - {c.title.length > 25 ? `${c.title.slice(0, 25)}...` : c.title}
                   </option>
                 ))}
               </select>

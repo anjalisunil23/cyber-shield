@@ -13,9 +13,10 @@ function AiPlaceholderPage() {
       </div>
       <h1 className="text-2xl font-bold text-slate-50">AI Analysis — Phase 2</h1>
       <p className="text-sm text-slate-400">
-        OCR, speech transcription, entity extraction, object/face detection, embeddings, risk scoring, and
-        knowledge-graph linking are intentionally not implemented yet. Evidence records already reserve fields for
-        these outputs so modules can plug in without changing the core platform.
+        OCR, speech transcription, entity extraction, object/face detection, embeddings, risk
+        scoring, and knowledge-graph linking are intentionally not implemented yet. Evidence records
+        already reserve fields for these outputs so modules can plug in without changing the core
+        platform.
       </p>
     </div>
   );

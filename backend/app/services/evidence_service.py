@@ -1,12 +1,12 @@
-"""Evidence upload/download service with duplicate detection placeholder."""
-
-from __future__ import annotations
-
+import datetime
+import io
 import mimetypes
 from pathlib import Path
+from typing import Any
 from uuid import UUID
 
 from fastapi import HTTPException, UploadFile, status
+from PIL import ExifTags, Image
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
@@ -17,6 +17,7 @@ from app.models.user import User
 from app.repositories.case_repository import CaseRepository
 from app.repositories.evidence_repository import EvidenceRepository
 from app.services.activity import log_activity
+from app.services.case_service import advance_open_to_in_progress
 from app.services.notifications import notify
 from app.services.storage import get_storage
 
@@ -35,17 +36,53 @@ ALLOWED_EXTENSIONS = {
     ".gpx", ".kml", ".log",
 }
 
-CATEGORY_MAP = {
-    ".jpg": "image", ".jpeg": "image", ".png": "image", ".gif": "image", ".webp": "image",
-    ".bmp": "image", ".tif": "image", ".tiff": "image",
-    ".mp4": "video", ".avi": "video", ".mov": "video", ".mkv": "video", ".webm": "video",
-    ".pdf": "pdf", ".doc": "word", ".docx": "word", ".txt": "text", ".rtf": "text", ".md": "text",
-    ".mp3": "audio", ".wav": "audio", ".m4a": "audio", ".ogg": "audio", ".flac": "audio",
-    ".csv": "csv", ".json": "json", ".zip": "zip",
-    ".eml": "email_export", ".msg": "email_export",
-    ".html": "chat_export", ".htm": "chat_export",
-    ".gpx": "gps", ".kml": "gps", ".log": "call_logs",
-}
+
+def classify_file_type(mime_type: str | None, ext: str) -> str:
+    ext = ext.lower()
+    if mime_type:
+        mime = mime_type.lower()
+        if mime.startswith("image/"):
+            return "image"
+        if mime.startswith("video/"):
+            return "video"
+        if mime.startswith("audio/"):
+            return "audio"
+    if ext in {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".tif", ".tiff"}:
+        return "image"
+    if ext in {".mp4", ".avi", ".mov", ".mkv", ".webm"}:
+        return "video"
+    if ext in {".mp3", ".wav", ".m4a", ".ogg", ".flac"}:
+        return "audio"
+    if ext in {".pdf", ".doc", ".docx", ".txt", ".rtf", ".md", ".csv", ".json", ".zip"}:
+        return "document"
+    if ext in {".eml", ".msg", ".html", ".htm", ".whatsapp", ".tg"}:
+        return "chat_export"
+    if ext in {".gpx", ".kml", ".log"}:
+        return "call_log"
+    return "other"
+
+
+def extract_exif(data: bytes) -> dict[str, Any]:
+    exif_data: dict[str, Any] = {}
+    try:
+        img = Image.open(io.BytesIO(data))
+        exif_data["width"] = img.width
+        exif_data["height"] = img.height
+        raw_exif = img._getexif()
+        if raw_exif:
+            for tag_id, value in raw_exif.items():
+                tag = ExifTags.TAGS.get(tag_id, tag_id)
+                if tag in ("Make", "Model", "DateTime", "DateTimeOriginal", "Software"):
+                    exif_data[str(tag)] = str(value)
+                elif tag == "GPSInfo":
+                    gps_info = {}
+                    for k in value:
+                        gps_tag = ExifTags.GPSTAGS.get(k, k)
+                        gps_info[str(gps_tag)] = str(value[k])
+                    exif_data["GPSInfo"] = gps_info
+    except Exception:
+        pass
+    return exif_data
 
 
 class EvidenceService:
@@ -86,7 +123,23 @@ class EvidenceService:
         storage_path, sha256 = self.storage.save(case_id=str(case_id), filename=original, data=data)
         dup = self.repo.find_by_hash(case_id, sha256)
         mime, _ = mimetypes.guess_type(original)
-        file_type = CATEGORY_MAP.get(ext, "other")
+        file_type = classify_file_type(mime or file.content_type, ext)
+
+        now_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
+        metadata_json: dict[str, Any] = {
+            "extension": ext,
+            "file_created_at": now_iso,
+            "file_modified_at": now_iso,
+        }
+        if file_type == "image":
+            exif = extract_exif(data)
+            if exif:
+                metadata_json["exif"] = exif
+
+        warning_msg = None
+        if dup:
+            warning_msg = f"Duplicate file detected: matches existing evidence '{dup.original_name}' (ID: {dup.id})"
+            metadata_json["duplicate_warning"] = warning_msg
 
         evidence = Evidence(
             case_id=case_id,
@@ -99,7 +152,7 @@ class EvidenceService:
             sha256_hash=sha256,
             description=description,
             tags=tags or [],
-            metadata_json={"extension": ext},
+            metadata_json=metadata_json,
             uploaded_by_id=actor.id,
             is_duplicate=dup is not None,
             duplicate_of_id=dup.id if dup else None,
@@ -107,6 +160,7 @@ class EvidenceService:
         )
         self.repo.add(evidence)
         self.db.flush()
+        advance_open_to_in_progress(self.db, case, actor)
 
         self.db.add(
             TimelineEvent(
@@ -128,9 +182,12 @@ class EvidenceService:
                     message=f"{original} added to {case.case_number}",
                     link=f"/dashboard/cases/{case_id}",
                 )
+        actor_role_str = actor.role.value if hasattr(actor.role, "value") else str(actor.role)
         log_activity(
             self.db,
             user_id=actor.id,
+            case_id=case_id,
+            actor_role=actor_role_str,
             action=ActivityAction.create,
             resource_type="evidence",
             resource_id=str(evidence.id),
@@ -165,9 +222,12 @@ class EvidenceService:
                 created_by_id=actor.id,
             )
         )
+        actor_role_str = actor.role.value if hasattr(actor.role, "value") else str(actor.role)
         log_activity(
             self.db,
             user_id=actor.id,
+            case_id=case_id,
+            actor_role=actor_role_str,
             action=ActivityAction.delete,
             resource_type="evidence",
             resource_id=str(evidence_id),

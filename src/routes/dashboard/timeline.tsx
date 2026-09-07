@@ -16,7 +16,9 @@ function TimelineHubPage() {
     <div className="space-y-5">
       <div>
         <h1 className="text-2xl font-bold text-slate-50">Timeline</h1>
-        <p className="text-sm text-slate-400">Chronological case events — open a case to add manual timeline entries</p>
+        <p className="text-sm text-slate-400">
+          Chronological case events — open a case to add manual timeline entries
+        </p>
       </div>
       <ul className="space-y-2">
         {(casesQ.data?.items || []).map((c) => (

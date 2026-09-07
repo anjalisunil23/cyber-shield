@@ -12,7 +12,9 @@ export function ReportGenerator() {
   return (
     <div className="rounded-2xl border border-white/10 bg-[#111827]/90 p-5">
       <h3 className="text-sm font-semibold text-slate-100">Report Generator</h3>
-      <p className="mt-1 text-xs text-slate-400">Produce investigation outputs with provenance links.</p>
+      <p className="mt-1 text-xs text-slate-400">
+        Produce investigation outputs with provenance links.
+      </p>
       <div className="mt-4 grid gap-2 sm:grid-cols-2">
         {ACTIONS.map(({ label, icon: Icon }) => (
           <button

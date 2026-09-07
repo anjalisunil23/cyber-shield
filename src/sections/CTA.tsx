@@ -19,7 +19,8 @@ export function CTASection() {
             Transform Digital Investigations with <span className="text-gradient-brand">AI</span>
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-            Deploy CyberShield for secure evidence management, explainable AI analysis, and faster case outcomes.
+            Deploy CyberShield for secure evidence management, explainable AI analysis, and faster
+            case outcomes.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <GradientLink to="/register">Get Started</GradientLink>

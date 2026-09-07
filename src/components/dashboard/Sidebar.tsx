@@ -134,7 +134,10 @@ export function Sidebar({
         )}
       >
         <div
-          className={cn("absolute inset-0 bg-black/60 transition", mobileOpen ? "opacity-100" : "opacity-0")}
+          className={cn(
+            "absolute inset-0 bg-black/60 transition",
+            mobileOpen ? "opacity-100" : "opacity-0",
+          )}
           onClick={onCloseMobile}
         />
         <aside

@@ -12,7 +12,7 @@ from app.core.deps import get_current_user
 from app.db.session import get_db
 from app.models.enums import CasePriority, CaseStatus
 from app.models.user import User
-from app.schemas.domain import CaseAssign, CaseCreate, CaseOut, CaseUpdate, PageOut
+from app.schemas.domain import CaseAssign, CaseCreate, CaseOut, CaseReviewRequest, CaseUpdate, PageOut
 from app.services.case_service import CaseService
 from app.utils.pagination import paginate
 
@@ -92,3 +92,39 @@ def assign_case(
     user: Annotated[User, Depends(get_current_user)],
 ) -> CaseOut:
     return CaseOut.model_validate(CaseService(db).assign(case_id, payload, user))
+
+
+@router.post("/{case_id}/submit-review", response_model=CaseOut)
+def submit_case_for_review(
+    case_id: UUID,
+    db: Annotated[Session, Depends(get_db)],
+    user: Annotated[User, Depends(get_current_user)],
+) -> CaseOut:
+    return CaseOut.model_validate(CaseService(db).submit_for_review(case_id, user))
+
+
+@router.post("/{case_id}/review", response_model=CaseOut)
+def review_case(
+    case_id: UUID,
+    payload: CaseReviewRequest,
+    db: Annotated[Session, Depends(get_db)],
+    user: Annotated[User, Depends(get_current_user)],
+) -> CaseOut:
+    return CaseOut.model_validate(
+        CaseService(db).review_case(
+            case_id=case_id,
+            action=payload.action,
+            review_comment=payload.review_comment,
+            actor=user,
+        )
+    )
+
+
+@router.post("/{case_id}/close", response_model=CaseOut)
+def close_case(
+    case_id: UUID,
+    db: Annotated[Session, Depends(get_db)],
+    user: Annotated[User, Depends(get_current_user)],
+) -> CaseOut:
+    return CaseOut.model_validate(CaseService(db).close_case(case_id, user))
+

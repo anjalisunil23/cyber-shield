@@ -43,9 +43,15 @@ const COLORS = ["#3B82F6", "#06B6D4", "#F59E0B", "#EF4444", "#10B981", "#8B5CF6"
 
 function MajorAdminDashboard() {
   const navigate = useNavigate();
-  const stats = useQuery({ queryKey: ["dashboard"], queryFn: () => investigationApi.dashboardStats() });
+  const stats = useQuery({
+    queryKey: ["dashboard"],
+    queryFn: () => investigationApi.dashboardStats(),
+  });
   const users = useQuery({ queryKey: ["users"], queryFn: () => investigationApi.listUsers() });
-  const activity = useQuery({ queryKey: ["activity"], queryFn: () => investigationApi.activity(1) });
+  const activity = useQuery({
+    queryKey: ["activity"],
+    queryFn: () => investigationApi.activity(1),
+  });
 
   if (stats.isLoading) return <SkeletonGrid count={8} />;
   const d = stats.data;
@@ -63,13 +69,55 @@ function MajorAdminDashboard() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatsCard label="Total Admins" value={admins} icon={Shield} tone="primary" delay={0.05} />
-        <StatsCard label="Superior Officers" value={superiors} icon={Users} tone="cyan" delay={0.1} />
-        <StatsCard label="Investigators" value={investigators} icon={Users} tone="emerald" delay={0.15} />
-        <StatsCard label="Total Cases" value={(d?.active_cases || 0) + (d?.completed_cases || 0)} icon={Briefcase} delay={0.2} />
-        <StatsCard label="Active Cases" value={d?.active_cases || 0} icon={Activity} tone="amber" delay={0.25} />
-        <StatsCard label="Closed Cases" value={d?.completed_cases || 0} icon={CheckCircle2} tone="emerald" delay={0.3} />
-        <StatsCard label="Evidence Uploaded" value={d?.evidence_uploaded || 0} icon={FileStack} tone="cyan" delay={0.35} />
-        <StatsCard label="Storage Usage" value={68} hint="Placeholder %" icon={HardDrive} tone="rose" delay={0.4} />
+        <StatsCard
+          label="Superior Officers"
+          value={superiors}
+          icon={Users}
+          tone="cyan"
+          delay={0.1}
+        />
+        <StatsCard
+          label="Investigators"
+          value={investigators}
+          icon={Users}
+          tone="emerald"
+          delay={0.15}
+        />
+        <StatsCard
+          label="Total Cases"
+          value={(d?.active_cases || 0) + (d?.completed_cases || 0)}
+          icon={Briefcase}
+          delay={0.2}
+        />
+        <StatsCard
+          label="Active Cases"
+          value={d?.active_cases || 0}
+          icon={Activity}
+          tone="amber"
+          delay={0.25}
+        />
+        <StatsCard
+          label="Closed Cases"
+          value={d?.completed_cases || 0}
+          icon={CheckCircle2}
+          tone="emerald"
+          delay={0.3}
+        />
+        <StatsCard
+          label="Evidence Uploaded"
+          value={d?.evidence_uploaded || 0}
+          icon={FileStack}
+          tone="cyan"
+          delay={0.35}
+        />
+        <StatsCard
+          label="Storage Usage"
+          value={68}
+          hint="Placeholder %"
+          icon={HardDrive}
+          tone="rose"
+          delay={0.4}
+        />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -90,7 +138,12 @@ function MajorAdminDashboard() {
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={d?.priority_distribution || []} dataKey="count" nameKey="priority" outerRadius={80}>
+                <Pie
+                  data={d?.priority_distribution || []}
+                  dataKey="count"
+                  nameKey="priority"
+                  outerRadius={80}
+                >
                   {(d?.priority_distribution || []).map((_, i) => (
                     <Cell key={i} fill={COLORS[i % COLORS.length]} />
                   ))}
@@ -164,18 +217,52 @@ function MajorAdminDashboard() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-        <QuickActionCard label="Create Admin" description="Provision a new Admin account" icon={Shield} onClick={() => void navigate({ to: "/major-admin/admins" })} />
-        <QuickActionCard label="Departments" description="Manage investigation units" icon={Building2} onClick={() => void navigate({ to: "/major-admin/departments" })} />
-        <QuickActionCard label="View Reports" description="Platform report library" icon={FileStack} onClick={() => void navigate({ to: "/major-admin/reports" })} />
-        <QuickActionCard label="Audit Logs" description="Security activity trail" icon={Activity} onClick={() => void navigate({ to: "/major-admin/audit-logs" })} />
-        <QuickActionCard label="System Settings" description="Configuration & backups" icon={HardDrive} onClick={() => void navigate({ to: "/major-admin/settings" })} />
+        <QuickActionCard
+          label="Create Admin"
+          description="Provision a new Admin account"
+          icon={Shield}
+          onClick={() => void navigate({ to: "/major-admin/admins" })}
+        />
+        <QuickActionCard
+          label="Departments"
+          description="Manage investigation units"
+          icon={Building2}
+          onClick={() => void navigate({ to: "/major-admin/departments" })}
+        />
+        <QuickActionCard
+          label="View Reports"
+          description="Platform report library"
+          icon={FileStack}
+          onClick={() => void navigate({ to: "/major-admin/reports" })}
+        />
+        <QuickActionCard
+          label="Audit Logs"
+          description="Security activity trail"
+          icon={Activity}
+          onClick={() => void navigate({ to: "/major-admin/audit-logs" })}
+        />
+        <QuickActionCard
+          label="System Settings"
+          description="Configuration & backups"
+          icon={HardDrive}
+          onClick={() => void navigate({ to: "/major-admin/settings" })}
+        />
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <AiPlaceholderCard title="AI Evidence Analysis" blurb="Queue depth and model status arrive in Phase 2." />
-        <AiPlaceholderCard title="Knowledge Graph" blurb="Global entity graph reserved for AI linking." />
+        <AiPlaceholderCard
+          title="AI Evidence Analysis"
+          blurb="Queue depth and model status arrive in Phase 2."
+        />
+        <AiPlaceholderCard
+          title="Knowledge Graph"
+          blurb="Global entity graph reserved for AI linking."
+        />
         <AiPlaceholderCard title="Risk Assessment" blurb="Platform risk scoring placeholder." />
-        <AiPlaceholderCard title="OCR / Speech / Faces" blurb="Extraction pipelines will plug into evidence fields." />
+        <AiPlaceholderCard
+          title="OCR / Speech / Faces"
+          blurb="Extraction pipelines will plug into evidence fields."
+        />
       </div>
     </div>
   );

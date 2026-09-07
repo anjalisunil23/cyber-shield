@@ -1,6 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Bar, BarChart, CartesianGrid, Pie, PieChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Pie,
+  PieChart,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { ChartCard, ErrorState, LoadingBlock, PageScaffold } from "@/components/ui-kit/PageKit";
 import { apiMessage } from "@/services/apiClient";
 import { investigationApi } from "@/services/investigationApi";
@@ -10,7 +21,10 @@ export const Route = createFileRoute("/admin/analytics")({ component: Page });
 const COLORS = ["#3B82F6", "#F59E0B", "#10B981", "#06B6D4", "#EF4444"];
 
 function Page() {
-  const stats = useQuery({ queryKey: ["admin-dashboard-analytics"], queryFn: () => investigationApi.adminDashboard() });
+  const stats = useQuery({
+    queryKey: ["admin-dashboard-analytics"],
+    queryFn: () => investigationApi.adminDashboard(),
+  });
 
   const status = [
     { name: "Open", value: stats.data?.open_cases || 0 },

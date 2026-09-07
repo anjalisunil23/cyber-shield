@@ -109,12 +109,54 @@ export const RECENT_CASES: CaseRow[] = [
 ];
 
 export const EVIDENCE_ITEMS: EvidenceItem[] = [
-  { id: "e1", name: "IMG_9912.png", type: "Image", date: "Today 09:14", aiStatus: "Analyzed", color: "#3B82F6" },
-  { id: "e2", name: "whatsapp_dump.zip", type: "Chat", date: "Today 08:40", aiStatus: "Processing", color: "#06B6D4" },
-  { id: "e3", name: "interview_audio.mp3", type: "Audio", date: "Yesterday", aiStatus: "Analyzed", color: "#22C55E" },
-  { id: "e4", name: "ledger_scan.pdf", type: "Document", date: "Yesterday", aiStatus: "Pending", color: "#F59E0B" },
-  { id: "e5", name: "cam_north.mp4", type: "Video", date: "Mon", aiStatus: "Analyzed", color: "#8B5CF6" },
-  { id: "e6", name: "email_mbox.eml", type: "Document", date: "Mon", aiStatus: "Failed", color: "#EF4444" },
+  {
+    id: "e1",
+    name: "IMG_9912.png",
+    type: "Image",
+    date: "Today 09:14",
+    aiStatus: "Analyzed",
+    color: "#3B82F6",
+  },
+  {
+    id: "e2",
+    name: "whatsapp_dump.zip",
+    type: "Chat",
+    date: "Today 08:40",
+    aiStatus: "Processing",
+    color: "#06B6D4",
+  },
+  {
+    id: "e3",
+    name: "interview_audio.mp3",
+    type: "Audio",
+    date: "Yesterday",
+    aiStatus: "Analyzed",
+    color: "#22C55E",
+  },
+  {
+    id: "e4",
+    name: "ledger_scan.pdf",
+    type: "Document",
+    date: "Yesterday",
+    aiStatus: "Pending",
+    color: "#F59E0B",
+  },
+  {
+    id: "e5",
+    name: "cam_north.mp4",
+    type: "Video",
+    date: "Mon",
+    aiStatus: "Analyzed",
+    color: "#8B5CF6",
+  },
+  {
+    id: "e6",
+    name: "email_mbox.eml",
+    type: "Document",
+    date: "Mon",
+    aiStatus: "Failed",
+    color: "#EF4444",
+  },
 ];
 
 export const ACTIVITY = [
@@ -126,25 +168,93 @@ export const ACTIVITY = [
 ];
 
 export const NOTIFICATIONS = [
-  { id: 1, title: "New Evidence Uploaded", detail: "CS-2048 · whatsapp_dump.zip", time: "5m", level: "info" },
-  { id: 2, title: "AI Analysis Completed", detail: "Face clusters ready for review", time: "28m", level: "success" },
-  { id: 3, title: "High Risk Alert", detail: "Risk score 92 on CS-2048", time: "1h", level: "danger" },
-  { id: 4, title: "Report Ready", detail: "CS-2022 draft awaiting approval", time: "3h", level: "info" },
-  { id: 5, title: "System Update", detail: "OCR model v2.4 deployed", time: "1d", level: "warning" },
+  {
+    id: 1,
+    title: "New Evidence Uploaded",
+    detail: "CS-2048 · whatsapp_dump.zip",
+    time: "5m",
+    level: "info",
+  },
+  {
+    id: 2,
+    title: "AI Analysis Completed",
+    detail: "Face clusters ready for review",
+    time: "28m",
+    level: "success",
+  },
+  {
+    id: 3,
+    title: "High Risk Alert",
+    detail: "Risk score 92 on CS-2048",
+    time: "1h",
+    level: "danger",
+  },
+  {
+    id: 4,
+    title: "Report Ready",
+    detail: "CS-2022 draft awaiting approval",
+    time: "3h",
+    level: "info",
+  },
+  {
+    id: 5,
+    title: "System Update",
+    detail: "OCR model v2.4 deployed",
+    time: "1d",
+    level: "warning",
+  },
 ];
 
 export const PRIORITY_QUEUE = [
-  { name: "CS-2048 Messaging fraud", priority: "Critical", deadline: "Today", assignee: "A. Mercer", status: "AI Processing" },
-  { name: "CS-2039 Financial seizure", priority: "High", deadline: "Tomorrow", assignee: "P. Nair", status: "Under Review" },
-  { name: "CS-2031 Harassment cluster", priority: "Medium", deadline: "Fri", assignee: "M. Hale", status: "Open" },
+  {
+    name: "CS-2048 Messaging fraud",
+    priority: "Critical",
+    deadline: "Today",
+    assignee: "A. Mercer",
+    status: "AI Processing",
+  },
+  {
+    name: "CS-2039 Financial seizure",
+    priority: "High",
+    deadline: "Tomorrow",
+    assignee: "P. Nair",
+    status: "Under Review",
+  },
+  {
+    name: "CS-2031 Harassment cluster",
+    priority: "Medium",
+    deadline: "Fri",
+    assignee: "M. Hale",
+    status: "Open",
+  },
 ];
 
 export const TIMELINE_EVENTS = [
-  { title: "Evidence Uploaded", detail: "12 files ingested into CS-2048", time: "09:12", tone: "cyan" },
-  { title: "AI Analysis Completed", detail: "Entities + face clusters generated", time: "09:48", tone: "green" },
-  { title: "Officer Notes", detail: "Requested deeper chat correlation", time: "10:15", tone: "blue" },
+  {
+    title: "Evidence Uploaded",
+    detail: "12 files ingested into CS-2048",
+    time: "09:12",
+    tone: "cyan",
+  },
+  {
+    title: "AI Analysis Completed",
+    detail: "Entities + face clusters generated",
+    time: "09:48",
+    tone: "green",
+  },
+  {
+    title: "Officer Notes",
+    detail: "Requested deeper chat correlation",
+    time: "10:15",
+    tone: "blue",
+  },
   { title: "Report Generated", detail: "Draft summary prepared", time: "11:02", tone: "amber" },
-  { title: "Case Closed", detail: "CS-2014 archived after review", time: "Yesterday", tone: "slate" },
+  {
+    title: "Case Closed",
+    detail: "CS-2014 archived after review",
+    time: "Yesterday",
+    tone: "slate",
+  },
 ];
 
 export const PROFILE = {

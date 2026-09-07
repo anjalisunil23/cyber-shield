@@ -8,7 +8,6 @@ const COLUMNS = [
       { label: "Features", href: "#features" },
       { label: "AI Modules", href: "#ai-modules" },
       { label: "Dashboard", href: "#dashboard" },
-      { label: "Security", href: "#security" },
     ],
   },
   {
@@ -45,8 +44,8 @@ export function Footer() {
             </span>
           </div>
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
-            AI-powered investigation support for digital evidence case management — built for authorized investigators
-            and forensic teams.
+            AI-powered investigation support for digital evidence case management — built for
+            authorized investigators and forensic teams.
           </p>
           <div className="mt-5 flex gap-3">
             {[Twitter, Github, Linkedin, Mail].map((Icon, i) => (
@@ -70,11 +69,17 @@ export function Footer() {
                 {col.links.map((l) => (
                   <li key={l.label}>
                     {l.href.startsWith("/") ? (
-                      <Link to={l.href as "/login" | "/register"} className="text-sm text-muted-foreground hover:text-foreground">
+                      <Link
+                        to={l.href as "/login" | "/register"}
+                        className="text-sm text-muted-foreground hover:text-foreground"
+                      >
                         {l.label}
                       </Link>
                     ) : (
-                      <a href={l.href} className="text-sm text-muted-foreground hover:text-foreground">
+                      <a
+                        href={l.href}
+                        className="text-sm text-muted-foreground hover:text-foreground"
+                      >
                         {l.label}
                       </a>
                     )}

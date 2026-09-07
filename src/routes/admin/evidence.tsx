@@ -112,11 +112,19 @@ function Page() {
               <EvidenceCard key={e.id} item={e} onOpen={() => setSelected(e.raw)} />
             ))}
           </div>
-          <Pagination page={evidence.data?.page || 1} pages={evidence.data?.pages || 1} onPage={setPage} />
+          <Pagination
+            page={evidence.data?.page || 1}
+            pages={evidence.data?.pages || 1}
+            onPage={setPage}
+          />
         </>
       )}
 
-      <Modal open={!!selected} title={selected?.original_name || "Evidence"} onClose={() => setSelected(null)}>
+      <Modal
+        open={!!selected}
+        title={selected?.original_name || "Evidence"}
+        onClose={() => setSelected(null)}
+      >
         {selected && (
           <div className="space-y-2 text-sm text-slate-300">
             <p>Case: {selected.case_number || selected.case_id}</p>
@@ -126,7 +134,9 @@ function Page() {
             <p>Uploaded: {new Date(selected.upload_date).toLocaleString()}</p>
             <p className="break-all text-xs text-slate-500">SHA-256: {selected.sha256_hash}</p>
             <p>Duplicate: {selected.is_duplicate ? "Yes (placeholder detection)" : "No"}</p>
-            <p className="text-xs text-slate-500">AI fields reserved: ocr_text, speech_text, entities, embeddings…</p>
+            <p className="text-xs text-slate-500">
+              AI fields reserved: ocr_text, speech_text, entities, embeddings…
+            </p>
             <div className="mt-4 flex gap-2">
               <button
                 type="button"
@@ -140,7 +150,10 @@ function Page() {
               >
                 Download
               </button>
-              <GhostButton className="border-rose-500/30 text-rose-300" onClick={() => setDeleteId(selected.id)}>
+              <GhostButton
+                className="border-rose-500/30 text-rose-300"
+                onClick={() => setDeleteId(selected.id)}
+              >
                 Delete
               </GhostButton>
             </div>

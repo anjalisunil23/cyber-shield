@@ -63,7 +63,15 @@ export function AiPlaceholderCard({ title, blurb }: { title: string; blurb: stri
   );
 }
 
-export function PageHeader({ title, subtitle, actions }: { title: string; subtitle?: string; actions?: ReactNode }) {
+export function PageHeader({
+  title,
+  subtitle,
+  actions,
+}: {
+  title: string;
+  subtitle?: string;
+  actions?: ReactNode;
+}) {
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div>
@@ -75,7 +83,17 @@ export function PageHeader({ title, subtitle, actions }: { title: string; subtit
   );
 }
 
-export function Panel({ title, children, className = "", actions }: { title?: string; children: ReactNode; className?: string; actions?: ReactNode }) {
+export function Panel({
+  title,
+  children,
+  className = "",
+  actions,
+}: {
+  title?: string;
+  children: ReactNode;
+  className?: string;
+  actions?: ReactNode;
+}) {
   return (
     <div className={`rounded-2xl border border-white/10 bg-[#111827]/90 p-5 ${className}`}>
       {title && (

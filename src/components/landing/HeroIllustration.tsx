@@ -35,7 +35,10 @@ export function HeroIllustration() {
             <Panel title="Evidence Upload" icon={Upload}>
               <div className="mt-2 space-y-2">
                 {["IMG_4821.jpg", "chat_export.zip", "call_logs.csv"].map((f) => (
-                  <div key={f} className="flex items-center gap-2 rounded-lg bg-white/5 px-2 py-1.5 text-[10px] text-muted-foreground">
+                  <div
+                    key={f}
+                    className="flex items-center gap-2 rounded-lg bg-white/5 px-2 py-1.5 text-[10px] text-muted-foreground"
+                  >
                     <FileSearch className="h-3 w-3 text-cyan" />
                     {f}
                   </div>
@@ -44,7 +47,8 @@ export function HeroIllustration() {
             </Panel>
             <Panel title="AI Assistant" icon={Bot}>
               <p className="mt-2 text-[10px] leading-relaxed text-muted-foreground">
-                Detected 3 linked entities across chat and media. Suggested lead score: <span className="text-success">92</span>
+                Detected 3 linked entities across chat and media. Suggested lead score:{" "}
+                <span className="text-success">92</span>
               </p>
             </Panel>
             <Panel title="Secure Cloud" icon={Cloud}>
@@ -92,7 +96,10 @@ export function HeroIllustration() {
                 <div className="mt-2 space-y-1.5">
                   {[1, 2, 3].map((i) => (
                     <div key={i} className="h-1.5 rounded-full bg-white/10">
-                      <div className="h-full rounded-full bg-primary/70" style={{ width: `${40 + i * 18}%` }} />
+                      <div
+                        className="h-full rounded-full bg-primary/70"
+                        style={{ width: `${40 + i * 18}%` }}
+                      />
                     </div>
                   ))}
                 </div>
@@ -100,7 +107,10 @@ export function HeroIllustration() {
               <Panel title="Media" icon={ImageIcon} compact>
                 <div className="mt-2 grid grid-cols-2 gap-1.5">
                   {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="aspect-square rounded-md bg-gradient-to-br from-primary/30 to-cyan/20" />
+                    <div
+                      key={i}
+                      className="aspect-square rounded-md bg-gradient-to-br from-primary/30 to-cyan/20"
+                    />
                   ))}
                 </div>
               </Panel>
@@ -139,7 +149,9 @@ function Panel({
   compact?: boolean;
 }) {
   return (
-    <div className={`rounded-xl border border-white/10 bg-white/[0.03] ${compact ? "p-2.5" : "p-3"}`}>
+    <div
+      className={`rounded-xl border border-white/10 bg-white/[0.03] ${compact ? "p-2.5" : "p-3"}`}
+    >
       <div className="flex items-center gap-1.5 text-[10px] font-medium text-foreground/90">
         <Icon className="h-3 w-3 text-cyan" />
         {title}

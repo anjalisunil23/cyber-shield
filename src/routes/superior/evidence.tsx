@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Upload } from "lucide-react";
-import { PageScaffold, Toolbar, useClientTable, Pagination, PrimaryButton } from "@/components/ui-kit/PageKit";
+import {
+  PageScaffold,
+  Toolbar,
+  useClientTable,
+  Pagination,
+  PrimaryButton,
+} from "@/components/ui-kit/PageKit";
 import { EvidenceCard } from "@/components/ui-kit/Cards";
 import { useEvidenceList, deleteEvidenceItem } from "@/data/mock/platformState";
 import { UploadEvidenceModal } from "@/components/superior/UploadEvidenceModal";
@@ -34,7 +40,7 @@ function Page() {
       }
     >
       <Toolbar search={table.search} onSearch={table.setSearch} />
-      
+
       {table.rows.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-white/10 p-8 text-center text-sm text-slate-500">
           No evidence records found. Click "Upload Evidence" above to add evidence.
@@ -45,7 +51,9 @@ function Page() {
             <EvidenceCard
               key={e.id}
               item={e}
-              onOpen={() => navigate({ to: "/superior/evidence/$evidenceId", params: { evidenceId: e.id } })}
+              onOpen={() =>
+                navigate({ to: "/superior/evidence/$evidenceId", params: { evidenceId: e.id } })
+              }
               onDelete={() => handleDelete(e.id, e.name)}
             />
           ))}
@@ -54,10 +62,7 @@ function Page() {
 
       <Pagination page={table.page} pages={table.pages} onPage={table.setPage} />
 
-      <UploadEvidenceModal
-        isOpen={isUploadOpen}
-        onClose={() => setIsUploadOpen(false)}
-      />
+      <UploadEvidenceModal isOpen={isUploadOpen} onClose={() => setIsUploadOpen(false)} />
     </PageScaffold>
   );
 }

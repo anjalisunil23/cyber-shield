@@ -41,7 +41,12 @@ export function BackgroundAnimation() {
           className="absolute rounded-full bg-cyan/70"
           style={{ left: p.left, top: p.top, width: p.size, height: p.size }}
           animate={{ y: [0, -40, 0], opacity: [0.2, 0.9, 0.2] }}
-          transition={{ duration: 5 + (i % 4), delay: p.delay, repeat: Infinity, ease: "easeInOut" }}
+          transition={{
+            duration: 5 + (i % 4),
+            delay: p.delay,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
         />
       ))}
     </div>

@@ -3,12 +3,36 @@ import { GlassCard } from "@/components/landing/GlassCard";
 import { SectionHeading } from "@/components/landing/SectionHeading";
 
 const ITEMS = [
-  { Icon: Lock, title: "AES-256 Encryption", desc: "Evidence at rest and in transit protected with industry-standard encryption." },
-  { Icon: KeyRound, title: "Role-Based Access Control", desc: "Investigator, forensic officer, supervisor, and admin permissions." },
-  { Icon: Fingerprint, title: "JWT Authentication", desc: "Signed tokens with role claims for secure API access." },
-  { Icon: ClipboardList, title: "Audit Logs", desc: "Track who accessed, exported, or approved every case artifact." },
-  { Icon: Cloud, title: "Secure Cloud Storage", desc: "Isolated case containers with integrity checks on every upload." },
-  { Icon: ShieldCheck, title: "Data Integrity", desc: "Hash verification and provenance chains for courtroom readiness." },
+  {
+    Icon: Lock,
+    title: "AES-256 Encryption",
+    desc: "Evidence at rest and in transit protected with industry-standard encryption.",
+  },
+  {
+    Icon: KeyRound,
+    title: "Role-Based Access Control",
+    desc: "Investigator, forensic officer, supervisor, and admin permissions.",
+  },
+  {
+    Icon: Fingerprint,
+    title: "JWT Authentication",
+    desc: "Signed tokens with role claims for secure API access.",
+  },
+  {
+    Icon: ClipboardList,
+    title: "Audit Logs",
+    desc: "Track who accessed, exported, or approved every case artifact.",
+  },
+  {
+    Icon: Cloud,
+    title: "Secure Cloud Storage",
+    desc: "Isolated case containers with integrity checks on every upload.",
+  },
+  {
+    Icon: ShieldCheck,
+    title: "Data Integrity",
+    desc: "Hash verification and provenance chains for courtroom readiness.",
+  },
 ];
 
 export function SecuritySection() {

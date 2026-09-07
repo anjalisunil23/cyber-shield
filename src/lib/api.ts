@@ -52,7 +52,8 @@ export async function apiRequest<T>(path: string, init?: RequestInit): Promise<T
   return (await res.json()) as T;
 }
 
-export type UserRoleApi = "major_admin" | "admin" | "supervisor" | "superior_officer" | "investigator";
+export type UserRoleApi =
+  "major_admin" | "admin" | "supervisor" | "superior_officer" | "investigator";
 
 export type UserResponse = {
   id: string;
@@ -95,10 +96,13 @@ export function loginUser(body: { email: string; password: string }) {
 }
 
 export function forgotPassword(email: string) {
-  return apiRequest<{ success: boolean; message: string; reset_token?: string }>("/api/auth/forgot-password", {
-    method: "POST",
-    body: JSON.stringify({ email }),
-  });
+  return apiRequest<{ success: boolean; message: string; reset_token?: string }>(
+    "/api/auth/forgot-password",
+    {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    },
+  );
 }
 
 export function resetPassword(token: string, new_password: string) {

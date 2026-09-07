@@ -88,8 +88,11 @@ def list_activity(
     _: Annotated[User, Depends(get_current_user)],
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=50, ge=1, le=100),
+    case_id: UUID | None = None,
 ):
-    items, total = ActivityRepository(db).list(offset=(page - 1) * page_size, limit=page_size)
+    items, total = ActivityRepository(db).list(
+        offset=(page - 1) * page_size, limit=page_size, case_id=case_id
+    )
     return paginate(total, page, page_size, [ActivityOut.model_validate(i) for i in items])
 
 

@@ -17,7 +17,8 @@ function GraphHubPage() {
       <div>
         <h1 className="text-2xl font-bold text-slate-50">Relationship Graph</h1>
         <p className="text-sm text-slate-400">
-          Manual entity links (evidence ↔ person/device/location). AI auto-linking arrives in Phase 2.
+          Manual entity links (evidence ↔ person/device/location). AI auto-linking arrives in Phase
+          2.
         </p>
       </div>
       <ul className="space-y-2">

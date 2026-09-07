@@ -20,7 +20,10 @@ export function AuthLayout({
           <HudVisualStage />
         </div>
         <div className="animate-rise-in mx-auto w-full max-w-[460px]">
-          <Link to="/" className="mb-8 inline-flex items-center gap-2 text-white/80 transition-colors hover:text-white lg:hidden">
+          <Link
+            to="/"
+            className="mb-8 inline-flex items-center gap-2 text-white/80 transition-colors hover:text-white lg:hidden"
+          >
             <Shield className="h-5 w-5" />
             <span className="font-display text-sm font-semibold tracking-wide">Cyber Shield</span>
           </Link>

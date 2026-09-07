@@ -70,7 +70,9 @@ export function DashboardMockup() {
                     <td className="px-3 py-2">{file}</td>
                     <td className="px-3 py-2 text-muted-foreground">{type}</td>
                     <td className="px-3 py-2">
-                      <span className={status === "Analyzed" ? "text-success" : "text-cyan"}>{status}</span>
+                      <span className={status === "Analyzed" ? "text-success" : "text-cyan"}>
+                        {status}
+                      </span>
                     </td>
                   </tr>
                 ))}
@@ -109,7 +111,9 @@ export function DashboardMockup() {
                 <div key={t} className="flex items-center gap-2 text-[10px] text-muted-foreground">
                   <span className="h-1.5 w-1.5 rounded-full bg-cyan" />
                   <span className="text-foreground/80">{t}</span>
-                  <span className="ml-auto opacity-60">0{i + 1}:1{i} </span>
+                  <span className="ml-auto opacity-60">
+                    0{i + 1}:1{i}{" "}
+                  </span>
                 </div>
               ))}
             </div>

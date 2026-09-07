@@ -48,7 +48,7 @@ function Page() {
   };
 
   const shown = items.filter((n) =>
-    filter === "All" ? true : filter === "Unread" ? !n.is_read : n.is_read
+    filter === "All" ? true : filter === "Unread" ? !n.is_read : n.is_read,
   );
 
   return (

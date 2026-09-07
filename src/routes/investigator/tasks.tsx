@@ -8,9 +8,17 @@ export const Route = createFileRoute("/investigator/tasks")({ component: Page })
 function Page() {
   const table = useClientTable(MOCK_TASKS);
   return (
-    <PageScaffold crumbs={[{ label: "Investigator", to: "/investigator/dashboard" }, { label: "Tasks" }]} title="Tasks" subtitle="Pending investigative work">
+    <PageScaffold
+      crumbs={[{ label: "Investigator", to: "/investigator/dashboard" }, { label: "Tasks" }]}
+      title="Tasks"
+      subtitle="Pending investigative work"
+    >
       <Toolbar search={table.search} onSearch={table.setSearch} />
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{table.rows.map((t) => <TaskCard key={t.id} item={t} />)}</div>
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        {table.rows.map((t) => (
+          <TaskCard key={t.id} item={t} />
+        ))}
+      </div>
       <Pagination page={table.page} pages={table.pages} onPage={table.setPage} />
     </PageScaffold>
   );

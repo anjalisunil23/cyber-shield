@@ -13,7 +13,12 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Badge, formatLabel, priorityBadgeClass, statusBadgeClass } from "@/components/dashboard/Badge";
+import {
+  Badge,
+  formatLabel,
+  priorityBadgeClass,
+  statusBadgeClass,
+} from "@/components/dashboard/Badge";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { apiMessage } from "@/services/apiClient";
 import { investigationApi } from "@/services/investigationApi";
@@ -31,13 +36,16 @@ function DashboardHome() {
   });
 
   if (isLoading) return <p className="text-sm text-slate-400">Loading dashboard…</p>;
-  if (error || !data) return <p className="text-sm text-red-400">{apiMessage(error, "Failed to load dashboard")}</p>;
+  if (error || !data)
+    return <p className="text-sm text-red-400">{apiMessage(error, "Failed to load dashboard")}</p>;
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-50">Investigation Dashboard</h1>
-        <p className="text-sm text-slate-400">Live caseload, evidence, and activity across CyberShield</p>
+        <p className="text-sm text-slate-400">
+          Live caseload, evidence, and activity across CyberShield
+        </p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
@@ -68,7 +76,13 @@ function DashboardHome() {
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={data.priority_distribution} dataKey="count" nameKey="priority" outerRadius={80} label>
+                <Pie
+                  data={data.priority_distribution}
+                  dataKey="count"
+                  nameKey="priority"
+                  outerRadius={80}
+                  label
+                >
                   {data.priority_distribution.map((_, i) => (
                     <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                   ))}
@@ -101,7 +115,9 @@ function DashboardHome() {
                     <p className="text-xs text-slate-500">{c.case_number}</p>
                   </div>
                   <div className="flex gap-1">
-                    <Badge className={priorityBadgeClass(c.priority)}>{formatLabel(c.priority)}</Badge>
+                    <Badge className={priorityBadgeClass(c.priority)}>
+                      {formatLabel(c.priority)}
+                    </Badge>
                     <Badge className={statusBadgeClass(c.status)}>{formatLabel(c.status)}</Badge>
                   </div>
                 </Link>
@@ -121,7 +137,9 @@ function DashboardHome() {
                 </p>
               </li>
             ))}
-            {!data.recent_activity.length && <p className="text-sm text-slate-500">No activity yet</p>}
+            {!data.recent_activity.length && (
+              <p className="text-sm text-slate-500">No activity yet</p>
+            )}
           </ul>
         </div>
       </div>

@@ -21,7 +21,8 @@ export function normalizeRole(role: string | null | undefined): AppRole | null {
   const cleaned = role.toLowerCase().trim();
   if (cleaned === "major_admin" || cleaned === "super_admin") return "major_admin";
   if (cleaned === "admin") return "admin";
-  if (cleaned === "supervisor" || cleaned === "superior_officer" || cleaned === "superior") return "supervisor";
+  if (cleaned === "supervisor" || cleaned === "superior_officer" || cleaned === "superior")
+    return "supervisor";
   if (cleaned === "investigator") return "investigator";
   return null;
 }

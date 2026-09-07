@@ -1,9 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { DataTable, PageScaffold, Pagination, SelectFilter, Toolbar } from "@/components/ui-kit/PageKit";
+import {
+  DataTable,
+  PageScaffold,
+  Pagination,
+  SelectFilter,
+  Toolbar,
+} from "@/components/ui-kit/PageKit";
 import { EvidenceCard } from "@/components/ui-kit/Cards";
 import { investigationApi } from "@/services/investigationApi";
-import type { EvidenceItem } from "@/services/types";
+import type { AdminEvidence } from "@/services/types";
+import type { MockEvidence } from "@/data/mock/platform";
 import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/investigator/evidence")({ component: Page });
@@ -11,7 +18,7 @@ export const Route = createFileRoute("/investigator/evidence")({ component: Page
 function Page() {
   const [view, setView] = useState<"grid" | "table">("grid");
   const [type, setType] = useState("All");
-  const [evidence, setEvidence] = useState<EvidenceItem[]>([]);
+  const [evidence, setEvidence] = useState<AdminEvidence[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
@@ -28,8 +35,8 @@ function Page() {
             (res.items || []).map((e) => ({
               ...e,
               case_number: c.case_number, // attach case number for rendering
-            }))
-          )
+            })),
+          ),
         );
         const results = await Promise.all(promises);
         setEvidence(results.flat());
@@ -38,7 +45,6 @@ function Page() {
       }
     } catch (err) {
       console.error("Failed to load evidence repository", err);
-      setEvidence([]);
     } finally {
       setLoading(false);
     }
@@ -55,7 +61,7 @@ function Page() {
       !searchQuery ||
       e.original_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (e.description || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ((e as any).case_number || "").toLowerCase().includes(searchQuery.toLowerCase());
+      (e.case_number || "").toLowerCase().includes(searchQuery.toLowerCase());
     return matchesType && matchesSearch;
   });
 
@@ -65,7 +71,10 @@ function Page() {
 
   return (
     <PageScaffold
-      crumbs={[{ label: "Investigator", to: "/investigator/dashboard" }, { label: "Evidence Repository" }]}
+      crumbs={[
+        { label: "Investigator", to: "/investigator/dashboard" },
+        { label: "Evidence Repository" },
+      ]}
       title="Evidence Repository"
       subtitle="Search and view digital evidence items across all your cases"
     >
@@ -106,10 +115,18 @@ function Page() {
                 item={{
                   id: e.id,
                   name: e.original_name,
-                  type: e.file_type as any,
-                  date: new Date(e.upload_date).toLocaleDateString(),
-                  aiStatus: e.is_duplicate ? "Analyzed" : "Pending",
-                  color: e.is_duplicate ? "#EF4444" : "#3B82F6",
+                  type:
+                    e.file_type === "pdf"
+                      ? "pdf"
+                      : ["image", "video", "audio", "document"].includes(e.file_type)
+                        ? (e.file_type as MockEvidence["type"])
+                        : "other",
+                  size: `${(e.file_size / 1024).toFixed(1)} KB`,
+                  caseNumber: e.case_number || "N/A",
+                  uploadedBy: e.uploaded_by?.full_name || "Investigator",
+                  uploadedAt: new Date(e.upload_date).toLocaleDateString(),
+                  tags: e.tags || [],
+                  sha256: e.sha256_hash,
                 }}
               />
             </Link>
@@ -122,7 +139,7 @@ function Page() {
             {
               key: "original_name",
               header: "File",
-              render: (r) => (
+              render: (r: AdminEvidence) => (
                 <Link
                   to="/investigator/evidence/$evidenceId"
                   params={{ evidenceId: r.id }}
@@ -132,17 +149,25 @@ function Page() {
                 </Link>
               ),
             },
-            { key: "file_type", header: "Type", render: (r) => r.file_type.toUpperCase() },
-            { key: "case_number", header: "Case", render: (r) => (r as any).case_number || "N/A" },
+            {
+              key: "file_type",
+              header: "Type",
+              render: (r: AdminEvidence) => r.file_type.toUpperCase(),
+            },
+            {
+              key: "case_number",
+              header: "Case",
+              render: (r: AdminEvidence) => r.case_number || "N/A",
+            },
             {
               key: "file_size",
               header: "Size",
-              render: (r) => `${(r.file_size / 1024).toFixed(1)} KB`,
+              render: (r: AdminEvidence) => `${(r.file_size / 1024).toFixed(1)} KB`,
             },
             {
               key: "upload_date",
               header: "Uploaded",
-              render: (r) => new Date(r.upload_date).toLocaleDateString(),
+              render: (r: AdminEvidence) => new Date(r.upload_date).toLocaleDateString(),
             },
           ]}
         />

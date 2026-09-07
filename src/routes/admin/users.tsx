@@ -32,7 +32,10 @@ function Page() {
   const [role, setRole] = useState("All");
   const [status, setStatus] = useState("All");
   const [page, setPage] = useState(1);
-  const [confirm, setConfirm] = useState<{ id: string; action: "delete" | "suspend" | "activate" } | null>(null);
+  const [confirm, setConfirm] = useState<{
+    id: string;
+    action: "delete" | "suspend" | "activate";
+  } | null>(null);
 
   const params = useMemo(
     () => ({
@@ -125,17 +128,27 @@ function Page() {
                 header: "",
                 render: (r) => (
                   <div className="flex flex-wrap gap-2 text-xs">
-                    <Link to={"/admin/users/$userId/edit" as "/"} params={{ userId: r.id } as never} className="text-cyan">
+                    <Link
+                      to={"/admin/users/$userId/edit" as "/"}
+                      params={{ userId: r.id } as never}
+                      className="text-cyan"
+                    >
                       Edit
                     </Link>
                     <button
                       type="button"
                       className="text-amber-300"
-                      onClick={() => setConfirm({ id: r.id, action: r.is_active ? "suspend" : "activate" })}
+                      onClick={() =>
+                        setConfirm({ id: r.id, action: r.is_active ? "suspend" : "activate" })
+                      }
                     >
                       {r.is_active ? "Suspend" : "Activate"}
                     </button>
-                    <button type="button" className="text-rose-300" onClick={() => setConfirm({ id: r.id, action: "delete" })}>
+                    <button
+                      type="button"
+                      className="text-rose-300"
+                      onClick={() => setConfirm({ id: r.id, action: "delete" })}
+                    >
                       Delete
                     </button>
                   </div>
@@ -143,12 +156,22 @@ function Page() {
               },
             ]}
           />
-          <Pagination page={users.data?.page || 1} pages={users.data?.pages || 1} onPage={setPage} />
+          <Pagination
+            page={users.data?.page || 1}
+            pages={users.data?.pages || 1}
+            onPage={setPage}
+          />
         </>
       )}
       <ConfirmDialog
         open={!!confirm}
-        title={confirm?.action === "delete" ? "Delete user?" : confirm?.action === "suspend" ? "Suspend user?" : "Activate user?"}
+        title={
+          confirm?.action === "delete"
+            ? "Delete user?"
+            : confirm?.action === "suspend"
+              ? "Suspend user?"
+              : "Activate user?"
+        }
         message="This action applies to your department directory only."
         onClose={() => setConfirm(null)}
         onConfirm={() => mutate.mutate()}

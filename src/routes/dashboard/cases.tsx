@@ -63,7 +63,9 @@ function CasesPage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-slate-50">Investigation Cases</h1>
-          <p className="text-sm text-slate-400">Create, filter, assign, and track digital evidence cases</p>
+          <p className="text-sm text-slate-400">
+            Create, filter, assign, and track digital evidence cases
+          </p>
         </div>
         <button
           type="button"
@@ -138,7 +140,9 @@ function CasesPage() {
             <div className="grid grid-cols-2 gap-3">
               <select
                 value={form.priority}
-                onChange={(e) => setForm((f) => ({ ...f, priority: e.target.value as CasePriority }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, priority: e.target.value as CasePriority }))
+                }
                 className="rounded-xl border border-white/10 bg-[#111827] px-3 py-2 text-sm"
               >
                 {(["low", "medium", "high", "critical"] as CasePriority[]).map((p) => (
@@ -160,7 +164,11 @@ function CasesPage() {
               </select>
             </div>
             <div className="flex justify-end gap-2">
-              <button type="button" onClick={() => setOpen(false)} className="rounded-xl px-4 py-2 text-sm text-slate-300 hover:bg-white/5">
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="rounded-xl px-4 py-2 text-sm text-slate-300 hover:bg-white/5"
+              >
                 Cancel
               </button>
               <button

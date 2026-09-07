@@ -123,7 +123,7 @@ def delete_relationship(rel_id: UUID, db: Annotated[Session, Depends(get_db)], u
     rel = RelationshipRepository(db).get(rel_id)
     if rel:
         CaseService(db).verify_case_access(user, rel.case_id)
-    RelationshipService(db).delete(rel_id)
+    RelationshipService(db).delete(rel_id, user)
     return {"success": True}
 
 
@@ -150,7 +150,7 @@ def update_lead(lead_id: UUID, payload: LeadUpdate, db: Annotated[Session, Depen
     lead = LeadRepository(db).get(lead_id)
     if lead:
         CaseService(db).verify_case_access(user, lead.case_id)
-    return LeadOut.model_validate(LeadService(db).update(lead_id, payload))
+    return LeadOut.model_validate(LeadService(db).update(lead_id, payload, user))
 
 
 @router.delete("/leads/{lead_id}")
@@ -158,5 +158,6 @@ def delete_lead(lead_id: UUID, db: Annotated[Session, Depends(get_db)], user: An
     lead = LeadRepository(db).get(lead_id)
     if lead:
         CaseService(db).verify_case_access(user, lead.case_id)
-    LeadService(db).delete(lead_id)
+    LeadService(db).delete(lead_id, user)
     return {"success": True}
+

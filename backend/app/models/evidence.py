@@ -41,6 +41,10 @@ class Evidence(Base):
         UUID(as_uuid=True), ForeignKey("evidence.id", ondelete="SET NULL"), nullable=True
     )
 
+    @property
+    def file_hash(self) -> str:
+        return self.sha256_hash
+
     # ---- Phase 2 AI placeholders (remain empty / null in Phase 1) ----
     ocr_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     speech_transcript: Mapped[str | None] = mapped_column(Text, nullable=True)

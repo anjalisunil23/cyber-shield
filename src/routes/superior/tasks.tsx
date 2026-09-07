@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { UserCheck } from "lucide-react";
-import { PageScaffold, Toolbar, useClientTable, Pagination, PrimaryButton } from "@/components/ui-kit/PageKit";
+import {
+  PageScaffold,
+  Toolbar,
+  useClientTable,
+  Pagination,
+  PrimaryButton,
+} from "@/components/ui-kit/PageKit";
 import { TaskCard } from "@/components/ui-kit/Cards";
 import { useTaskList, deleteTaskItem } from "@/data/mock/platformState";
 import { AssignTaskModal } from "@/components/superior/AssignTaskModal";
@@ -31,7 +37,7 @@ function Page() {
       }
     >
       <Toolbar search={table.search} onSearch={table.setSearch} />
-      
+
       {table.rows.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-white/10 p-8 text-center text-sm text-slate-500">
           No tasks assigned yet. Click "Assign New Task" above to assign a task to an investigator.
@@ -46,10 +52,7 @@ function Page() {
 
       <Pagination page={table.page} pages={table.pages} onPage={table.setPage} />
 
-      <AssignTaskModal
-        isOpen={isAssignModalOpen}
-        onClose={() => setIsAssignModalOpen(false)}
-      />
+      <AssignTaskModal isOpen={isAssignModalOpen} onClose={() => setIsAssignModalOpen(false)} />
     </PageScaffold>
   );
 }

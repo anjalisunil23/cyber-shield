@@ -4,14 +4,23 @@ import { GradientLink } from "@/components/landing/GradientButton";
 import { HeroIllustration } from "@/components/landing/HeroIllustration";
 import { ParticleField } from "@/components/landing/ParticleField";
 
-const BULLETS = ["AI Evidence Analysis", "Relationship Mapping", "Smart Search", "Automated Reports"];
+const BULLETS = [
+  "AI Evidence Analysis",
+  "Relationship Mapping",
+  "Smart Search",
+  "Automated Reports",
+];
 
 export function HeroSection() {
   return (
     <section id="home" className="relative overflow-hidden pt-28 sm:pt-32">
       <ParticleField />
       <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-5 pb-20 lg:grid-cols-2 lg:pb-28">
-        <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+        >
           <h1 className="text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
             AI-Powered Digital <span className="text-gradient-brand">Investigation</span> Platform
           </h1>

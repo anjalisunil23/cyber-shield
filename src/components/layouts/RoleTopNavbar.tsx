@@ -73,7 +73,9 @@ export function RoleTopNavbar({ onMenu, role }: { onMenu: () => void; role: AppR
           className="relative grid h-10 w-10 place-items-center rounded-xl border border-white/10 text-slate-300 hover:border-primary/40"
         >
           <Bell className="h-4 w-4" />
-          {(unread.data?.count || 0) > 0 && <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-cyan" />}
+          {(unread.data?.count || 0) > 0 && (
+            <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-cyan" />
+          )}
         </Link>
         <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-[#111827] px-2 py-1.5 sm:px-3">
           <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-primary to-cyan text-xs font-bold text-white">
@@ -94,7 +96,12 @@ function SearchGroups({ result, onClose }: { result: SearchResult; onClose: () =
     <div className="space-y-3 text-sm">
       <Group title="Cases">
         {result.cases.map((c) => (
-          <button key={c.id} type="button" onClick={onClose} className="block w-full rounded-lg px-2 py-1.5 text-left hover:bg-white/5">
+          <button
+            key={c.id}
+            type="button"
+            onClick={onClose}
+            className="block w-full rounded-lg px-2 py-1.5 text-left hover:bg-white/5"
+          >
             {c.case_number} — {c.title}
           </button>
         ))}

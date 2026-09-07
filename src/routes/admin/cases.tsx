@@ -137,7 +137,15 @@ function Page() {
                 setStatus(v);
                 setPage(1);
               }}
-              options={["All", "open", "under_review", "evidence_collection", "analysis", "completed", "archived"]}
+              options={[
+                "All",
+                "open",
+                "under_review",
+                "evidence_collection",
+                "analysis",
+                "completed",
+                "archived",
+              ]}
             />
             <SelectFilter
               value={priority}
@@ -183,7 +191,11 @@ function Page() {
                 header: "",
                 render: (r) => (
                   <div className="flex flex-wrap gap-2 text-xs">
-                    <button type="button" className="text-amber-300" onClick={() => archive.mutate(r.id)}>
+                    <button
+                      type="button"
+                      className="text-amber-300"
+                      onClick={() => archive.mutate(r.id)}
+                    >
                       Archive
                     </button>
                     <button
@@ -193,7 +205,11 @@ function Page() {
                     >
                       Close
                     </button>
-                    <button type="button" className="text-rose-300" onClick={() => setDeleteId(r.id)}>
+                    <button
+                      type="button"
+                      className="text-rose-300"
+                      onClick={() => setDeleteId(r.id)}
+                    >
                       Delete
                     </button>
                   </div>
@@ -201,7 +217,11 @@ function Page() {
               },
             ]}
           />
-          <Pagination page={cases.data?.page || 1} pages={cases.data?.pages || 1} onPage={setPage} />
+          <Pagination
+            page={cases.data?.page || 1}
+            pages={cases.data?.pages || 1}
+            onPage={setPage}
+          />
         </>
       )}
 
@@ -277,7 +297,10 @@ function Page() {
             </p>
             <p>Created: {new Date(detail.created_at).toLocaleString()}</p>
             <p>Superior: {detail.superior_officer?.full_name || "—"}</p>
-            <p>Investigators: {(detail.investigators || []).map((i) => i.full_name).join(", ") || "—"}</p>
+            <p>
+              Investigators:{" "}
+              {(detail.investigators || []).map((i) => i.full_name).join(", ") || "—"}
+            </p>
             <p>
               Evidence: {detail.evidence_count || 0} · Notes: {detail.notes_count || 0} · Timeline:{" "}
               {detail.timeline_count || 0}

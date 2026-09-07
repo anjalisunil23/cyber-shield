@@ -34,6 +34,9 @@ class TimelineEvent(Base):
     created_by_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
+    related_evidence_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("evidence.id", ondelete="SET NULL"), nullable=True
+    )
     metadata_json: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
@@ -41,3 +44,4 @@ class TimelineEvent(Base):
 
     case = relationship("Case", back_populates="timeline_events")
     created_by = relationship("User", foreign_keys=[created_by_id])
+    related_evidence = relationship("Evidence", foreign_keys=[related_evidence_id])

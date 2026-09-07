@@ -16,7 +16,9 @@ function ReportsHubPage() {
     <div className="space-y-5">
       <div>
         <h1 className="text-2xl font-bold text-slate-50">Reports</h1>
-        <p className="text-sm text-slate-400">Generate investigation summaries — HTML (print/PDF) and CSV exports</p>
+        <p className="text-sm text-slate-400">
+          Generate investigation summaries — HTML (print/PDF) and CSV exports
+        </p>
       </div>
       <ul className="space-y-2">
         {(casesQ.data?.items || []).map((c) => (

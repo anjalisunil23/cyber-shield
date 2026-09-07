@@ -37,7 +37,11 @@ function Page() {
     try {
       const raw = localStorage.getItem("cs_admin_prefs");
       if (!raw) return;
-      const prefs = JSON.parse(raw) as { emailDigests?: boolean; caseAlerts?: boolean; darkMode?: boolean };
+      const prefs = JSON.parse(raw) as {
+        emailDigests?: boolean;
+        caseAlerts?: boolean;
+        darkMode?: boolean;
+      };
       if (typeof prefs.emailDigests === "boolean") setEmailDigests(prefs.emailDigests);
       if (typeof prefs.caseAlerts === "boolean") setCaseAlerts(prefs.caseAlerts);
       if (typeof prefs.darkMode === "boolean") setDarkMode(prefs.darkMode);

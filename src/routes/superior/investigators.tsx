@@ -2,7 +2,15 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { UserCheck } from "lucide-react";
 import { MOCK_USERS, MockUser } from "@/data/mock/platform";
-import { DataTable, PageScaffold, Pagination, StatusPill, Toolbar, useClientTable, GhostButton } from "@/components/ui-kit/PageKit";
+import {
+  DataTable,
+  PageScaffold,
+  Pagination,
+  StatusPill,
+  Toolbar,
+  useClientTable,
+  GhostButton,
+} from "@/components/ui-kit/PageKit";
 import { AssignTaskModal } from "@/components/superior/AssignTaskModal";
 
 export const Route = createFileRoute("/superior/investigators")({ component: Page });
@@ -22,9 +30,17 @@ function Page() {
       <DataTable
         rows={table.rows}
         columns={[
-          { key: "n", header: "Name", render: (r) => <span className="font-medium text-slate-100">{r.name}</span> },
+          {
+            key: "n",
+            header: "Name",
+            render: (r) => <span className="font-medium text-slate-100">{r.name}</span>,
+          },
           { key: "e", header: "Email", render: (r) => r.email },
-          { key: "r", header: "Role", render: (r) => <span className="text-xs text-cyan">{r.role}</span> },
+          {
+            key: "r",
+            header: "Role",
+            render: (r) => <span className="text-xs text-cyan">{r.role}</span>,
+          },
           { key: "d", header: "Department", render: (r) => r.department },
           { key: "s", header: "Status", render: (r) => <StatusPill value={r.status} /> },
           {

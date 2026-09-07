@@ -6,7 +6,13 @@ import { Toaster } from "sonner";
 import { RoleTopNavbar } from "@/components/layouts/RoleTopNavbar";
 import { ROLE_NAV } from "@/config/roleNav";
 import { clearToken, getToken, isAuthenticated } from "@/lib/auth";
-import { homeForRole, ROLE_LABEL, roleFromAccessToken, normalizeRole, type AppRole } from "@/lib/roles";
+import {
+  homeForRole,
+  ROLE_LABEL,
+  roleFromAccessToken,
+  normalizeRole,
+  type AppRole,
+} from "@/lib/roles";
 import { cn } from "@/lib/utils";
 
 export function RoleShell({ role, breadcrumbs }: { role: AppRole; breadcrumbs?: ReactNode }) {
@@ -123,7 +129,12 @@ export function RoleShell({ role, breadcrumbs }: { role: AppRole; breadcrumbs?: 
 
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <button type="button" className="absolute inset-0 bg-black/60" aria-label="Close menu" onClick={() => setMobileOpen(false)} />
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/60"
+            aria-label="Close menu"
+            onClick={() => setMobileOpen(false)}
+          />
           <motion.aside
             initial={{ x: -280 }}
             animate={{ x: 0 }}
@@ -134,9 +145,15 @@ export function RoleShell({ role, breadcrumbs }: { role: AppRole; breadcrumbs?: 
         </div>
       )}
 
-      <div className={cn("transition-[padding] duration-300", collapsed ? "lg:pl-[76px]" : "lg:pl-64")}>
+      <div
+        className={cn("transition-[padding] duration-300", collapsed ? "lg:pl-[76px]" : "lg:pl-64")}
+      >
         <RoleTopNavbar onMenu={() => setMobileOpen(true)} role={role} />
-        {breadcrumbs && <div className="border-b border-white/5 px-4 py-2 text-xs text-slate-500 sm:px-6">{breadcrumbs}</div>}
+        {breadcrumbs && (
+          <div className="border-b border-white/5 px-4 py-2 text-xs text-slate-500 sm:px-6">
+            {breadcrumbs}
+          </div>
+        )}
         <motion.main
           key={pathname}
           initial={{ opacity: 0, y: 10 }}

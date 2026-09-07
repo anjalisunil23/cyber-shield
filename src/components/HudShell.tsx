@@ -33,7 +33,11 @@ export function HudVisualStage({ compact = false }: { compact?: boolean }) {
         <div
           key={i}
           className="absolute grid h-9 w-9 place-items-center text-white/85"
-          style={{ top, left, animation: `float-slow ${6 + i * 0.4}s ease-in-out ${i * 0.2}s infinite` }}
+          style={{
+            top,
+            left,
+            animation: `float-slow ${6 + i * 0.4}s ease-in-out ${i * 0.2}s infinite`,
+          }}
         >
           <Icon className="h-5 w-5" strokeWidth={1.5} />
         </div>
@@ -80,7 +84,14 @@ export function HudVisualStage({ compact = false }: { compact?: boolean }) {
                 transform={`rotate(${deg} 180 180)`}
               />
             ))}
-            <circle cx="180" cy="180" r="148" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="1.25" />
+            <circle
+              cx="180"
+              cy="180"
+              r="148"
+              fill="none"
+              stroke="rgba(255,255,255,0.45)"
+              strokeWidth="1.25"
+            />
             {Array.from({ length: 48 }, (_, i) => {
               const a = (i / 48) * Math.PI * 2;
               const r = 55 + (i % 5) * 18;
@@ -98,19 +109,28 @@ export function HudVisualStage({ compact = false }: { compact?: boolean }) {
           </svg>
           <div className="absolute left-1/2 top-[42%] -translate-x-1/2 -translate-y-1/2">
             <div className="grid h-24 w-24 place-items-center rounded-2xl bg-white/5 shadow-[0_0_50px_rgba(120,180,255,0.45)] backdrop-blur-sm">
-              <Lock className="h-14 w-14 text-white drop-shadow-[0_0_18px_rgba(255,255,255,0.65)]" strokeWidth={1.5} />
+              <Lock
+                className="h-14 w-14 text-white drop-shadow-[0_0_18px_rgba(255,255,255,0.65)]"
+                strokeWidth={1.5}
+              />
             </div>
           </div>
         </div>
 
         <div className="mt-2 text-center">
-          <p className="font-display text-2xl font-semibold tracking-[0.18em] text-white">CYBER SHIELD</p>
+          <p className="font-display text-2xl font-semibold tracking-[0.18em] text-white">
+            CYBER SHIELD
+          </p>
           <div className="mt-3 flex items-center justify-center gap-2 text-[11px] tracking-[0.22em] text-white/70">
             <Cloud className="h-3.5 w-3.5" />
             <span>DATA PROTECTION</span>
             <span className="ml-1 flex gap-1">
               {Array.from({ length: 8 }).map((_, i) => (
-                <span key={i} className="h-1.5 w-1.5 rounded-full bg-white/70" style={{ opacity: 0.35 + i * 0.08 }} />
+                <span
+                  key={i}
+                  className="h-1.5 w-1.5 rounded-full bg-white/70"
+                  style={{ opacity: 0.35 + i * 0.08 }}
+                />
               ))}
             </span>
           </div>
@@ -121,7 +141,14 @@ export function HudVisualStage({ compact = false }: { compact?: boolean }) {
         {GAUGES.map((value, i) => (
           <div key={i} className="relative h-12 w-12">
             <svg viewBox="0 0 36 36" className="h-full w-full -rotate-90">
-              <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="3" />
+              <circle
+                cx="18"
+                cy="18"
+                r="14"
+                fill="none"
+                stroke="rgba(255,255,255,0.12)"
+                strokeWidth="3"
+              />
               <circle
                 cx="18"
                 cy="18"
@@ -142,7 +169,13 @@ export function HudVisualStage({ compact = false }: { compact?: boolean }) {
 }
 
 /** Page shell with cyber HUD atmosphere. */
-export function HudShell({ children, className = "" }: { children: ReactNode; className?: string }) {
+export function HudShell({
+  children,
+  className = "",
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
   return (
     <div className={`login-hud relative min-h-screen overflow-hidden text-white ${className}`}>
       <div aria-hidden className="pointer-events-none absolute inset-0">

@@ -65,7 +65,11 @@ function Page() {
               },
             ]}
           />
-          <Pagination page={users.data?.page || 1} pages={users.data?.pages || 1} onPage={setPage} />
+          <Pagination
+            page={users.data?.page || 1}
+            pages={users.data?.pages || 1}
+            onPage={setPage}
+          />
         </>
       )}
     </PageScaffold>

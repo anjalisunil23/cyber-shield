@@ -29,7 +29,9 @@ function NotificationsPage() {
       <div className="flex items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-slate-50">Notifications</h1>
-          <p className="text-sm text-slate-400">Assignments, uploads, status changes, notes, and leads</p>
+          <p className="text-sm text-slate-400">
+            Assignments, uploads, status changes, notes, and leads
+          </p>
         </div>
         <button
           type="button"
@@ -58,7 +60,9 @@ function NotificationsPage() {
             >
               <p className="text-sm font-medium text-slate-100">{n.title}</p>
               <p className="text-sm text-slate-400">{n.message}</p>
-              <p className="mt-1 text-xs text-slate-500">{new Date(n.created_at).toLocaleString()}</p>
+              <p className="mt-1 text-xs text-slate-500">
+                {new Date(n.created_at).toLocaleString()}
+              </p>
             </button>
           </li>
         ))}

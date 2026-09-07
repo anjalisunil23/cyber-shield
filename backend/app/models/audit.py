@@ -45,6 +45,10 @@ class ActivityLog(Base):
     user_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True
     )
+    case_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("cases.id", ondelete="CASCADE"), nullable=True, index=True
+    )
+    actor_role: Mapped[str | None] = mapped_column(String(64), nullable=True)
     action: Mapped[ActivityAction] = mapped_column(
         Enum(ActivityAction, name="activity_action", native_enum=True),
         nullable=False,
@@ -61,6 +65,7 @@ class ActivityLog(Base):
     )
 
     user = relationship("User", foreign_keys=[user_id])
+    case = relationship("Case", foreign_keys=[case_id])
 
 
 class Report(Base):

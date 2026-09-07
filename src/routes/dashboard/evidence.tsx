@@ -17,7 +17,8 @@ function EvidencePage() {
       <div>
         <h1 className="text-2xl font-bold text-slate-50">Evidence</h1>
         <p className="text-sm text-slate-400">
-          Open a case to upload, preview, search, and download evidence. AI fields are reserved for Phase 2.
+          Open a case to upload, preview, search, and download evidence. AI fields are reserved for
+          Phase 2.
         </p>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">

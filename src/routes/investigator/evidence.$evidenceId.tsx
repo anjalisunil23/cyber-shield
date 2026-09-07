@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { PageScaffold, Panel, StatusPill } from "@/components/ui-kit/PageKit";
 import { investigationApi } from "@/services/investigationApi";
 import type { EvidenceItem } from "@/services/types";
-import { Download, Loader2 } from "lucide-react";
+import { AlertTriangle, Download, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/investigator/evidence/$evidenceId")({ component: Page });
 
@@ -13,11 +13,12 @@ function Page() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    investigationApi.getEvidence(evidenceId)
-      .then((data) => {
+    investigationApi
+      .getEvidence(evidenceId)
+      .then((data: EvidenceItem) => {
         setEvidence(data);
       })
-      .catch((err) => {
+      .catch((err: unknown) => {
         console.error("Failed to load evidence details", err);
       })
       .finally(() => {
@@ -42,6 +43,10 @@ function Page() {
   }
 
   const downloadUrl = investigationApi.downloadEvidenceUrl(e.id);
+  const hash = e.file_hash || e.sha256_hash;
+  const exif = e.metadata_json?.exif;
+  const warning =
+    e.warning || (e.is_duplicate ? "Duplicate file detected (matching hash in case)" : null);
 
   return (
     <PageScaffold
@@ -49,6 +54,13 @@ function Page() {
       title="Evidence Viewer"
       subtitle={e.original_name}
     >
+      {e.is_duplicate && (
+        <div className="mb-4 flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-300">
+          <AlertTriangle className="h-4 w-4 shrink-0" />
+          <span>{warning}</span>
+        </div>
+      )}
+
       <div className="grid gap-4 lg:grid-cols-3">
         <Panel title="Preview" className="lg:col-span-2">
           <div className="flex flex-col items-center justify-center h-72 rounded-xl bg-black/40 text-slate-400 border border-white/5 p-6">
@@ -65,7 +77,8 @@ function Page() {
             </a>
           </div>
         </Panel>
-        <Panel title="Details">
+
+        <Panel title="Details & Hash">
           <dl className="space-y-2.5 text-sm">
             <div className="flex justify-between border-b border-white/5 pb-1.5">
               <dt className="text-slate-500">File size</dt>
@@ -76,16 +89,36 @@ function Page() {
               <dd className="font-medium uppercase">{e.file_type}</dd>
             </div>
             <div className="flex flex-col border-b border-white/5 pb-1.5">
-              <dt className="text-slate-500 mb-1">SHA256 Hash</dt>
-              <dd className="font-mono text-[10px] break-all bg-black/30 p-1.5 rounded border border-white/5 text-purple-300">
-                {e.sha256_hash}
+              <dt className="text-slate-500 mb-1">SHA-256 Hash</dt>
+              <dd className="font-mono text-[10px] break-all bg-black/30 p-1.5 rounded border border-white/5 text-purple-300 select-all">
+                {hash}
               </dd>
             </div>
             <div className="flex justify-between">
               <dt className="text-slate-500">Duplicate</dt>
-              <dd>{e.is_duplicate ? "Yes (hashed match)" : "No"}</dd>
+              <dd>{e.is_duplicate ? "Yes (matching hash)" : "No"}</dd>
             </div>
           </dl>
+
+          {exif && (
+            <div className="mt-4 border-t border-white/5 pt-3">
+              <span className="text-xs font-semibold text-purple-300 block mb-1.5">
+                📷 EXIF / Device Metadata
+              </span>
+              <div className="space-y-1 rounded-lg bg-black/30 p-2 font-mono text-[11px] text-slate-300 border border-white/5">
+                {exif.Make && <p>Make: {exif.Make}</p>}
+                {exif.Model && <p>Model: {exif.Model}</p>}
+                {exif.DateTimeOriginal && <p>Timestamp: {exif.DateTimeOriginal}</p>}
+                {exif.width && exif.height && (
+                  <p>
+                    Dimensions: {exif.width}x{exif.height}
+                  </p>
+                )}
+                {exif.GPSInfo && <p>GPS: {JSON.stringify(exif.GPSInfo)}</p>}
+              </div>
+            </div>
+          )}
+
           {e.tags && e.tags.length > 0 && (
             <div className="mt-4 border-t border-white/5 pt-3">
               <span className="text-xs text-slate-500 block mb-1.5">Tags</span>

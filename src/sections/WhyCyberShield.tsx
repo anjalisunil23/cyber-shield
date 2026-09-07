@@ -3,10 +3,26 @@ import { GlassCard } from "@/components/landing/GlassCard";
 import { SectionHeading } from "@/components/landing/SectionHeading";
 
 const REASONS = [
-  { Icon: Gauge, title: "Faster Investigations", desc: "Cut manual review time with AI triage, smart search, and auto-classification." },
-  { Icon: Bot, title: "AI-Powered Automation", desc: "From OCR to lead scoring — automation that stays explainable and reviewable." },
-  { Icon: LockKeyhole, title: "Secure Evidence Management", desc: "Chain-of-custody friendly workflows with encryption and audit trails." },
-  { Icon: Rocket, title: "Scalable Enterprise Platform", desc: "Built to grow with unit caseloads, teams, and multi-agency collaboration." },
+  {
+    Icon: Gauge,
+    title: "Faster Investigations",
+    desc: "Cut manual review time with AI triage, smart search, and auto-classification.",
+  },
+  {
+    Icon: Bot,
+    title: "AI-Powered Automation",
+    desc: "From OCR to lead scoring — automation that stays explainable and reviewable.",
+  },
+  {
+    Icon: LockKeyhole,
+    title: "Secure Evidence Management",
+    desc: "Chain-of-custody friendly workflows with encryption and audit trails.",
+  },
+  {
+    Icon: Rocket,
+    title: "Scalable Enterprise Platform",
+    desc: "Built to grow with unit caseloads, teams, and multi-agency collaboration.",
+  },
 ];
 
 export function WhyCyberShieldSection() {

@@ -2,7 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ConfirmDialog, GhostButton, LoadingBlock, PageScaffold, Panel, PrimaryButton } from "@/components/ui-kit/PageKit";
+import {
+  ConfirmDialog,
+  GhostButton,
+  LoadingBlock,
+  PageScaffold,
+  Panel,
+  PrimaryButton,
+} from "@/components/ui-kit/PageKit";
 import { apiMessage } from "@/services/apiClient";
 import { investigationApi } from "@/services/investigationApi";
 
@@ -11,7 +18,10 @@ export const Route = createFileRoute("/admin/users/$userId/edit")({ component: P
 function Page() {
   const { userId } = Route.useParams();
   const qc = useQueryClient();
-  const user = useQuery({ queryKey: ["admin-user", userId], queryFn: () => investigationApi.adminGetUser(userId) });
+  const user = useQuery({
+    queryKey: ["admin-user", userId],
+    queryFn: () => investigationApi.adminGetUser(userId),
+  });
 
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -68,7 +78,10 @@ function Page() {
 
   if (user.isLoading) {
     return (
-      <PageScaffold crumbs={[{ label: "Users", to: "/admin/users" }, { label: "Edit" }]} title="Edit User">
+      <PageScaffold
+        crumbs={[{ label: "Users", to: "/admin/users" }, { label: "Edit" }]}
+        title="Edit User"
+      >
         <LoadingBlock />
       </PageScaffold>
     );
@@ -76,14 +89,21 @@ function Page() {
 
   if (user.isError || !user.data) {
     return (
-      <PageScaffold crumbs={[{ label: "Users", to: "/admin/users" }, { label: "Edit" }]} title="Edit User">
+      <PageScaffold
+        crumbs={[{ label: "Users", to: "/admin/users" }, { label: "Edit" }]}
+        title="Edit User"
+      >
         <p className="text-sm text-rose-300">{apiMessage(user.error, "User not found")}</p>
       </PageScaffold>
     );
   }
 
   return (
-    <PageScaffold crumbs={[{ label: "Users", to: "/admin/users" }, { label: "Edit" }]} title={`Edit ${user.data.full_name}`} subtitle={user.data.email}>
+    <PageScaffold
+      crumbs={[{ label: "Users", to: "/admin/users" }, { label: "Edit" }]}
+      title={`Edit ${user.data.full_name}`}
+      subtitle={user.data.email}
+    >
       <Panel>
         <form
           className="mx-auto grid max-w-xl gap-3"
@@ -92,15 +112,42 @@ function Page() {
             save.mutate();
           }}
         >
-          <input value={fullName} onChange={(e) => setFullName(e.target.value)} className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm" />
-          <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone" className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm" />
-          <input value={badge} onChange={(e) => setBadge(e.target.value)} placeholder="Badge number" className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm" />
-          <input value={department} onChange={(e) => setDepartment(e.target.value)} className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm" />
-          <select value={status} onChange={(e) => setStatus(e.target.value)} className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm">
+          <input
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+          />
+          <input
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="Phone"
+            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+          />
+          <input
+            value={badge}
+            onChange={(e) => setBadge(e.target.value)}
+            placeholder="Badge number"
+            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+          />
+          <input
+            value={department}
+            onChange={(e) => setDepartment(e.target.value)}
+            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+          />
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+          >
             <option>Active</option>
             <option>Suspended</option>
           </select>
-          <input type="file" accept="image/*" onChange={(e) => setAvatar(e.target.files?.[0] || null)} className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm" />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setAvatar(e.target.files?.[0] || null)}
+            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+          />
           <input
             type="password"
             placeholder="Reset password (optional)"
@@ -120,7 +167,10 @@ function Page() {
             <Link to={"/admin/users" as "/"}>
               <GhostButton>Back</GhostButton>
             </Link>
-            <GhostButton className="border-rose-500/30 text-rose-300" onClick={() => setConfirmDelete(true)}>
+            <GhostButton
+              className="border-rose-500/30 text-rose-300"
+              onClick={() => setConfirmDelete(true)}
+            >
               Delete
             </GhostButton>
           </div>

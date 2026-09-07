@@ -21,7 +21,10 @@ export function CyberGlobe({ compact = false }: { compact?: boolean }) {
     >
       <div className="absolute left-1/2 top-1/2 h-[58%] w-[58%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-glow/25 blur-3xl" />
 
-      <div className="animate-float-slow absolute inset-0" style={{ transformStyle: "preserve-3d" }}>
+      <div
+        className="animate-float-slow absolute inset-0"
+        style={{ transformStyle: "preserve-3d" }}
+      >
         {RINGS.map((r, i) => (
           <div
             key={i}
@@ -38,14 +41,14 @@ export function CyberGlobe({ compact = false }: { compact?: boolean }) {
           />
         ))}
 
-
         <div className="absolute left-1/2 top-1/2 h-[46%] w-[46%] -translate-x-1/2 -translate-y-1/2">
           <div
             className="absolute inset-0 rounded-full border border-violet-glow/40"
             style={{
               background:
                 "radial-gradient(circle at 32% 28%, rgba(168,85,247,0.42), rgba(10,1,24,0.9) 68%)",
-              boxShadow: "inset 0 0 60px rgba(168,85,247,0.35), 0 0 70px -14px rgba(168,85,247,0.9)",
+              boxShadow:
+                "inset 0 0 60px rgba(168,85,247,0.35), 0 0 70px -14px rgba(168,85,247,0.9)",
             }}
           />
           <div className="absolute inset-0 grid place-items-center">
@@ -59,13 +62,13 @@ export function CyberGlobe({ compact = false }: { compact?: boolean }) {
         />
       </div>
 
-      <div className="absolute left-1/2 top-[4%] flex -translate-x-1/2 items-center gap-2 rounded-full border border-violet-glow/45 bg-surface/70 px-4 py-2 text-[11px] font-medium backdrop-blur-md"
+      <div
+        className="absolute left-1/2 top-[4%] flex -translate-x-1/2 items-center gap-2 rounded-full border border-violet-glow/45 bg-surface/70 px-4 py-2 text-[11px] font-medium backdrop-blur-md"
         style={{ boxShadow: "0 0 32px -10px rgba(168,85,247,0.95)" }}
       >
         <Fingerprint className="h-4 w-4 text-violet-glow" />
         Biometric session
       </div>
-
 
       {CHIPS.map(({ Icon, label }, i) => (
         <div

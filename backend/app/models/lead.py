@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
+from typing import Any
 
 from sqlalchemy import DateTime, Enum, ForeignKey, String, Text, func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -36,6 +37,9 @@ class ManualLead(Base):
     related_evidence_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("evidence.id", ondelete="SET NULL"), nullable=True
     )
+    related_evidence_ids: Mapped[list[Any] | None] = mapped_column(JSONB, nullable=True, default=list)
+    justification: Mapped[str | None] = mapped_column(Text, nullable=True)
+    review_comment: Mapped[str | None] = mapped_column(Text, nullable=True)
     assigned_to_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True
     )

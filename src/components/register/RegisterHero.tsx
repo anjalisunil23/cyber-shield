@@ -22,7 +22,11 @@ export function RegisterHero() {
         animate={{ opacity: 1, y: 0 }}
         className="max-w-xl text-4xl font-bold leading-tight tracking-tight text-slate-50 xl:text-5xl"
       >
-        Secure Digital <span className="bg-gradient-to-r from-primary to-cyan bg-clip-text text-transparent">Investigation</span> Platform
+        Secure Digital{" "}
+        <span className="bg-gradient-to-r from-primary to-cyan bg-clip-text text-transparent">
+          Investigation
+        </span>{" "}
+        Platform
       </motion.h1>
       <motion.p
         initial={{ opacity: 0, y: 12 }}
@@ -53,7 +57,15 @@ export function RegisterHero() {
               <stop offset="100%" stopColor="#06B6D4" stopOpacity="0.2" />
             </linearGradient>
           </defs>
-          <rect x="20" y="20" width="480" height="280" rx="24" fill="url(#regGlow)" opacity="0.15" />
+          <rect
+            x="20"
+            y="20"
+            width="480"
+            height="280"
+            rx="24"
+            fill="url(#regGlow)"
+            opacity="0.15"
+          />
           <line x1="90" y1="160" x2="200" y2="90" stroke="#3B82F6" strokeOpacity="0.45" />
           <line x1="200" y1="90" x2="330" y2="120" stroke="#06B6D4" strokeOpacity="0.45" />
           <line x1="200" y1="90" x2="250" y2="210" stroke="#3B82F6" strokeOpacity="0.35" />

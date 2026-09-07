@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
-import { MOCK_EVIDENCE, MOCK_TASKS, MOCK_CASES, MockEvidence, MockTask, MockCase } from "./platform";
+import {
+  MOCK_EVIDENCE,
+  MOCK_TASKS,
+  MOCK_CASES,
+  MockEvidence,
+  MockTask,
+  MockCase,
+} from "./platform";
 
 const EVIDENCE_KEY = "cybershield_mock_evidence_v1";
 const TASKS_KEY = "cybershield_mock_tasks_v1";
@@ -39,7 +46,9 @@ export function addEvidenceItem(item: Omit<MockEvidence, "id"> & { id?: string }
     uploadedBy: item.uploadedBy || "Superior Officer",
     uploadedAt: item.uploadedAt || new Date().toISOString().replace("T", " ").slice(0, 16),
     tags: item.tags || ["uploaded"],
-    sha256: item.sha256 || `${Math.random().toString(16).slice(2, 6)}…${Math.random().toString(16).slice(2, 6)}`,
+    sha256:
+      item.sha256 ||
+      `${Math.random().toString(16).slice(2, 6)}…${Math.random().toString(16).slice(2, 6)}`,
   };
   saveEvidence([newItem, ...list]);
   return newItem;
@@ -69,7 +78,9 @@ export function saveTasks(list: (MockTask & { assignee?: string; priority?: stri
   notify();
 }
 
-export function addTaskItem(task: Omit<MockTask, "id"> & { id?: string; assignee?: string; priority?: string }): MockTask {
+export function addTaskItem(
+  task: Omit<MockTask, "id"> & { id?: string; assignee?: string; priority?: string },
+): MockTask {
   const list = getStoredTasks();
   const newTask: MockTask & { assignee?: string; priority?: string } = {
     id: task.id || `t_${Date.now()}`,
@@ -108,9 +119,29 @@ export function saveCases(list: MockCase[]) {
   notify();
 }
 
+export function addCaseItem(item: Partial<MockCase> & { title: string }): MockCase {
+  const list = getStoredCases();
+  const newCase: MockCase = {
+    id: item.id || `c_${Date.now()}`,
+    caseNumber: item.caseNumber || `CS-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+    title: item.title,
+    priority: item.priority || "Medium",
+    status: item.status || "Open",
+    assignee: item.assignee || "Unassigned",
+    department: item.department || "Cybercrime",
+    created: item.created || new Date().toISOString().slice(0, 10),
+    updated: item.updated || new Date().toISOString().slice(0, 10),
+    description: item.description || "",
+  };
+  saveCases([newCase, ...list]);
+  return newCase;
+}
+
 export function assignCaseToInvestigator(caseId: string, assignee: string): boolean {
   const list = getStoredCases();
-  const next = list.map((c) => (c.id === caseId || c.caseNumber === caseId ? { ...c, assignee } : c));
+  const next = list.map((c) =>
+    c.id === caseId || c.caseNumber === caseId ? { ...c, assignee } : c,
+  );
   saveCases(next);
   return true;
 }
@@ -128,7 +159,8 @@ export function useEvidenceList(): MockEvidence[] {
 }
 
 export function useTaskList(): (MockTask & { assignee?: string; priority?: string })[] {
-  const [data, setData] = useState<(MockTask & { assignee?: string; priority?: string })[]>(getStoredTasks);
+  const [data, setData] =
+    useState<(MockTask & { assignee?: string; priority?: string })[]>(getStoredTasks);
   useEffect(() => {
     const update = () => setData(getStoredTasks());
     listeners.add(update);

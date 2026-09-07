@@ -9,7 +9,6 @@ import {
   FeaturesSection,
   HeroSection,
   HowItWorksSection,
-  SecuritySection,
   StatisticsSection,
   TestimonialsSection,
   TrustedSection,
@@ -48,7 +47,6 @@ function LandingPage() {
         <AIModulesSection />
         <DashboardPreviewSection />
         <StatisticsSection />
-        <SecuritySection />
         <WhyCyberShieldSection />
         <TestimonialsSection />
         <FAQSection />

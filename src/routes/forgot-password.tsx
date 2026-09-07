@@ -81,7 +81,10 @@ function ForgotPasswordPage() {
                 >
                   {busy ? "Sending…" : "Send reset"}
                 </button>
-                <Link to="/login" className="block text-center text-sm text-white/70 hover:underline">
+                <Link
+                  to="/login"
+                  className="block text-center text-sm text-white/70 hover:underline"
+                >
                   Back to login
                 </Link>
               </form>

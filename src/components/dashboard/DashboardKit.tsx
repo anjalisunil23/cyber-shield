@@ -11,7 +11,9 @@ export function DashboardHeader({
 }) {
   return (
     <div className="animate-rise-in">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-glow">{eyebrow}</p>
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-glow">
+        {eyebrow}
+      </p>
       <h1 className="mt-2 text-3xl font-bold sm:text-4xl">{title}</h1>
       <p className="mt-3 max-w-2xl text-sm text-muted-foreground sm:text-base">{subtitle}</p>
     </div>
@@ -33,7 +35,9 @@ export function StatGrid({
         >
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="truncate text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
+              <p className="truncate text-xs uppercase tracking-wide text-muted-foreground">
+                {label}
+              </p>
               <p className="mt-2 font-display text-3xl font-semibold">{value}</p>
             </div>
             <div

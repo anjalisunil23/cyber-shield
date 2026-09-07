@@ -121,15 +121,16 @@ class ActivityRepository:
     def __init__(self, db: Session) -> None:
         self.db = db
 
-    def list(self, *, offset: int = 0, limit: int = 50) -> tuple[list[ActivityLog], int]:
-        total = self.db.scalar(select(func.count()).select_from(ActivityLog)) or 0
-        stmt = (
-            select(ActivityLog)
-            .options(joinedload(ActivityLog.user))
-            .order_by(ActivityLog.created_at.desc())
-            .offset(offset)
-            .limit(limit)
-        )
+    def list(
+        self, *, offset: int = 0, limit: int = 50, case_id: UUID | None = None
+    ) -> tuple[list[ActivityLog], int]:
+        count_stmt = select(func.count()).select_from(ActivityLog)
+        stmt = select(ActivityLog).options(joinedload(ActivityLog.user))
+        if case_id:
+            count_stmt = count_stmt.where(ActivityLog.case_id == case_id)
+            stmt = stmt.where(ActivityLog.case_id == case_id)
+        total = self.db.scalar(count_stmt) or 0
+        stmt = stmt.order_by(ActivityLog.created_at.desc()).offset(offset).limit(limit)
         return list(self.db.scalars(stmt).unique().all()), total
 
 

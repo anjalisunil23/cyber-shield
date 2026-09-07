@@ -1,7 +1,18 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Briefcase, CheckCircle2, ClipboardList, FileStack, UserPlus, Users } from "lucide-react";
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip, Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import {
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+} from "recharts";
 import {
   AiPlaceholderCard,
   ChartCard,
@@ -19,22 +30,62 @@ export const Route = createFileRoute("/admin/dashboard")({
 
 function AdminDashboard() {
   const navigate = useNavigate();
-  const stats = useQuery({ queryKey: ["admin-dashboard"], queryFn: () => investigationApi.adminDashboard() });
+  const stats = useQuery({
+    queryKey: ["admin-dashboard"],
+    queryFn: () => investigationApi.adminDashboard(),
+  });
 
   if (stats.isLoading) return <SkeletonGrid count={6} />;
   const d = stats.data;
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Admin Dashboard" subtitle="Organization / district investigation management" />
+      <PageHeader
+        title="Admin Dashboard"
+        subtitle="Organization / district investigation management"
+      />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <StatsCard label="Superior Officers" value={d?.superior_officers || 0} icon={Users} tone="cyan" />
-        <StatsCard label="Investigators" value={d?.investigators || 0} icon={ClipboardList} tone="primary" delay={0.08} />
-        <StatsCard label="Assigned Cases" value={d?.total_cases || 0} icon={Briefcase} delay={0.12} />
-        <StatsCard label="Pending Cases" value={d?.open_cases || 0} icon={Briefcase} tone="amber" delay={0.16} />
-        <StatsCard label="Completed Cases" value={d?.closed_cases || 0} icon={CheckCircle2} tone="emerald" delay={0.2} />
-        <StatsCard label="Evidence Uploaded" value={d?.evidence_count || 0} icon={FileStack} tone="cyan" delay={0.24} />
+        <StatsCard
+          label="Superior Officers"
+          value={d?.superior_officers || 0}
+          icon={Users}
+          tone="cyan"
+        />
+        <StatsCard
+          label="Investigators"
+          value={d?.investigators || 0}
+          icon={ClipboardList}
+          tone="primary"
+          delay={0.08}
+        />
+        <StatsCard
+          label="Assigned Cases"
+          value={d?.total_cases || 0}
+          icon={Briefcase}
+          delay={0.12}
+        />
+        <StatsCard
+          label="Pending Cases"
+          value={d?.open_cases || 0}
+          icon={Briefcase}
+          tone="amber"
+          delay={0.16}
+        />
+        <StatsCard
+          label="Completed Cases"
+          value={d?.closed_cases || 0}
+          icon={CheckCircle2}
+          tone="emerald"
+          delay={0.2}
+        />
+        <StatsCard
+          label="Evidence Uploaded"
+          value={d?.evidence_count || 0}
+          icon={FileStack}
+          tone="cyan"
+          delay={0.24}
+        />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -83,7 +134,9 @@ function AdminDashboard() {
                 <span className="shrink-0 text-xs text-cyan">{a.action}</span>
               </li>
             ))}
-            {!d?.recent_activity?.length && <li className="text-xs text-slate-500">No recent activity</li>}
+            {!d?.recent_activity?.length && (
+              <li className="text-xs text-slate-500">No recent activity</li>
+            )}
           </ul>
         </Panel>
         <Panel title="Recent Cases">
@@ -99,16 +152,42 @@ function AdminDashboard() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <QuickActionCard label="Create Investigator" description="Add an investigator account" icon={UserPlus} onClick={() => void navigate({ to: "/admin/users/create" })} />
-        <QuickActionCard label="Create Superior Officer" description="Add a head of investigation" icon={Users} onClick={() => void navigate({ to: "/admin/users/create" })} />
-        <QuickActionCard label="Assign Case" description="Open case management" icon={Briefcase} onClick={() => void navigate({ to: "/admin/cases" })} />
-        <QuickActionCard label="Generate Report" description="Investigation summaries" icon={FileStack} onClick={() => void navigate({ to: "/admin/reports" })} />
+        <QuickActionCard
+          label="Create Investigator"
+          description="Add an investigator account"
+          icon={UserPlus}
+          onClick={() => void navigate({ to: "/admin/users/create" })}
+        />
+        <QuickActionCard
+          label="Create Superior Officer"
+          description="Add a head of investigation"
+          icon={Users}
+          onClick={() => void navigate({ to: "/admin/users/create" })}
+        />
+        <QuickActionCard
+          label="Assign Case"
+          description="Open case management"
+          icon={Briefcase}
+          onClick={() => void navigate({ to: "/admin/cases" })}
+        />
+        <QuickActionCard
+          label="Generate Report"
+          description="Investigation summaries"
+          icon={FileStack}
+          onClick={() => void navigate({ to: "/admin/reports" })}
+        />
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        <AiPlaceholderCard title="Department AI Insights" blurb="Performance scoring arrives in Phase 2." />
+        <AiPlaceholderCard
+          title="Department AI Insights"
+          blurb="Performance scoring arrives in Phase 2."
+        />
         <AiPlaceholderCard title="AI Leads" blurb="Manual leads only for now." />
-        <AiPlaceholderCard title="Object Detection Queue" blurb="Placeholder for YOLO-class modules." />
+        <AiPlaceholderCard
+          title="Object Detection Queue"
+          blurb="Placeholder for YOLO-class modules."
+        />
       </div>
     </div>
   );

@@ -35,6 +35,12 @@ class Case(Base):
     department_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("departments.id", ondelete="SET NULL"), nullable=True, index=True
     )
+    supervisor_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    review_comment: Mapped[str | None] = mapped_column(Text, nullable=True)
+    submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_by_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT"), nullable=False, index=True
     )
@@ -46,6 +52,7 @@ class Case(Base):
     )
 
     created_by = relationship("User", foreign_keys=[created_by_id])
+    supervisor = relationship("User", foreign_keys=[supervisor_id])
     department_ref = relationship("Department", foreign_keys=[department_id])
     assignments = relationship("CaseAssignment", back_populates="case", cascade="all, delete-orphan")
     investigator_assignments = relationship(

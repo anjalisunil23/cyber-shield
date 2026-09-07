@@ -3,6 +3,8 @@ import { useState } from "react";
 import { GhostButton, PageScaffold, Panel, PrimaryButton } from "@/components/ui-kit/PageKit";
 import { investigationApi } from "@/services/investigationApi";
 import type { CasePriority, CaseStatus } from "@/services/types";
+import type { MockCase } from "@/data/mock/platform";
+import { addCaseItem } from "@/data/mock/platformState";
 import { toast } from "sonner";
 import { apiMessage } from "@/services/apiClient";
 import { Loader2 } from "lucide-react";
@@ -27,12 +29,22 @@ function Page() {
     }
     setSubmitting(true);
     try {
-      await investigationApi.createCase({
+      const res = await investigationApi.createCase({
         title: form.title,
         description: form.description || undefined,
         priority: form.priority,
         status: form.status,
         assignee_ids: [], // start unassigned
+      });
+      addCaseItem({
+        id: res.id,
+        caseNumber: res.case_number,
+        title: res.title,
+        description: res.description || undefined,
+        priority: res.priority
+          ? ((res.priority.charAt(0).toUpperCase() + res.priority.slice(1)) as MockCase["priority"])
+          : "Medium",
+        status: form.status,
       });
       toast.success("Case created successfully");
       void navigate({ to: "/superior/cases" });
@@ -81,7 +93,9 @@ function Page() {
               <label className="text-xs font-semibold text-slate-400">Priority</label>
               <select
                 value={form.priority}
-                onChange={(e) => setForm((prev) => ({ ...prev, priority: e.target.value as CasePriority }))}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, priority: e.target.value as CasePriority }))
+                }
                 className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm text-slate-100 focus:border-purple-500 focus:outline-none"
               >
                 <option value="low">Low</option>
@@ -94,7 +108,9 @@ function Page() {
               <label className="text-xs font-semibold text-slate-400">Initial Status</label>
               <select
                 value={form.status}
-                onChange={(e) => setForm((prev) => ({ ...prev, status: e.target.value as CaseStatus }))}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, status: e.target.value as CaseStatus }))
+                }
                 className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm text-slate-100 focus:border-purple-500 focus:outline-none"
               >
                 <option value="open">Open</option>

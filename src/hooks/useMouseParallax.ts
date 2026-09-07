@@ -8,8 +8,14 @@ export function useMouseParallax(strength = 24): {
 } {
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
-  const x = useSpring(useTransform(mx, [-0.5, 0.5], [-strength, strength]), { stiffness: 80, damping: 20 });
-  const y = useSpring(useTransform(my, [-0.5, 0.5], [-strength, strength]), { stiffness: 80, damping: 20 });
+  const x = useSpring(useTransform(mx, [-0.5, 0.5], [-strength, strength]), {
+    stiffness: 80,
+    damping: 20,
+  });
+  const y = useSpring(useTransform(my, [-0.5, 0.5], [-strength, strength]), {
+    stiffness: 80,
+    damping: 20,
+  });
 
   useEffect(() => {
     const onMove = (e: MouseEvent) => {

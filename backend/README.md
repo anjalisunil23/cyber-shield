@@ -29,13 +29,13 @@ cp .env.example .env
 
 Required variables:
 
-| Variable | Description |
-|---|---|
-| `DATABASE_URL` | PostgreSQL connection string |
-| `JWT_SECRET` | Long random secret used to sign JWTs |
+| Variable              | Description                           |
+| --------------------- | ------------------------------------- |
+| `DATABASE_URL`        | PostgreSQL connection string          |
+| `JWT_SECRET`          | Long random secret used to sign JWTs  |
 | `JWT_EXPIRES_MINUTES` | Token lifetime (default `1440` = 24h) |
-| `PORT` | API listen port (default `8000`) |
-| `CORS_ORIGINS` | Comma-separated frontend origins |
+| `PORT`                | API listen port (default `8000`)      |
+| `CORS_ORIGINS`        | Comma-separated frontend origins      |
 
 ### 3. Install dependencies
 
@@ -65,11 +65,11 @@ Interactive docs: [http://localhost:8000/docs](http://localhost:8000/docs)
 
 ## Auth endpoints
 
-| Method | Path | Description |
-|---|---|---|
-| `GET` | `/api/health` | Health check |
-| `POST` | `/api/auth/register` | Create account → `201` + `UserResponse` |
-| `POST` | `/api/auth/login` | Login → JWT (`access_token`, `token_type`) |
+| Method | Path                 | Description                                |
+| ------ | -------------------- | ------------------------------------------ |
+| `GET`  | `/api/health`        | Health check                               |
+| `POST` | `/api/auth/register` | Create account → `201` + `UserResponse`    |
+| `POST` | `/api/auth/login`    | Login → JWT (`access_token`, `token_type`) |
 
 ### Register body
 

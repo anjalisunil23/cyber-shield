@@ -1,6 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { DataTable, PageScaffold, Pagination, StatusPill, Toolbar } from "@/components/ui-kit/PageKit";
+import {
+  DataTable,
+  PageScaffold,
+  Pagination,
+  StatusPill,
+  Toolbar,
+} from "@/components/ui-kit/PageKit";
 import { investigationApi } from "@/services/investigationApi";
 import type { InvestigationCase } from "@/services/types";
 import { Loader2 } from "lucide-react";
@@ -69,7 +75,11 @@ function Page() {
                 ),
               },
               { key: "title", header: "Title", render: (r) => r.title },
-              { key: "priority", header: "Priority", render: (r) => <StatusPill value={r.priority} /> },
+              {
+                key: "priority",
+                header: "Priority",
+                render: (r) => <StatusPill value={r.priority} />,
+              },
               { key: "status", header: "Status", render: (r) => <StatusPill value={r.status} /> },
               {
                 key: "updated_at",

@@ -10,9 +10,16 @@ export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
       { title: "Login — Cyber Shield" },
-      { name: "description", content: "Sign in to the Cyber Shield investigation support platform." },
+      {
+        name: "description",
+        content: "Sign in to the Cyber Shield investigation support platform.",
+      },
       { property: "og:title", content: "Login — Cyber Shield" },
-      { property: "og:description", content: "Secure role-based access for Major Admin, Admin, Superior Officer, and Investigator." },
+      {
+        property: "og:description",
+        content:
+          "Secure role-based access for Major Admin, Admin, Superior Officer, and Investigator.",
+      },
     ],
   }),
   component: LoginPage,
@@ -29,7 +36,9 @@ function LoginPage() {
 
     const form = e.currentTarget;
     const data = new FormData(form);
-    const email = String(data.get("email") ?? "").trim().toLowerCase();
+    const email = String(data.get("email") ?? "")
+      .trim()
+      .toLowerCase();
     const password = String(data.get("password") ?? "");
 
     if (!email || !password) {
@@ -65,7 +74,10 @@ function LoginPage() {
         </div>
 
         <div className="animate-rise-in mx-auto w-full max-w-[420px]">
-          <Link to="/" className="mb-8 inline-flex items-center gap-2 text-white/80 transition-colors hover:text-white lg:hidden">
+          <Link
+            to="/"
+            className="mb-8 inline-flex items-center gap-2 text-white/80 transition-colors hover:text-white lg:hidden"
+          >
             <Shield className="h-5 w-5" />
             <span className="font-display text-sm font-semibold tracking-wide">Cyber Shield</span>
           </Link>
@@ -73,7 +85,10 @@ function LoginPage() {
           <HudAuthCard>
             <form className="space-y-5" onSubmit={onSubmit}>
               {error && (
-                <div role="alert" className="rounded-md border border-red-400/40 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+                <div
+                  role="alert"
+                  className="rounded-md border border-red-400/40 bg-red-500/10 px-3 py-2 text-sm text-red-200"
+                >
                   {error}
                 </div>
               )}

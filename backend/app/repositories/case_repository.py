@@ -22,6 +22,7 @@ class CaseRepository:
                 selectinload(Case.assignments).joinedload(CaseAssignment.user),
                 selectinload(Case.investigator_assignments).joinedload(InvestigatorAssignment.user),
                 joinedload(Case.created_by),
+                joinedload(Case.supervisor),
             )
             .where(Case.id == case_id)
         )
@@ -48,6 +49,7 @@ class CaseRepository:
             selectinload(Case.assignments).joinedload(CaseAssignment.user),
             selectinload(Case.investigator_assignments).joinedload(InvestigatorAssignment.user),
             joinedload(Case.created_by),
+            joinedload(Case.supervisor),
         )
         count_stmt = select(func.count()).select_from(Case)
 
@@ -56,6 +58,7 @@ class CaseRepository:
             if user_role in ("supervisor", "superior_officer"):
                 scope_filter = or_(
                     Case.created_by_id == user_id,
+                    Case.supervisor_id == user_id,
                     Case.id.in_(assigned_subquery),
                     Case.department_id == user_department_id if user_department_id else False,
                 )

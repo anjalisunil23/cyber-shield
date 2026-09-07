@@ -2,7 +2,15 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { DataTable, ErrorState, LoadingBlock, PageScaffold, Panel, PrimaryButton, StatusPill } from "@/components/ui-kit/PageKit";
+import {
+  DataTable,
+  ErrorState,
+  LoadingBlock,
+  PageScaffold,
+  Panel,
+  PrimaryButton,
+  StatusPill,
+} from "@/components/ui-kit/PageKit";
 import { apiMessage } from "@/services/apiClient";
 import { investigationApi } from "@/services/investigationApi";
 

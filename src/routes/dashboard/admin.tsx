@@ -11,7 +11,10 @@ export const Route = createFileRoute("/dashboard/admin")({
 
 function AdminPage() {
   const qc = useQueryClient();
-  const usersQ = useQuery({ queryKey: ["admin-users"], queryFn: () => investigationApi.listUsers() });
+  const usersQ = useQuery({
+    queryKey: ["admin-users"],
+    queryFn: () => investigationApi.listUsers(),
+  });
   const activityQ = useQuery({
     queryKey: ["admin-activity"],
     queryFn: () => investigationApi.activity(1),
@@ -31,7 +34,9 @@ function AdminPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-50">Admin Panel</h1>
-        <p className="text-sm text-slate-400">Manage users and review activity logs (admin role required)</p>
+        <p className="text-sm text-slate-400">
+          Manage users and review activity logs (admin role required)
+        </p>
       </div>
 
       <div className="rounded-2xl border border-white/10 bg-[#111827]/90 overflow-x-auto">
@@ -45,25 +50,35 @@ function AdminPage() {
             </tr>
           </thead>
           <tbody>
-            {(usersQ.data?.items || []).map((u: { id: string; full_name: string; email: string; role: string; is_active?: boolean }) => (
-              <tr key={u.id} className="border-b border-white/5">
-                <td className="px-4 py-3">
-                  <p className="text-slate-200">{u.full_name}</p>
-                  <p className="text-xs text-slate-500">{u.email}</p>
-                </td>
-                <td className="px-4 py-3 text-cyan">{u.role}</td>
-                <td className="px-4 py-3">{u.is_active === false ? "No" : "Yes"}</td>
-                <td className="px-4 py-3">
-                  <button
-                    type="button"
-                    className="text-xs text-amber-400 hover:underline"
-                    onClick={() => toggleActive.mutate({ id: u.id, is_active: u.is_active === false })}
-                  >
-                    {u.is_active === false ? "Activate" : "Deactivate"}
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {(usersQ.data?.items || []).map(
+              (u: {
+                id: string;
+                full_name: string;
+                email: string;
+                role: string;
+                is_active?: boolean;
+              }) => (
+                <tr key={u.id} className="border-b border-white/5">
+                  <td className="px-4 py-3">
+                    <p className="text-slate-200">{u.full_name}</p>
+                    <p className="text-xs text-slate-500">{u.email}</p>
+                  </td>
+                  <td className="px-4 py-3 text-cyan">{u.role}</td>
+                  <td className="px-4 py-3">{u.is_active === false ? "No" : "Yes"}</td>
+                  <td className="px-4 py-3">
+                    <button
+                      type="button"
+                      className="text-xs text-amber-400 hover:underline"
+                      onClick={() =>
+                        toggleActive.mutate({ id: u.id, is_active: u.is_active === false })
+                      }
+                    >
+                      {u.is_active === false ? "Activate" : "Deactivate"}
+                    </button>
+                  </td>
+                </tr>
+              ),
+            )}
           </tbody>
         </table>
       </div>
@@ -74,7 +89,9 @@ function AdminPage() {
           {(activityQ.data?.items || []).map((a) => (
             <li key={a.id} className="text-sm text-slate-300">
               <span className="text-cyan">{a.action}</span> — {a.description}
-              <span className="ml-2 text-xs text-slate-500">{new Date(a.created_at).toLocaleString()}</span>
+              <span className="ml-2 text-xs text-slate-500">
+                {new Date(a.created_at).toLocaleString()}
+              </span>
             </li>
           ))}
         </ul>

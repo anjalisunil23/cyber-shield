@@ -3,11 +3,31 @@ import { motion } from "framer-motion";
 import { SectionHeading } from "@/components/landing/SectionHeading";
 
 const STEPS = [
-  { Icon: Upload, title: "Upload Evidence", desc: "Ingest multi-format digital evidence securely into a case." },
-  { Icon: BrainCircuit, title: "AI Processing", desc: "Models classify, extract, and correlate signals automatically." },
-  { Icon: Layers3, title: "Automatic Classification", desc: "Organize media, chats, docs, and logs into structured sets." },
-  { Icon: Sparkles, title: "Investigation Insights", desc: "Surface leads, timelines, and relationship graphs." },
-  { Icon: FileOutput, title: "Generate Reports", desc: "Export explainable reports ready for human review." },
+  {
+    Icon: Upload,
+    title: "Upload Evidence",
+    desc: "Ingest multi-format digital evidence securely into a case.",
+  },
+  {
+    Icon: BrainCircuit,
+    title: "AI Processing",
+    desc: "Models classify, extract, and correlate signals automatically.",
+  },
+  {
+    Icon: Layers3,
+    title: "Automatic Classification",
+    desc: "Organize media, chats, docs, and logs into structured sets.",
+  },
+  {
+    Icon: Sparkles,
+    title: "Investigation Insights",
+    desc: "Surface leads, timelines, and relationship graphs.",
+  },
+  {
+    Icon: FileOutput,
+    title: "Generate Reports",
+    desc: "Export explainable reports ready for human review.",
+  },
 ];
 
 export function HowItWorksSection() {
@@ -34,7 +54,9 @@ export function HowItWorksSection() {
                 <div className="mb-4 grid h-12 w-12 place-items-center rounded-full border border-cyan/30 bg-[#030712] text-cyan shadow-[0_0_24px_-8px_rgba(6,182,212,0.8)]">
                   <Icon className="h-5 w-5" />
                 </div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-primary">Step {i + 1}</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+                  Step {i + 1}
+                </p>
                 <h3 className="mt-2 text-base font-semibold">{title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{desc}</p>
               </motion.div>

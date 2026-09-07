@@ -37,7 +37,14 @@ export function StatCard({
           <Icon className="h-5 w-5" />
         </div>
       </div>
-      <p className={cn("mt-3 text-xs", delta.startsWith("-") ? "text-amber-400" : "text-emerald-400")}>{delta}</p>
+      <p
+        className={cn(
+          "mt-3 text-xs",
+          delta.startsWith("-") ? "text-amber-400" : "text-emerald-400",
+        )}
+      >
+        {delta}
+      </p>
     </motion.div>
   );
 }

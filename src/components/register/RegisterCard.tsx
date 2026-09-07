@@ -103,12 +103,18 @@ export function RegisterCard({ onSubmit, submitting, error, success }: Props) {
 
       <form className="mt-7 space-y-4" onSubmit={handleSubmit}>
         {displayError && (
-          <div role="alert" className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+          <div
+            role="alert"
+            className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300"
+          >
             {displayError}
           </div>
         )}
         {success && (
-          <div role="status" className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
+          <div
+            role="status"
+            className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300"
+          >
             {success}
           </div>
         )}
@@ -174,8 +180,19 @@ export function RegisterCard({ onSubmit, submitting, error, success }: Props) {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <PasswordInput label="Password" name="password" value={password} onChange={setPassword} showStrength />
-          <PasswordInput label="Confirm Password" name="confirm_password" value={confirm} onChange={setConfirm} />
+          <PasswordInput
+            label="Password"
+            name="password"
+            value={password}
+            onChange={setPassword}
+            showStrength
+          />
+          <PasswordInput
+            label="Confirm Password"
+            name="confirm_password"
+            value={confirm}
+            onChange={setConfirm}
+          />
         </div>
 
         <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 transition hover:border-primary/30">

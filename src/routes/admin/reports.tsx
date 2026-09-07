@@ -21,7 +21,9 @@ function Page() {
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [reportType, setReportType] = useState<"case" | "department" | "investigator" | "evidence">("department");
+  const [reportType, setReportType] = useState<"case" | "department" | "investigator" | "evidence">(
+    "department",
+  );
   const [format, setFormat] = useState<"csv" | "html" | "pdf">("csv");
   const [caseId, setCaseId] = useState("");
   const [investigatorId, setInvestigatorId] = useState("");
@@ -128,7 +130,9 @@ function Page() {
               ))}
             </select>
           )}
-          <PrimaryButton type="submit">{generate.isPending ? "Generating…" : "Generate & Export"}</PrimaryButton>
+          <PrimaryButton type="submit">
+            {generate.isPending ? "Generating…" : "Generate & Export"}
+          </PrimaryButton>
         </form>
       </Panel>
 
@@ -150,14 +154,20 @@ function Page() {
                     toast.message("No preview content");
                     return;
                   }
-                  const blob = new Blob([r.content], { type: r.format === "csv" ? "text/csv" : "text/html" });
+                  const blob = new Blob([r.content], {
+                    type: r.format === "csv" ? "text/csv" : "text/html",
+                  });
                   const url = URL.createObjectURL(blob);
                   window.open(url, "_blank");
                 }}
               />
             ))}
           </div>
-          <Pagination page={reports.data?.page || 1} pages={reports.data?.pages || 1} onPage={setPage} />
+          <Pagination
+            page={reports.data?.page || 1}
+            pages={reports.data?.pages || 1}
+            onPage={setPage}
+          />
         </>
       )}
     </PageScaffold>

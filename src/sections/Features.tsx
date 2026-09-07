@@ -43,7 +43,8 @@ export function FeaturesSection() {
           eyebrow="Capabilities"
           title={
             <>
-              Everything investigators need in <span className="text-gradient-brand">one platform</span>
+              Everything investigators need in{" "}
+              <span className="text-gradient-brand">one platform</span>
             </>
           }
           description="Six connected modules designed for digital evidence case management — from seizure to defensible reporting."

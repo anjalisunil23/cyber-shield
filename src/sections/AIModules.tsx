@@ -12,14 +12,46 @@ import { GlassCard } from "@/components/landing/GlassCard";
 import { SectionHeading } from "@/components/landing/SectionHeading";
 
 const MODULES = [
-  { Icon: ScanText, title: "OCR", desc: "Extract text from images, screenshots, and scanned documents." },
-  { Icon: ScanFace, title: "Face Detection", desc: "Cluster and match faces across case media libraries." },
-  { Icon: Eye, title: "Object Detection", desc: "Identify vehicles, weapons, logos, and scene objects." },
-  { Icon: AudioLines, title: "Speech-to-Text", desc: "Transcribe audio and video dialogue for searchable review." },
-  { Icon: FileScan, title: "Entity Recognition", desc: "Pull names, phones, IDs, locations, and accounts." },
-  { Icon: Timer, title: "Timeline Reconstruction", desc: "Rebuild chronological event sequences automatically." },
-  { Icon: ShieldAlert, title: "Risk Prediction", desc: "Score leads with explainable contributing signals." },
-  { Icon: Bot, title: "AI Investigation Assistant", desc: "Ask natural-language questions against case evidence." },
+  {
+    Icon: ScanText,
+    title: "OCR",
+    desc: "Extract text from images, screenshots, and scanned documents.",
+  },
+  {
+    Icon: ScanFace,
+    title: "Face Detection",
+    desc: "Cluster and match faces across case media libraries.",
+  },
+  {
+    Icon: Eye,
+    title: "Object Detection",
+    desc: "Identify vehicles, weapons, logos, and scene objects.",
+  },
+  {
+    Icon: AudioLines,
+    title: "Speech-to-Text",
+    desc: "Transcribe audio and video dialogue for searchable review.",
+  },
+  {
+    Icon: FileScan,
+    title: "Entity Recognition",
+    desc: "Pull names, phones, IDs, locations, and accounts.",
+  },
+  {
+    Icon: Timer,
+    title: "Timeline Reconstruction",
+    desc: "Rebuild chronological event sequences automatically.",
+  },
+  {
+    Icon: ShieldAlert,
+    title: "Risk Prediction",
+    desc: "Score leads with explainable contributing signals.",
+  },
+  {
+    Icon: Bot,
+    title: "AI Investigation Assistant",
+    desc: "Ask natural-language questions against case evidence.",
+  },
 ];
 
 export function AIModulesSection() {

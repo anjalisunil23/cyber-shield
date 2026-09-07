@@ -1,15 +1,14 @@
 import { Link } from "@tanstack/react-router";
 import { MoreHorizontal } from "lucide-react";
-import { Badge, formatLabel, priorityBadgeClass, statusBadgeClass } from "@/components/dashboard/Badge";
+import {
+  Badge,
+  formatLabel,
+  priorityBadgeClass,
+  statusBadgeClass,
+} from "@/components/dashboard/Badge";
 import type { InvestigationCase } from "@/services/types";
 
-export function CaseTable({
-  rows,
-  filter = "",
-}: {
-  rows: InvestigationCase[];
-  filter?: string;
-}) {
+export function CaseTable({ rows, filter = "" }: { rows: InvestigationCase[]; filter?: string }) {
   const q = filter.trim().toLowerCase();
   const filtered = q
     ? rows.filter(
@@ -24,7 +23,9 @@ export function CaseTable({
   if (!filtered.length) {
     return (
       <div className="rounded-2xl border border-dashed border-white/15 bg-[#111827]/60 px-6 py-16 text-center">
-        <p className="text-sm text-slate-400">No cases found. Create your first investigation case.</p>
+        <p className="text-sm text-slate-400">
+          No cases found. Create your first investigation case.
+        </p>
       </div>
     );
   }
@@ -53,19 +54,27 @@ export function CaseTable({
             return (
               <tr key={row.id} className="border-b border-white/5 transition hover:bg-white/[0.03]">
                 <td className="px-4 py-3 font-medium text-cyan">
-                  <Link to="/dashboard/cases/$caseId" params={{ caseId: row.id }} className="hover:underline">
+                  <Link
+                    to="/dashboard/cases/$caseId"
+                    params={{ caseId: row.id }}
+                    className="hover:underline"
+                  >
                     {row.case_number}
                   </Link>
                 </td>
                 <td className="px-4 py-3 text-slate-200">{row.title}</td>
                 <td className="px-4 py-3">
-                  <Badge className={priorityBadgeClass(row.priority)}>{formatLabel(row.priority)}</Badge>
+                  <Badge className={priorityBadgeClass(row.priority)}>
+                    {formatLabel(row.priority)}
+                  </Badge>
                 </td>
                 <td className="px-4 py-3 text-slate-300">{officer}</td>
                 <td className="px-4 py-3">
                   <Badge className={statusBadgeClass(row.status)}>{formatLabel(row.status)}</Badge>
                 </td>
-                <td className="px-4 py-3 text-slate-400">{new Date(row.updated_at).toLocaleString()}</td>
+                <td className="px-4 py-3 text-slate-400">
+                  {new Date(row.updated_at).toLocaleString()}
+                </td>
                 <td className="px-4 py-3">
                   <Link
                     to="/dashboard/cases/$caseId"
