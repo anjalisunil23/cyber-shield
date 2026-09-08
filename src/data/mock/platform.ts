@@ -243,6 +243,18 @@ export const MOCK_CASES: MockCase[] = [
     description: "Suspected sale of PII dumps linked to Kerala residents.",
   },
   {
+    id: "c-missing-child",
+    caseNumber: "CS-2026-0003",
+    title: "Missing Child Investigation — Critical Amber Alert",
+    priority: "Critical",
+    status: "In Progress",
+    assignee: "Alex Mercer",
+    department: "CCU",
+    updated: "2026-08-04",
+    created: "2026-08-01",
+    description: "Urgent missing child investigation involving digital tracking, CCTV cell tower triangulation, and cross-district forensics.",
+  },
+  {
     id: "c5",
     caseNumber: "CS-2026-0094",
     title: "SIM swap fraud cluster",

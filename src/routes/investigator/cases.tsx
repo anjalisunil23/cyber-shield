@@ -11,7 +11,7 @@ import { investigationApi } from "@/services/investigationApi";
 import type { InvestigationCase } from "@/services/types";
 import { getStoredCases } from "@/data/mock/platformState";
 import { MOCK_CASES } from "@/data/mock/platform";
-import { Loader2, Shield, UserCheck } from "lucide-react";
+import { Loader2, Shield } from "lucide-react";
 
 export const Route = createFileRoute("/investigator/cases")({ component: Page });
 
@@ -29,23 +29,25 @@ function Page() {
       const me = await investigationApi.me().catch(() => null);
       if (me?.id) setCurrentUserId(me.id);
 
-      const data = await investigationApi.listCases({
-        page,
-        page_size: 15,
-        q: searchQuery || undefined,
-      });
+      let apiItems: InvestigationCase[] = [];
+      try {
+        const data = await investigationApi.listCases({
+          page: 1,
+          page_size: 100,
+          q: searchQuery || undefined,
+        });
+        apiItems = data?.items || [];
+      } catch {
+        apiItems = [];
+      }
 
-      const apiItems = data?.items || [];
+      const map = new Map<string, InvestigationCase>();
 
-      // If backend returned cases, use them
-      if (apiItems.length > 0) {
-        setCases(apiItems);
-        setTotalPages(data.pages || 1);
-      } else {
-        // Fallback to stored platform cases
-        const stored = getStoredCases();
-        const fallback = stored.length > 0 ? stored : MOCK_CASES;
-        const mapped: InvestigationCase[] = fallback.map((sc) => ({
+      // 1. Seed fallback and stored cases (including Missing Child CS-2026-0003)
+      const stored = getStoredCases();
+      const fallback = stored.length > 0 ? stored : MOCK_CASES;
+      fallback.forEach((sc) => {
+        map.set(sc.caseNumber, {
           id: sc.id,
           case_number: sc.caseNumber,
           title: sc.title,
@@ -57,10 +59,41 @@ function Page() {
           created_at: sc.created || new Date().toISOString(),
           updated_at: sc.updated || new Date().toISOString(),
           assignments: [],
-        }));
-        setCases(mapped);
-        setTotalPages(1);
+        });
+      });
+
+      // 2. Overlay / Merge live backend API cases
+      apiItems.forEach((c) => {
+        map.set(c.case_number, c);
+      });
+
+      let allList = Array.from(map.values());
+
+      // Filter by search query if provided
+      if (searchQuery.trim()) {
+        const qLower = searchQuery.toLowerCase().trim();
+        allList = allList.filter(
+          (c) =>
+            c.case_number.toLowerCase().includes(qLower) ||
+            c.title.toLowerCase().includes(qLower) ||
+            (c.description && c.description.toLowerCase().includes(qLower))
+        );
       }
+
+      // Sort with critical/high priority first and updated date
+      allList.sort((a, b) => {
+        const pOrder: Record<string, number> = { critical: 4, high: 3, medium: 2, low: 1 };
+        const pDiff = (pOrder[b.priority] || 0) - (pOrder[a.priority] || 0);
+        if (pDiff !== 0) return pDiff;
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      });
+
+      const pageSize = 15;
+      const totalPgs = Math.ceil(allList.length / pageSize) || 1;
+      const pagedItems = allList.slice((page - 1) * pageSize, page * pageSize);
+
+      setCases(pagedItems);
+      setTotalPages(totalPgs);
     } catch {
       // Offline fallback
       const stored = getStoredCases();
@@ -102,7 +135,7 @@ function Page() {
         </div>
       ) : cases.length === 0 ? (
         <div className="rounded-2xl border border-border bg-card p-8 text-center text-muted-foreground shadow-xs">
-          No cases assigned yet.
+          No cases matching your search.
         </div>
       ) : (
         <>
@@ -141,7 +174,9 @@ function Page() {
                 header: "Investigator Lead",
                 render: (r) => {
                   const isLead = r.investigator_lead_id === currentUserId;
-                  const leadName = r.investigator_lead?.full_name || (isLead ? "You (Lead)" : "Assigned Lead");
+                  const leadName =
+                    r.investigator_lead?.full_name ||
+                    (isLead ? "You (Lead)" : "Alex Mercer (Lead)");
                   return (
                     <span className="inline-flex items-center gap-1 text-xs font-medium text-foreground">
                       <Shield className="h-3 w-3 text-amber-500" />

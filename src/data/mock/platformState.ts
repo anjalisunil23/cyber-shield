@@ -109,7 +109,20 @@ export function getStoredCases(): MockCase[] {
   if (typeof window === "undefined") return MOCK_CASES;
   try {
     const raw = localStorage.getItem(CASES_KEY);
-    return raw ? JSON.parse(raw) : MOCK_CASES;
+    if (!raw) return MOCK_CASES;
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      const map = new Map<string, MockCase>();
+      // Standard cases first
+      MOCK_CASES.forEach((mc) => map.set(mc.caseNumber, mc));
+      // Stored user custom cases / updates
+      parsed.forEach((pc: MockCase) => {
+        if (pc.caseNumber) map.set(pc.caseNumber, { ...(map.get(pc.caseNumber) || {}), ...pc });
+        else if (pc.id) map.set(pc.id, pc);
+      });
+      return Array.from(map.values());
+    }
+    return MOCK_CASES;
   } catch {
     return MOCK_CASES;
   }
