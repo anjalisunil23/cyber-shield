@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   MessageSquare,
@@ -8,16 +8,12 @@ import {
   CheckCheck,
   Shield,
   User as UserIcon,
-  UserCheck,
   X,
   Loader2,
   ChevronDown,
   ChevronUp,
   Plus,
-  Sparkles,
   Crown,
-  Briefcase,
-  ExternalLink,
 } from "lucide-react";
 import { investigationApi } from "@/services/investigationApi";
 import type { ChatConversation, ChatMessage, CaseInvestigator, UserBrief } from "@/services/types";
@@ -41,9 +37,36 @@ const isUUID = (str?: string) =>
   !!str && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
 
 const LOCAL_STORAGE_MSGS_PREFIX = "cybershield_chat_msgs_";
+const CHAT_SYNC_CHANNEL = "cybershield_chat_live_sync";
+
+// Cross-tab broadcast channel
+let broadcastChannel: BroadcastChannel | null = null;
+if (typeof window !== "undefined" && "BroadcastChannel" in window) {
+  try {
+    broadcastChannel = new BroadcastChannel(CHAT_SYNC_CHANNEL);
+  } catch (e) {
+    console.warn("BroadcastChannel not available:", e);
+  }
+}
+
+export function broadcastChatMessage(convId: string, msg: ChatMessage) {
+  try {
+    if (broadcastChannel) {
+      broadcastChannel.postMessage({ type: "NEW_MESSAGE", convId, msg, timestamp: Date.now() });
+    }
+  } catch (e) {
+    console.warn("Failed to post broadcast message:", e);
+  }
+  if (typeof window !== "undefined") {
+    try {
+      window.dispatchEvent(new CustomEvent("cybershield_chat_event", { detail: { convId, msg } }));
+      localStorage.setItem("cybershield_chat_ping", `${convId}_${Date.now()}`);
+    } catch {}
+  }
+}
 
 function getLocalMessages(convId: string): ChatMessage[] {
-  if (typeof window === "undefined") return [];
+  if (typeof window === "undefined" || !convId) return [];
   try {
     const raw = localStorage.getItem(`${LOCAL_STORAGE_MSGS_PREFIX}${convId}`);
     return raw ? JSON.parse(raw) : [];
@@ -53,16 +76,39 @@ function getLocalMessages(convId: string): ChatMessage[] {
 }
 
 function saveLocalMessage(convId: string, msg: ChatMessage) {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined" || !convId) return;
   try {
     const existing = getLocalMessages(convId);
-    if (!existing.some((m) => m.id === msg.id)) {
+    if (!existing.some((m) => m.id === msg.id || (m.created_at === msg.created_at && m.content === msg.content))) {
       const updated = [...existing, msg];
       localStorage.setItem(`${LOCAL_STORAGE_MSGS_PREFIX}${convId}`, JSON.stringify(updated));
     }
   } catch (e) {
     console.warn("Failed to save local chat message:", e);
   }
+  broadcastChatMessage(convId, msg);
+}
+
+function getEffectiveLastMessage(conv: ChatConversation): ChatMessage | null {
+  const candidates: ChatMessage[] = [];
+  if (conv.last_message && conv.last_message.content) {
+    candidates.push(conv.last_message);
+  }
+
+  const localById = getLocalMessages(conv.id);
+  candidates.push(...localById);
+
+  if (conv.case_id && conv.case_id !== conv.id) {
+    const localByCaseGroup = getLocalMessages(`case-group-${conv.case_id}`);
+    candidates.push(...localByCaseGroup);
+    const localByRawCaseId = getLocalMessages(conv.case_id);
+    candidates.push(...localByRawCaseId);
+  }
+
+  if (candidates.length === 0) return null;
+
+  candidates.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  return candidates[0];
 }
 
 export function ChatInterface({
@@ -103,7 +149,7 @@ export function ChatInterface({
         return [];
       }
     },
-    refetchInterval: 3000,
+    refetchInterval: 1200,
     retry: false,
   });
 
@@ -134,7 +180,33 @@ export function ChatInterface({
     retry: false,
   });
 
-  // 5. Build Unified Team Members / Contacts
+  // 5. Cross-tab live sync listener
+  useEffect(() => {
+    const handleSync = () => {
+      void qc.invalidateQueries({ queryKey: ["chat-messages"] });
+      void qc.invalidateQueries({ queryKey: ["chat-conversations"] });
+    };
+
+    if (broadcastChannel) {
+      broadcastChannel.onmessage = handleSync;
+    }
+
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key?.startsWith(LOCAL_STORAGE_MSGS_PREFIX) || e.key === "cybershield_chat_ping") {
+        handleSync();
+      }
+    };
+
+    window.addEventListener("storage", handleStorage);
+    window.addEventListener("cybershield_chat_event", handleSync);
+
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("cybershield_chat_event", handleSync);
+    };
+  }, [qc]);
+
+  // 6. Build Unified Team Members / Contacts
   const unifiedTeamMembers = useMemo(() => {
     const map = new Map<string, CaseInvestigator>();
 
@@ -200,7 +272,7 @@ export function ChatInterface({
     return Array.from(map.values());
   }, [caseTeamMembers, contactsQ.data, initialCaseId]);
 
-  // 6. Synthesize Case Group Chats from all sources (Backend Convs + Backend Cases + Stored/Mock Cases)
+  // 7. Synthesize Case Group Chats from all sources (Backend Convs + Backend Cases + Stored/Mock Cases)
   const caseGroupConvs = useMemo(() => {
     const list: ChatConversation[] = [];
     const addedCaseIds = new Set<string>();
@@ -233,14 +305,7 @@ export function ChatInterface({
               }
             : null,
         })),
-        last_message: {
-          id: `msg-init-${initialCaseId}`,
-          conversation_id: `case-group-${initialCaseId}`,
-          sender_id: currentUserId || "system",
-          content: `Investigation Team group chat active for ${initNum}.`,
-          is_system: true,
-          created_at: new Date().toISOString(),
-        },
+        last_message: undefined,
       });
       addedCaseIds.add(initialCaseId);
       addedCaseIds.add(initNum);
@@ -293,14 +358,7 @@ export function ChatInterface({
                 ]
               : []),
           ],
-          last_message: {
-            id: `msg-${bc.id}`,
-            conversation_id: `case-group-${bc.id}`,
-            sender_id: "system",
-            content: `Case investigation channel initialized for ${bc.case_number}.`,
-            is_system: true,
-            created_at: bc.created_at || new Date().toISOString(),
-          },
+          last_message: undefined,
         });
         addedCaseIds.add(bc.id);
         addedCaseIds.add(bc.case_number);
@@ -348,14 +406,7 @@ export function ChatInterface({
               },
             },
           ],
-          last_message: {
-            id: `msg-${sc.id}`,
-            conversation_id: `case-group-${sc.id}`,
-            sender_id: "system",
-            content: `Case investigation team active for ${sc.caseNumber}.`,
-            is_system: true,
-            created_at: sc.created || new Date().toISOString(),
-          },
+          last_message: undefined,
         });
         addedCaseIds.add(sc.id);
         addedCaseIds.add(sc.caseNumber);
@@ -365,7 +416,7 @@ export function ChatInterface({
     return list;
   }, [initialCaseId, initialCaseNumber, initialCaseTitle, unifiedTeamMembers, currentUserId, casesQ.data]);
 
-  // 7. Combine backend conversations and synthesized case group chats
+  // 8. Combine backend conversations and synthesized case group chats
   const allConversations = useMemo(() => {
     const map = new Map<string, ChatConversation>();
 
@@ -401,12 +452,54 @@ export function ChatInterface({
     return result;
   }, [convsQ.data, caseGroupConvs, initialCaseId]);
 
-  // 8. Auto-select active conversation on mount or when conversations load
+  // 9. Resolve Backend UUID helper
+  const resolveBackendConversationId = useCallback(
+    async (convId: string): Promise<string | null> => {
+      if (isUUID(convId)) return convId;
+
+      // Case group identifier
+      if (convId.startsWith("case-group-")) {
+        const rawCaseId = convId.replace("case-group-", "");
+        if (isUUID(rawCaseId)) {
+          try {
+            const conv = await investigationApi.getCaseGroupChat(rawCaseId);
+            return conv.id;
+          } catch {}
+        }
+
+        const match = (casesQ.data || []).find(
+          (c) => c.id === rawCaseId || c.case_number === rawCaseId
+        );
+        if (match && isUUID(match.id)) {
+          try {
+            const conv = await investigationApi.getCaseGroupChat(match.id);
+            return conv.id;
+          } catch {}
+        }
+      }
+
+      // Direct message identifier
+      if (convId.startsWith("direct-")) {
+        const targetUserId = convId.replace("direct-", "");
+        if (isUUID(targetUserId)) {
+          try {
+            const conv = await investigationApi.getOrCreateDirectChat(targetUserId);
+            return conv.id;
+          } catch {}
+        }
+      }
+
+      return null;
+    },
+    [casesQ.data]
+  );
+
+  // 10. Auto-select and resolve active conversation on mount or when conversations load
   useEffect(() => {
     if (initialTargetUserId && currentUserId) {
       if (isUUID(initialTargetUserId)) {
         investigationApi
-          .getOrCreateDirectChat(initialTargetUserId, initialCaseId)
+          .getOrCreateDirectChat(initialTargetUserId, initialCaseId && isUUID(initialCaseId) ? initialCaseId : undefined)
           .then((conv) => {
             setSelectedConvId(conv.id);
             void qc.invalidateQueries({ queryKey: ["chat-conversations"] });
@@ -429,14 +522,30 @@ export function ChatInterface({
             setSelectedConvId(`case-group-${initialCaseId}`);
           });
       } else {
-        setSelectedConvId(`case-group-${initialCaseId}`);
+        // Look up if casesQ has this case
+        const match = (casesQ.data || []).find(
+          (c) => c.id === initialCaseId || c.case_number === initialCaseId
+        );
+        if (match && isUUID(match.id)) {
+          investigationApi
+            .getCaseGroupChat(match.id)
+            .then((conv) => {
+              setSelectedConvId(conv.id);
+              void qc.invalidateQueries({ queryKey: ["chat-conversations"] });
+            })
+            .catch(() => {
+              setSelectedConvId(`case-group-${initialCaseId}`);
+            });
+        } else {
+          setSelectedConvId(`case-group-${initialCaseId}`);
+        }
       }
     } else if (!selectedConvId && allConversations.length > 0) {
       setSelectedConvId(allConversations[0].id);
     }
-  }, [initialTargetUserId, initialCaseId, currentUserId, allConversations, selectedConvId]);
+  }, [initialTargetUserId, initialCaseId, currentUserId, allConversations, selectedConvId, casesQ.data, qc]);
 
-  // 9. Messages query for selected conversation (API + localStorage cache)
+  // 11. Messages query for selected conversation (API + localStorage cache)
   const messagesQ = useQuery({
     queryKey: ["chat-messages", selectedConvId],
     queryFn: async () => {
@@ -444,66 +553,92 @@ export function ChatInterface({
       let apiMsgs: ChatMessage[] = [];
       if (isUUID(selectedConvId)) {
         try {
-          apiMsgs = await investigationApi.listChatMessages(selectedConvId, 150);
+          apiMsgs = await investigationApi.listChatMessages(selectedConvId, 200);
         } catch {
           apiMsgs = [];
         }
       }
 
       const localMsgs = getLocalMessages(selectedConvId);
-      const combined = [...apiMsgs];
+      const activeConv = allConversations.find((c) => c.id === selectedConvId);
+      if (activeConv?.case_id && activeConv.case_id !== selectedConvId) {
+        const groupMsgs = getLocalMessages(`case-group-${activeConv.case_id}`);
+        groupMsgs.forEach((gm) => {
+          if (!localMsgs.some((lm) => lm.id === gm.id || (lm.created_at === gm.created_at && lm.content === gm.content))) {
+            localMsgs.push(gm);
+          }
+        });
+      }
+
+      const combined: ChatMessage[] = [...apiMsgs];
       localMsgs.forEach((lm) => {
         if (!combined.some((m) => m.id === lm.id || (m.created_at === lm.created_at && m.content === lm.content))) {
           combined.push(lm);
         }
       });
 
-      // Default welcome message if no history exists
-      if (combined.length === 0) {
-        const isCaseGroup = selectedConvId.includes("case-group") || !!initialCaseId;
-        const welcomeMsg: ChatMessage = {
-          id: `welcome-${selectedConvId}`,
-          conversation_id: selectedConvId,
-          sender_id: currentUserId,
-          content: isCaseGroup
-            ? `Investigation Team Group Chat initialized for ${initialCaseNumber || "the Case"}. All assigned team members have been enrolled.`
-            : "Private 1-on-1 direct communication channel established.",
-          is_system: true,
-          created_at: new Date().toISOString(),
-        };
-        combined.push(welcomeMsg);
-      }
-
       return combined.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
     },
     enabled: !!selectedConvId,
-    refetchInterval: 2500,
+    refetchInterval: 1200,
     retry: false,
   });
 
   const messages = messagesQ.data || [];
 
-  // 10. Send message mutation
+  const selectedConv =
+    allConversations.find((c) => c.id === selectedConvId) ||
+    (selectedConvId?.startsWith("direct-")
+      ? {
+          id: selectedConvId,
+          type: "direct" as const,
+          title:
+            unifiedTeamMembers.find((m) => `direct-${m.user_id}` === selectedConvId)?.user?.full_name ||
+            "Direct Investigation Channel",
+          case_id: initialCaseId,
+          case_number: initialCaseNumber,
+          created_by_id: currentUserId || "me",
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          unread_count: 0,
+          participants: [],
+        }
+      : allConversations[0] || null);
+
+  // 12. Send message mutation with live backend & cross-tab sync
   const sendMutation = useMutation({
     mutationFn: async (text: string) => {
       if (!selectedConvId) throw new Error("No conversation selected");
-      if (isUUID(selectedConvId)) {
-        try {
-          return await investigationApi.sendChatMessage(selectedConvId, text);
-        } catch (e) {
-          console.warn("API sendChatMessage failed, falling back to local cache:", e);
+
+      let targetId = selectedConvId;
+      if (!isUUID(targetId)) {
+        const resolved = await resolveBackendConversationId(targetId);
+        if (resolved) {
+          targetId = resolved;
+          setSelectedConvId(resolved);
         }
       }
-      return null;
+
+      if (isUUID(targetId)) {
+        try {
+          const sentMsg = await investigationApi.sendChatMessage(targetId, text);
+          return { sentMsg, targetConvId: targetId };
+        } catch (e) {
+          console.warn("API sendChatMessage failed, falling back to local sync:", e);
+        }
+      }
+
+      return { sentMsg: null, targetConvId: targetId };
     },
     onMutate: async (newText) => {
       setMessageInput("");
-      await qc.cancelQueries({ queryKey: ["chat-messages", selectedConvId] });
-      const previousMessages = qc.getQueryData<ChatMessage[]>(["chat-messages", selectedConvId]) || [];
+      const activeId = selectedConvId || "default";
+      await qc.cancelQueries({ queryKey: ["chat-messages", activeId] });
+      const previousMessages = qc.getQueryData<ChatMessage[]>(["chat-messages", activeId]) || [];
 
       const optimisticMsg: ChatMessage = {
-        id: "msg-" + Date.now(),
-        conversation_id: selectedConvId!,
+        id: "msg-" + Date.now() + "-" + Math.random().toString(36).substring(2, 6),
+        conversation_id: activeId,
         sender_id: currentUserId || "me",
         content: newText,
         is_system: false,
@@ -523,21 +658,31 @@ export function ChatInterface({
             },
       };
 
-      if (selectedConvId) {
-        saveLocalMessage(selectedConvId, optimisticMsg);
+      saveLocalMessage(activeId, optimisticMsg);
+      if (selectedConv?.case_id) {
+        saveLocalMessage(`case-group-${selectedConv.case_id}`, optimisticMsg);
+        saveLocalMessage(selectedConv.case_id, optimisticMsg);
       }
 
-      qc.setQueryData<ChatMessage[]>(["chat-messages", selectedConvId], [...previousMessages, optimisticMsg]);
-      return { previousMessages };
+      qc.setQueryData<ChatMessage[]>(["chat-messages", activeId], [...previousMessages, optimisticMsg]);
+      return { previousMessages, activeId, optimisticMsg };
+    },
+    onSuccess: (data, _, context) => {
+      if (data?.sentMsg) {
+        saveLocalMessage(data.targetConvId, data.sentMsg);
+        if (context?.activeId && context.activeId !== data.targetConvId) {
+          saveLocalMessage(context.activeId, data.sentMsg);
+        }
+      }
     },
     onError: (err, _, context) => {
       if (context?.previousMessages) {
-        qc.setQueryData(["chat-messages", selectedConvId], context.previousMessages);
+        qc.setQueryData(["chat-messages", context.activeId], context.previousMessages);
       }
       toast.error(apiMessage(err));
     },
     onSettled: () => {
-      void qc.invalidateQueries({ queryKey: ["chat-messages", selectedConvId] });
+      void qc.invalidateQueries({ queryKey: ["chat-messages"] });
       void qc.invalidateQueries({ queryKey: ["chat-conversations"] });
     },
   });
@@ -566,12 +711,11 @@ export function ChatInterface({
   // Open direct chat with a team member
   const handleOpenDirectChat = (member: CaseInvestigator | UserBrief | { id: string; full_name?: string; name?: string; role?: string; email?: string }) => {
     const targetId = "user_id" in member ? member.user_id : member.id;
-    const fullName = "user" in member ? member.user?.full_name : "full_name" in member ? member.full_name : member.name;
     if (!targetId) return;
 
     if (currentUserId && isUUID(targetId)) {
       investigationApi
-        .getOrCreateDirectChat(targetId, initialCaseId)
+        .getOrCreateDirectChat(targetId, initialCaseId && isUUID(initialCaseId) ? initialCaseId : undefined)
         .then((conv) => {
           setSelectedConvId(conv.id);
           setActiveTab("direct");
@@ -592,35 +736,17 @@ export function ChatInterface({
 
   // Filter conversations
   const filteredConvs = allConversations.filter((c) => {
+    const effectiveMsg = getEffectiveLastMessage(c);
     const matchesSearch =
       c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (c.case_number && c.case_number.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (c.last_message && c.last_message.content.toLowerCase().includes(searchQuery.toLowerCase()));
+      (effectiveMsg && effectiveMsg.content.toLowerCase().includes(searchQuery.toLowerCase()));
 
     if (!matchesSearch) return false;
     if (activeTab === "cases") return c.type === "case_group";
     if (activeTab === "direct") return c.type === "direct";
     return true;
   });
-
-  const selectedConv =
-    allConversations.find((c) => c.id === selectedConvId) ||
-    (selectedConvId?.startsWith("direct-")
-      ? {
-          id: selectedConvId,
-          type: "direct" as const,
-          title:
-            unifiedTeamMembers.find((m) => `direct-${m.user_id}` === selectedConvId)?.user?.full_name ||
-            "Direct Investigation Channel",
-          case_id: initialCaseId,
-          case_number: initialCaseNumber,
-          created_by_id: currentUserId || "me",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          unread_count: 0,
-          participants: [],
-        }
-      : allConversations[0] || null);
 
   const directCount = allConversations.filter((c) => c.type === "direct").length;
   const caseCount = allConversations.filter((c) => c.type === "case_group").length;
@@ -850,6 +976,7 @@ export function ChatInterface({
               {filteredConvs.map((conv) => {
                 const isSelected = conv.id === selectedConvId;
                 const isCaseGroup = conv.type === "case_group";
+                const effectiveMsg = getEffectiveLastMessage(conv);
 
                 return (
                   <button
@@ -898,9 +1025,9 @@ export function ChatInterface({
                             {conv.title}
                           </p>
                         </div>
-                        {conv.last_message && (
+                        {effectiveMsg && (
                           <span className="shrink-0 text-[10px] text-muted-foreground">
-                            {new Date(conv.last_message.created_at).toLocaleTimeString([], {
+                            {new Date(effectiveMsg.created_at).toLocaleTimeString([], {
                               hour: "2-digit",
                               minute: "2-digit",
                             })}
@@ -909,17 +1036,17 @@ export function ChatInterface({
                       </div>
 
                       <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
-                        {conv.last_message ? (
-                          conv.last_message.is_system ? (
+                        {effectiveMsg ? (
+                          effectiveMsg.is_system ? (
                             <span className="italic text-muted-foreground/80">
-                              {conv.last_message.content}
+                              {effectiveMsg.content}
                             </span>
                           ) : (
                             <span>
                               <strong className="text-foreground/80">
-                                {conv.last_message.sender?.full_name?.split(" ")[0] || "User"}:{" "}
+                                {effectiveMsg.sender?.full_name?.split(" ")[0] || "User"}:{" "}
                               </strong>
-                              {conv.last_message.content}
+                              {effectiveMsg.content}
                             </span>
                           )
                         ) : (
@@ -1083,6 +1210,18 @@ export function ChatInterface({
               {messagesQ.isLoading && messages.length === 0 && (
                 <div className="flex items-center justify-center h-full text-xs text-muted-foreground">
                   <Loader2 className="mr-2 h-4 w-4 animate-spin text-primary" /> Loading messages...
+                </div>
+              )}
+
+              {messages.length === 0 && !messagesQ.isLoading && (
+                <div className="flex flex-col items-center justify-center h-64 text-center text-muted-foreground p-6">
+                  <div className="grid h-12 w-12 place-items-center rounded-2xl bg-muted/60 text-muted-foreground/60 mb-2">
+                    <MessageSquare className="h-6 w-6" />
+                  </div>
+                  <p className="text-xs font-semibold text-foreground">No messages yet</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5 max-w-xs">
+                    Send a message below to start collaborating with the investigation team in real time.
+                  </p>
                 </div>
               )}
 
