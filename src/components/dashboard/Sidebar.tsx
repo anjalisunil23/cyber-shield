@@ -53,13 +53,13 @@ export function Sidebar({
 
   const content = (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between gap-2 border-b border-white/10 px-4 py-4">
+      <div className="flex items-center justify-between gap-2 border-b border-sidebar-border px-4 py-4">
         <Link to="/dashboard" className="flex min-w-0 items-center gap-2" onClick={onCloseMobile}>
           <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary to-cyan">
             <Shield className="h-5 w-5 text-white" />
           </span>
           {!collapsed && (
-            <span className="truncate text-sm font-bold tracking-tight text-slate-50">
+            <span className="truncate text-sm font-bold tracking-tight text-foreground">
               Cyber<span className="text-cyan">Shield</span>
             </span>
           )}
@@ -67,7 +67,7 @@ export function Sidebar({
         <button
           type="button"
           onClick={onToggle}
-          className="hidden h-8 w-8 place-items-center rounded-lg border border-white/10 text-slate-400 hover:text-white lg:grid"
+          className="hidden h-8 w-8 place-items-center rounded-lg border border-sidebar-border text-muted-foreground hover:bg-muted hover:text-foreground lg:grid"
           aria-label="Collapse sidebar"
         >
           {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
@@ -83,10 +83,10 @@ export function Sidebar({
               to={item.to}
               onClick={onCloseMobile}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition",
+                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
                 active
-                  ? "bg-primary/15 text-primary shadow-[0_0_24px_-12px_rgba(59,130,246,0.8)]"
-                  : "text-slate-400 hover:bg-white/5 hover:text-slate-100",
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm dark:bg-primary/15 dark:text-primary dark:shadow-[0_0_24px_-12px_rgba(59,130,246,0.8)]"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
                 collapsed && "justify-center px-2",
               )}
               title={item.label}
@@ -98,12 +98,12 @@ export function Sidebar({
         })}
       </nav>
 
-      <div className="border-t border-white/10 p-2">
+      <div className="border-t border-sidebar-border p-2">
         <button
           type="button"
           onClick={logout}
           className={cn(
-            "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-400 transition hover:bg-red-500/10 hover:text-red-400",
+            "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition hover:bg-red-500/10 hover:text-red-500",
             collapsed && "justify-center px-2",
           )}
         >
@@ -119,7 +119,7 @@ export function Sidebar({
       {/* Desktop */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 hidden border-r border-white/10 bg-[#0F172A] transition-[width] duration-300 lg:block",
+          "fixed inset-y-0 left-0 z-40 hidden border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-[width] duration-300 lg:block",
           collapsed ? "w-[76px]" : "w-64",
         )}
       >
@@ -135,14 +135,14 @@ export function Sidebar({
       >
         <div
           className={cn(
-            "absolute inset-0 bg-black/60 transition",
+            "absolute inset-0 bg-black/60 backdrop-blur-xs transition",
             mobileOpen ? "opacity-100" : "opacity-0",
           )}
           onClick={onCloseMobile}
         />
         <aside
           className={cn(
-            "absolute inset-y-0 left-0 w-72 border-r border-white/10 bg-[#0F172A] transition-transform duration-300",
+            "absolute inset-y-0 left-0 w-72 border-r border-sidebar-border bg-sidebar text-sidebar-foreground shadow-2xl transition-transform duration-300",
             mobileOpen ? "translate-x-0" : "-translate-x-full",
           )}
         >

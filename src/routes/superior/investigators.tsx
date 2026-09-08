@@ -33,7 +33,7 @@ function Page() {
           {
             key: "n",
             header: "Name",
-            render: (r) => <span className="font-medium text-slate-100">{r.name}</span>,
+            render: (r) => <span className="font-medium text-foreground">{r.name}</span>,
           },
           { key: "e", header: "Email", render: (r) => r.email },
           {

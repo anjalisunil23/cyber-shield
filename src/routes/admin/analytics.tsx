@@ -15,12 +15,14 @@ import {
 import { ChartCard, ErrorState, LoadingBlock, PageScaffold } from "@/components/ui-kit/PageKit";
 import { apiMessage } from "@/services/apiClient";
 import { investigationApi } from "@/services/investigationApi";
+import { useTheme } from "@/lib/theme";
 
 export const Route = createFileRoute("/admin/analytics")({ component: Page });
 
 const COLORS = ["#3B82F6", "#F59E0B", "#10B981", "#06B6D4", "#EF4444"];
 
 function Page() {
+  const { isDark } = useTheme();
   const stats = useQuery({
     queryKey: ["admin-dashboard-analytics"],
     queryFn: () => investigationApi.adminDashboard(),
@@ -35,11 +37,23 @@ function Page() {
     v: p.count,
   }));
 
+  const gridStroke = isDark ? "#1f2937" : "#e2e8f0";
+  const axisStroke = isDark ? "#64748b" : "#94a3b8";
+  const tooltipStyle = {
+    backgroundColor: isDark ? "#0f172a" : "#ffffff",
+    borderColor: isDark ? "#334155" : "#e2e8f0",
+    color: isDark ? "#f8fafc" : "#0f172a",
+    borderRadius: "8px",
+    boxShadow: isDark
+      ? "0 4px 6px -1px rgba(0, 0, 0, 0.5)"
+      : "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+  };
+
   return (
     <PageScaffold
       crumbs={[{ label: "Admin", to: "/admin/dashboard" }, { label: "Analytics" }]}
       title="Analytics"
-      subtitle="Department performance"
+      subtitle="Department performance overview"
     >
       {stats.isLoading && <LoadingBlock />}
       {stats.isError && <ErrorState message={apiMessage(stats.error)} />}
@@ -54,7 +68,7 @@ function Page() {
                       <Cell key={i} fill={COLORS[i % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid #334155" }} />
+                  <Tooltip contentStyle={tooltipStyle} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -63,10 +77,10 @@ function Page() {
             <div className="h-56">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={perf}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-                  <XAxis dataKey="d" stroke="#64748b" fontSize={11} />
-                  <YAxis stroke="#64748b" fontSize={11} />
-                  <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid #334155" }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+                  <XAxis dataKey="d" stroke={axisStroke} fontSize={11} />
+                  <YAxis stroke={axisStroke} fontSize={11} />
+                  <Tooltip contentStyle={tooltipStyle} />
                   <Bar dataKey="v" fill="#06B6D4" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>

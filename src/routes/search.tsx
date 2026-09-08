@@ -42,7 +42,7 @@ function Page() {
   }, [q]);
 
   return (
-    <div className="min-h-screen bg-[#020617] px-4 py-8 text-slate-100">
+    <div className="min-h-screen bg-background px-4 py-8 text-foreground transition-colors">
       <div className="mx-auto max-w-4xl">
         <PageScaffold
           crumbs={[{ label: "App" }, { label: "Global Search" }]}
@@ -51,7 +51,7 @@ function Page() {
         >
           <Toolbar search={q} onSearch={setQ} placeholder="Type to search everything…" />
           {loading ? (
-            <div className="flex items-center justify-center py-12 text-slate-400">
+            <div className="flex items-center justify-center py-12 text-muted-foreground">
               <Loader2 className="h-6 w-6 animate-spin mr-2" /> Searching database...
             </div>
           ) : (
@@ -59,15 +59,15 @@ function Page() {
               <Panel title={`Cases (${results.cases?.length || 0})`}>
                 <ul className="space-y-1.5 text-sm">
                   {(results.cases || []).map((c) => (
-                    <li key={c.id} className="text-slate-300 border-b border-white/5 pb-1">
-                      <span className="text-purple-400 font-semibold text-xs mr-2">
+                    <li key={c.id} className="text-foreground border-b border-border/50 pb-1">
+                      <span className="text-primary font-semibold text-xs mr-2">
                         {c.case_number}
                       </span>
                       {c.title}
                     </li>
                   ))}
                   {(!results.cases || results.cases.length === 0) && (
-                    <span className="text-xs text-slate-500">No cases match</span>
+                    <span className="text-xs text-muted-foreground">No cases match</span>
                   )}
                 </ul>
               </Panel>
@@ -76,27 +76,27 @@ function Page() {
                   {(results.evidence || []).map((e) => (
                     <li
                       key={e.id}
-                      className="text-slate-300 border-b border-white/5 pb-1 flex justify-between"
+                      className="text-foreground border-b border-border/50 pb-1 flex justify-between"
                     >
                       <span>{e.original_name}</span>
-                      <span className="text-xs text-slate-500 uppercase">{e.file_type}</span>
+                      <span className="text-xs text-muted-foreground uppercase">{e.file_type}</span>
                     </li>
                   ))}
                   {(!results.evidence || results.evidence.length === 0) && (
-                    <span className="text-xs text-slate-500">No evidence matches</span>
+                    <span className="text-xs text-muted-foreground">No evidence matches</span>
                   )}
                 </ul>
               </Panel>
               <Panel title={`Notes (${results.notes?.length || 0})`}>
                 <ul className="space-y-1.5 text-sm">
                   {(results.notes || []).map((n) => (
-                    <li key={n.id} className="text-slate-300 border-b border-white/5 pb-1">
-                      <p className="font-semibold text-xs text-purple-300">{n.title || "Note"}</p>
-                      <p className="text-xs text-slate-400 truncate">{n.body}</p>
+                    <li key={n.id} className="text-foreground border-b border-border/50 pb-1">
+                      <p className="font-semibold text-xs text-primary">{n.title || "Note"}</p>
+                      <p className="text-xs text-muted-foreground truncate">{n.body}</p>
                     </li>
                   ))}
                   {(!results.notes || results.notes.length === 0) && (
-                    <span className="text-xs text-slate-500">No notes match</span>
+                    <span className="text-xs text-muted-foreground">No notes match</span>
                   )}
                 </ul>
               </Panel>
@@ -105,14 +105,14 @@ function Page() {
                   {(results.investigators || []).map((u) => (
                     <li
                       key={u.id}
-                      className="text-slate-300 border-b border-white/5 pb-1 flex justify-between"
+                      className="text-foreground border-b border-border/50 pb-1 flex justify-between"
                     >
                       <span>{u.full_name}</span>
-                      <span className="text-xs text-slate-500">{u.email}</span>
+                      <span className="text-xs text-muted-foreground">{u.email}</span>
                     </li>
                   ))}
                   {(!results.investigators || results.investigators.length === 0) && (
-                    <span className="text-xs text-slate-500">No investigators match</span>
+                    <span className="text-xs text-muted-foreground">No investigators match</span>
                   )}
                 </ul>
               </Panel>

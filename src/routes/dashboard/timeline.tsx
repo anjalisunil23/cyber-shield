@@ -15,8 +15,8 @@ function TimelineHubPage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold text-slate-50">Timeline</h1>
-        <p className="text-sm text-slate-400">
+        <h1 className="text-2xl font-bold text-foreground">Timeline</h1>
+        <p className="text-sm text-muted-foreground">
           Chronological case events — open a case to add manual timeline entries
         </p>
       </div>
@@ -26,10 +26,10 @@ function TimelineHubPage() {
             <Link
               to="/dashboard/cases/$caseId"
               params={{ caseId: c.id }}
-              className="flex items-center justify-between rounded-xl border border-white/10 bg-[#111827]/90 px-4 py-3 hover:border-cyan/30"
+              className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3 hover:border-primary/40 shadow-sm transition-colors"
             >
-              <span className="text-sm text-slate-200">{c.title}</span>
-              <span className="text-xs text-cyan">{c.case_number}</span>
+              <span className="text-sm text-foreground font-medium">{c.title}</span>
+              <span className="text-xs text-primary font-mono">{c.case_number}</span>
             </Link>
           </li>
         ))}

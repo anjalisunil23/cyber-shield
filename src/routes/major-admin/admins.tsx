@@ -61,7 +61,7 @@ function Page() {
           {
             key: "name",
             header: "Name",
-            render: (r) => <span className="font-medium text-slate-100">{r.name}</span>,
+            render: (r) => <span className="font-medium text-foreground">{r.name}</span>,
           },
           { key: "email", header: "Email", render: (r) => r.email },
           { key: "dept", header: "Department", render: (r) => r.department },
@@ -94,17 +94,17 @@ function Page() {
           <input
             required
             placeholder="Full name"
-            className="w-full rounded-xl border border-white/10 bg-[#111827] px-3 py-2 text-sm"
+            className="w-full rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
           <input
             required
             type="email"
             placeholder="Email"
-            className="w-full rounded-xl border border-white/10 bg-[#111827] px-3 py-2 text-sm"
+            className="w-full rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
           <input
             placeholder="Department"
-            className="w-full rounded-xl border border-white/10 bg-[#111827] px-3 py-2 text-sm"
+            className="w-full rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
           <PrimaryButton type="submit" className="w-full">
             Save (UI only)

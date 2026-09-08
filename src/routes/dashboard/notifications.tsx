@@ -28,26 +28,28 @@ function NotificationsPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-50">Notifications</h1>
-          <p className="text-sm text-slate-400">
+          <h1 className="text-2xl font-bold text-foreground">Notifications</h1>
+          <p className="text-sm text-muted-foreground">
             Assignments, uploads, status changes, notes, and leads
           </p>
         </div>
         <button
           type="button"
           onClick={() => markAll.mutate()}
-          className="rounded-xl border border-white/10 px-3 py-2 text-xs text-slate-300 hover:bg-white/5"
+          className="rounded-xl border border-border bg-card px-3 py-2 text-xs text-foreground hover:bg-muted transition-colors"
         >
           Mark all read
         </button>
       </div>
-      {isLoading && <p className="text-sm text-slate-400">Loading…</p>}
+      {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
       <ul className="space-y-2">
         {(data || []).map((n) => (
           <li
             key={n.id}
-            className={`rounded-2xl border px-4 py-3 ${
-              n.is_read ? "border-white/5 bg-[#111827]/50" : "border-cyan/20 bg-cyan/5"
+            className={`rounded-2xl border px-4 py-3 transition-colors ${
+              n.is_read
+                ? "border-border bg-card/60 text-muted-foreground"
+                : "border-primary/30 bg-primary/5 text-foreground"
             }`}
           >
             <button
@@ -58,15 +60,15 @@ function NotificationsPage() {
                 void qc.invalidateQueries({ queryKey: ["notifications"] });
               }}
             >
-              <p className="text-sm font-medium text-slate-100">{n.title}</p>
-              <p className="text-sm text-slate-400">{n.message}</p>
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="text-sm font-medium text-foreground">{n.title}</p>
+              <p className="text-sm text-muted-foreground">{n.message}</p>
+              <p className="mt-1 text-xs text-muted-foreground/80">
                 {new Date(n.created_at).toLocaleString()}
               </p>
             </button>
           </li>
         ))}
-        {!isLoading && !data?.length && <p className="text-sm text-slate-500">No notifications</p>}
+        {!isLoading && !data?.length && <p className="text-sm text-muted-foreground">No notifications</p>}
       </ul>
     </div>
   );

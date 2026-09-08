@@ -41,7 +41,7 @@ function Page() {
     : activities;
 
   return (
-    <div className="min-h-screen bg-[#020617] px-4 py-8 text-slate-100">
+    <div className="min-h-screen bg-background px-4 py-8 text-foreground transition-colors">
       <div className="mx-auto max-w-5xl">
         <PageScaffold
           crumbs={[{ label: "App" }, { label: "Activity Logs" }]}
@@ -50,7 +50,7 @@ function Page() {
         >
           <Toolbar search={searchQuery} onSearch={setSearchQuery} />
           {loading ? (
-            <div className="flex items-center justify-center py-12 text-slate-400">
+            <div className="flex items-center justify-center py-12 text-muted-foreground">
               <Loader2 className="h-6 w-6 animate-spin mr-2" /> Loading activity logs...
             </div>
           ) : (
@@ -62,7 +62,7 @@ function Page() {
                     key: "action",
                     header: "Action",
                     render: (r) => (
-                      <span className="text-purple-400 font-semibold uppercase text-xs">
+                      <span className="text-primary font-semibold uppercase text-xs">
                         {r.action}
                       </span>
                     ),

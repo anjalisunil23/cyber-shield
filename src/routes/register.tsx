@@ -54,14 +54,18 @@ function RegisterPage() {
         void navigate({ to: "/login" });
       }, 1000);
     } catch (err) {
-      const message =
-        err instanceof ApiError
-          ? err.message
-          : err instanceof TypeError
-            ? "Cannot reach the API. Make sure the backend is running."
-            : err instanceof Error
-              ? err.message
-              : "Could not create account.";
+      let message = "Could not create account.";
+      if (err instanceof ApiError) {
+        if (err.status === 502 || err.message.toLowerCase().includes("bad gateway")) {
+          message = "Cannot reach the backend server (502 Bad Gateway). Please ensure the Python API is running on port 8001.";
+        } else {
+          message = err.message;
+        }
+      } else if (err instanceof TypeError) {
+        message = "Cannot reach the API. Make sure the backend server is running on port 8001.";
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
       setError(message);
     } finally {
       setSubmitting(false);

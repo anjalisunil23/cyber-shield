@@ -26,15 +26,13 @@ function Page() {
   const loadAllEvidence = async () => {
     setLoading(true);
     try {
-      // 1. Get investigator's accessible cases
       const casesData = await investigationApi.listCases({ page_size: 100 });
       if (casesData.items && casesData.items.length > 0) {
-        // 2. Fetch evidence for each case
         const promises = casesData.items.map((c) =>
           investigationApi.listEvidence(c.id).then((res) =>
             (res.items || []).map((e) => ({
               ...e,
-              case_number: c.case_number, // attach case number for rendering
+              case_number: c.case_number,
             })),
           ),
         );
@@ -54,7 +52,6 @@ function Page() {
     loadAllEvidence();
   }, []);
 
-  // Filter and search
   const filtered = evidence.filter((e) => {
     const matchesType = type === "All" || e.file_type.toLowerCase() === type.toLowerCase();
     const matchesSearch =
@@ -90,7 +87,7 @@ function Page() {
             />
             <button
               type="button"
-              className="rounded-xl border border-white/10 px-3 py-2 text-xs bg-slate-900/40 text-slate-300 hover:text-white"
+              className="rounded-xl border border-border px-3 py-2 text-xs bg-card text-foreground hover:bg-muted transition"
               onClick={() => setView(view === "grid" ? "table" : "grid")}
             >
               {view === "grid" ? "Table view" : "Grid view"}
@@ -99,18 +96,17 @@ function Page() {
         }
       />
       {loading ? (
-        <div className="flex items-center justify-center py-12 text-slate-400">
+        <div className="flex items-center justify-center py-12 text-muted-foreground">
           <Loader2 className="h-6 w-6 animate-spin mr-2" /> Loading evidence repository...
         </div>
       ) : pageItems.length === 0 ? (
-        <div className="rounded-xl border border-white/10 bg-slate-900/60 p-8 text-center text-slate-400">
+        <div className="rounded-2xl border border-border bg-card p-8 text-center text-muted-foreground shadow-xs">
           No evidence items found.
         </div>
       ) : view === "grid" ? (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {pageItems.map((e) => (
             <Link key={e.id} to="/investigator/evidence/$evidenceId" params={{ evidenceId: e.id }}>
-              {/* Adapting EvidenceItem to mock props for EvidenceCard */}
               <EvidenceCard
                 item={{
                   id: e.id,
@@ -143,7 +139,7 @@ function Page() {
                 <Link
                   to="/investigator/evidence/$evidenceId"
                   params={{ evidenceId: r.id }}
-                  className="text-purple-400 hover:underline font-semibold"
+                  className="text-primary hover:underline font-semibold"
                 >
                   {r.original_name}
                 </Link>

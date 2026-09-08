@@ -44,6 +44,63 @@ export type CaseAssignment = {
   user?: UserBrief | null;
 };
 
+export type CaseInvestigatorRole = "INVESTIGATOR_LEAD" | "INVESTIGATOR";
+
+export type CaseInvestigator = {
+  id: string;
+  case_id: string;
+  user_id: string;
+  role: CaseInvestigatorRole | string;
+  status: "active" | "removed" | string;
+  assigned_by_id?: string | null;
+  assigned_at: string;
+  user?: UserBrief | null;
+};
+
+export type CaseTeamResponse = {
+  case_id: string;
+  case_number: string;
+  investigator_lead?: CaseInvestigator | null;
+  team_investigators: CaseInvestigator[];
+  total_members: number;
+};
+
+export type ChatParticipant = {
+  id: string;
+  conversation_id: string;
+  user_id: string;
+  role_in_case: string;
+  is_active: boolean;
+  joined_at: string;
+  left_at?: string | null;
+  last_read_at: string;
+  user?: UserBrief | null;
+};
+
+export type ChatMessage = {
+  id: string;
+  conversation_id: string;
+  sender_id?: string | null;
+  content: string;
+  is_system: boolean;
+  created_at: string;
+  sender?: UserBrief | null;
+};
+
+export type ChatConversation = {
+  id: string;
+  case_id?: string | null;
+  type: "case_group" | "direct" | string;
+  title: string;
+  created_by_id?: string | null;
+  created_at: string;
+  updated_at: string;
+  case_number?: string | null;
+  participants: ChatParticipant[];
+  last_message?: ChatMessage | null;
+  unread_count: number;
+};
+
 export type InvestigationCase = {
   id: string;
   case_number: string;
@@ -54,6 +111,7 @@ export type InvestigationCase = {
   notes: string | null;
   department_id?: string | null;
   supervisor_id?: string | null;
+  investigator_lead_id?: string | null;
   review_comment?: string | null;
   submitted_at?: string | null;
   reviewed_at?: string | null;
@@ -62,7 +120,9 @@ export type InvestigationCase = {
   updated_at: string;
   created_by?: UserBrief | null;
   supervisor?: UserBrief | null;
+  investigator_lead?: UserBrief | null;
   assignments: CaseAssignment[];
+  investigator_assignments?: CaseInvestigator[];
 };
 
 export type EvidenceItem = {

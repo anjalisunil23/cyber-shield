@@ -70,7 +70,7 @@ function Page() {
           <select
             value={caseId}
             onChange={(e) => setCaseId(e.target.value)}
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           >
             <option value="">Select case</option>
             {(cases.data?.items || []).map((c) => (
@@ -82,7 +82,7 @@ function Page() {
           <select
             value={superiorId}
             onChange={(e) => setSuperiorId(e.target.value)}
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           >
             <option value="">Superior Officer</option>
             {(superiors.data?.items || []).map((u) => (
@@ -94,7 +94,7 @@ function Page() {
           <select
             value={investigatorId}
             onChange={(e) => setInvestigatorId(e.target.value)}
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           >
             <option value="">Investigator</option>
             {(investigators.data?.items || []).map((u) => (

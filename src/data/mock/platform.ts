@@ -36,6 +36,15 @@ export type MockEvidence = {
   sha256: string;
 };
 
+export type NoteAttachment = {
+  id: string;
+  name: string;
+  size: string;
+  type: string;
+  url?: string;
+  uploadedAt: string;
+};
+
 export type MockNote = {
   id: string;
   title: string;
@@ -44,6 +53,10 @@ export type MockNote = {
   author: string;
   pinned: boolean;
   updatedAt: string;
+  created?: string;
+  tags?: string[];
+  status?: "Working" | "In Review" | "Finalized" | "Archived" | string;
+  attachments?: NoteAttachment[];
 };
 
 export type MockLead = {
@@ -316,29 +329,118 @@ export const MOCK_NOTES: MockNote[] = [
   {
     id: "n1",
     title: "Initial triage",
-    body: "Landing page mirrors legitimate bank portal. SSL cert mismatched.",
+    body: `# Initial triage
+
+Landing page mirrors legitimate bank portal.
+
+> **OBSERVATION:** The SSL certificate does not match the expected banking domain.
+
+## Observations
+
+- SSL certificate mismatch detected during packet capture
+- Domain registration is recent (registered within the last 48 hours)
+- Login form submits credentials to an external endpoint at \`https://api-vault-sync.net/collect\`
+- Page contains suspicious shortened URL references
+
+> **FINDING:** Credentials appear to be submitted to an external command-and-control endpoint.
+
+## Evidence
+- [Evidence: suspicious-login-page.png]
+- Certificate information recorded in forensic vault (#EV-2026-0041)
+- URL preserved in archive
+
+## Checklist
+- [x] Verify domain ownership records
+- [x] Capture SSL certificate chain
+- [ ] Review DNS propagation history
+- [ ] Contact hosting provider abuse desk`,
     caseNumber: "CS-2026-0142",
     author: "Alex Mercer",
     pinned: true,
-    updatedAt: "2026-08-01",
+    updatedAt: "2026-08-01 14:30",
+    created: "2026-08-01",
+    tags: ["phishing", "credential-theft", "OSINT"],
+    status: "Working",
+    attachments: [
+      {
+        id: "att_1",
+        name: "domain_whois_capture.pdf",
+        size: "1.4 MB",
+        type: "application/pdf",
+        uploadedAt: "Aug 1, 2026",
+      },
+      {
+        id: "att_2",
+        name: "packet_dump_triage.pcap",
+        size: "4.8 MB",
+        type: "application/vnd.tcpdump.pcap",
+        uploadedAt: "Aug 1, 2026",
+      },
+    ],
   },
   {
     id: "n2",
     title: "Witness statement",
-    body: "Complainant received SMS with shortened URL at 21:14 IST.",
+    body: `# Witness statement
+
+Complainant received SMS with shortened URL at 21:14 IST.
+
+## Interrogation Notes
+- Complainant clicked the link on mobile device (Android 14)
+- Redirected to a credential harvesting form impersonating Apex Bank
+- Entered username and OTP before realizing the domain was spoofed
+
+> **OBSERVATION:** Attacker initiated automated transaction within 3 minutes of credential submission.
+
+## Follow-up Tasks
+- [x] Secure device logs
+- [ ] Request telecom CDR records
+- [ ] Coordinate with bank fraud prevention team`,
     caseNumber: "CS-2026-0142",
     author: "Alex Mercer",
     pinned: false,
-    updatedAt: "2026-07-31",
+    updatedAt: "2026-07-31 18:20",
+    created: "2026-07-31",
+    tags: ["evidence", "follow-up", "high-priority"],
+    status: "In Review",
+    attachments: [
+      {
+        id: "att_3",
+        name: "complainant_sms_transcript.txt",
+        size: "34 KB",
+        type: "text/plain",
+        uploadedAt: "Jul 31, 2026",
+      },
+    ],
   },
   {
     id: "n3",
     title: "Lab intake",
-    body: "Two laptops imaged; write-blockers verified.",
+    body: `# Lab intake & Forensic Acquisition
+
+Two suspect laptops imaged; write-blockers verified and hash confirmed.
+
+## Device Details
+1. **Dell Latitude 5420**
+   - Serial: \`DL-98214-X\`
+   - SHA-256: \`e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\`
+2. **MacBook Pro 14"**
+   - Serial: \`C02GF912MD6R\`
+   - APFS Encrypted volume recovered
+
+> **FINDING:** Unallocated space contains remnants of phishing email generation scripts.
+
+## Action Items
+- [x] Hardware write-blocker verification
+- [x] Raw DD forensic image creation
+- [ ] Keyword search for target bank names`,
     caseNumber: "CS-2026-0138",
     author: "Sana Joseph",
     pinned: true,
-    updatedAt: "2026-07-29",
+    updatedAt: "2026-07-29 11:15",
+    created: "2026-07-29",
+    tags: ["malware", "evidence", "OSINT"],
+    status: "Finalized",
   },
 ];
 

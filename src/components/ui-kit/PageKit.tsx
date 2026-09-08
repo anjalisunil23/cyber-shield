@@ -7,16 +7,16 @@ import { PageHeader, Panel } from "@/components/layouts/DashboardWidgets";
 
 export function Breadcrumb({ items }: { items: { label: string; to?: string }[] }) {
   return (
-    <nav className="mb-4 flex flex-wrap items-center gap-1 text-xs text-slate-500">
+    <nav className="mb-4 flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
       {items.map((item, i) => (
         <span key={`${item.label}-${i}`} className="inline-flex items-center gap-1">
           {i > 0 && <ChevronRight className="h-3 w-3" />}
           {item.to ? (
-            <Link to={item.to as "/"} className="hover:text-cyan">
+            <Link to={item.to as "/"} className="hover:text-primary transition-colors">
               {item.label}
             </Link>
           ) : (
-            <span className="text-slate-300">{item.label}</span>
+            <span className="font-medium text-foreground">{item.label}</span>
           )}
         </span>
       ))}
@@ -34,10 +34,10 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-[#111827]/40 px-6 py-16 text-center">
-      <Inbox className="mb-3 h-10 w-10 text-slate-600" />
-      <p className="text-sm font-semibold text-slate-200">{title}</p>
-      <p className="mt-1 max-w-sm text-xs text-slate-500">{description}</p>
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card/60 px-6 py-16 text-center shadow-xs">
+      <Inbox className="mb-3 h-10 w-10 text-muted-foreground" />
+      <p className="text-sm font-semibold text-foreground">{title}</p>
+      <p className="mt-1 max-w-sm text-xs text-muted-foreground">{description}</p>
       {action && <div className="mt-4">{action}</div>}
     </div>
   );
@@ -49,7 +49,7 @@ export function ErrorState({
   message?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-6 text-center text-sm text-rose-200">
+    <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-6 text-center text-sm text-rose-600 dark:text-rose-200">
       <FileQuestion className="mx-auto mb-2 h-6 w-6" />
       {message}
     </div>
@@ -60,7 +60,7 @@ export function LoadingBlock({ rows = 5 }: { rows?: number }) {
   return (
     <div className="space-y-2">
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="h-12 animate-pulse rounded-xl bg-white/5" />
+        <div key={i} className="h-12 animate-pulse rounded-xl bg-muted" />
       ))}
     </div>
   );
@@ -82,12 +82,12 @@ export function Toolbar({
   return (
     <div className="mb-4 flex flex-wrap items-center gap-2">
       <div className="relative min-w-[200px] flex-1">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <input
           value={search}
           onChange={(e) => onSearch(e.target.value)}
           placeholder={placeholder}
-          className="w-full rounded-xl border border-white/10 bg-[#111827] py-2.5 pl-10 pr-3 text-sm outline-none focus:border-primary/50"
+          className="w-full rounded-xl border border-border bg-card py-2.5 pl-10 pr-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary/60 focus:ring-2 focus:ring-primary/10 transition-all"
         />
       </div>
       {filters}
@@ -112,7 +112,7 @@ export function SelectFilter({
       aria-label={label}
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="rounded-xl border border-white/10 bg-[#111827] px-3 py-2.5 text-xs"
+      className="rounded-xl border border-border bg-card px-3 py-2.5 text-xs text-foreground focus:border-primary/60 outline-none"
     >
       {options.map((o) => (
         <option key={o} value={o}>
@@ -140,7 +140,7 @@ export function PrimaryButton({
       type={type}
       onClick={onClick}
       className={cn(
-        "rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90",
+        "rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-primary/50 shadow-xs",
         className,
       )}
     >
@@ -165,7 +165,7 @@ export function GhostButton({
       type={type}
       onClick={onClick}
       className={cn(
-        "rounded-xl border border-white/10 px-4 py-2 text-sm text-slate-300 hover:bg-white/5",
+        "rounded-xl border border-border bg-card px-4 py-2 text-sm text-foreground transition hover:bg-muted",
         className,
       )}
     >
@@ -187,15 +187,15 @@ export function Modal({
 }) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 backdrop-blur-xs p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.96, y: 8 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="w-full max-w-lg rounded-2xl border border-white/10 bg-[#0f172a] p-6 shadow-2xl"
+        className="w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-2xl text-foreground"
       >
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-slate-50">{title}</h3>
-          <button type="button" onClick={onClose} className="text-slate-400 hover:text-white">
+          <h3 className="text-lg font-semibold text-foreground">{title}</h3>
+          <button type="button" onClick={onClose} className="text-muted-foreground hover:text-foreground">
             ✕
           </button>
         </div>
@@ -220,7 +220,7 @@ export function ConfirmDialog({
 }) {
   return (
     <Modal open={open} title={title} onClose={onClose}>
-      <p className="text-sm text-slate-400">{message}</p>
+      <p className="text-sm text-muted-foreground">{message}</p>
       <div className="mt-5 flex justify-end gap-2">
         <GhostButton onClick={onClose}>Cancel</GhostButton>
         <PrimaryButton onClick={onConfirm}>Confirm</PrimaryButton>
@@ -247,12 +247,12 @@ export function DataTable<T extends { id: string }>({
 }) {
   if (!rows.length) return <EmptyState title={emptyTitle || "No records"} />;
   return (
-    <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[#111827]/90">
+    <div className="overflow-x-auto rounded-2xl border border-border bg-card shadow-xs">
       <table className="w-full min-w-[640px] text-left text-sm">
-        <thead className="border-b border-white/10 bg-white/[0.03] text-xs uppercase tracking-wide text-slate-400">
+        <thead className="border-b border-border bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground font-semibold">
           <tr>
             {columns.map((c) => (
-              <th key={c.key} className={cn("px-4 py-3 font-medium", c.className)}>
+              <th key={c.key} className={cn("px-4 py-3 font-semibold", c.className)}>
                 {c.header}
               </th>
             ))}
@@ -265,10 +265,10 @@ export function DataTable<T extends { id: string }>({
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.03 }}
-              className="border-b border-white/5 transition hover:bg-white/[0.03]"
+              className="border-b border-border/50 transition hover:bg-muted/30"
             >
               {columns.map((c) => (
-                <td key={c.key} className={cn("px-4 py-3 text-slate-300", c.className)}>
+                <td key={c.key} className={cn("px-4 py-3 text-foreground", c.className)}>
                   {c.render(row)}
                 </td>
               ))}
@@ -290,7 +290,7 @@ export function Pagination({
   onPage: (p: number) => void;
 }) {
   return (
-    <div className="mt-4 flex items-center justify-between text-xs text-slate-400">
+    <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
       <span>
         Page {page} of {pages}
       </span>
@@ -327,15 +327,15 @@ export function StatusPill({ value }: { value: string }) {
   const v = value.toLowerCase();
   const tone =
     v.includes("active") || v.includes("done") || v.includes("completed")
-      ? "border-emerald-500/30 bg-emerald-500/15 text-emerald-400"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/15 dark:text-emerald-400"
       : v.includes("critical") || v.includes("suspend") || v.includes("high")
-        ? "border-rose-500/30 bg-rose-500/15 text-rose-400"
+        ? "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/15 dark:text-rose-400"
         : v.includes("progress") || v.includes("review") || v.includes("pending")
-          ? "border-amber-500/30 bg-amber-500/15 text-amber-300"
-          : "border-white/10 bg-white/5 text-slate-300";
+          ? "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/15 dark:text-amber-300"
+          : "border-slate-200 bg-slate-100 text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-300";
   return (
     <span
-      className={cn("inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-medium", tone)}
+      className={cn("inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-semibold", tone)}
     >
       {value}
     </span>

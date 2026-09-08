@@ -40,18 +40,18 @@ function Page() {
       )}
       <Pagination page={table.page} pages={table.pages} onPage={table.setPage} />
       {preview && (
-        <div className="mt-4 rounded-2xl border border-white/10 bg-[#111827]/90 p-6">
-          <p className="text-sm font-semibold text-slate-100">Preview — {preview}</p>
-          <p className="mt-2 text-sm text-slate-400">
+        <div className="mt-4 rounded-2xl border border-border bg-card p-6 shadow-sm">
+          <p className="text-sm font-semibold text-foreground">Preview — {preview}</p>
+          <p className="mt-2 text-sm text-muted-foreground">
             Print-friendly mock report body. Export PDF / Print are UI-only.
           </p>
           <div className="mt-4 flex gap-2">
-            <button type="button" className="rounded-xl bg-primary px-4 py-2 text-sm text-white">
+            <button type="button" className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 transition-colors">
               Export PDF
             </button>
             <button
               type="button"
-              className="rounded-xl border border-white/10 px-4 py-2 text-sm"
+              className="rounded-xl border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors"
               onClick={() => window.print()}
             >
               Print

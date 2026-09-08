@@ -13,6 +13,7 @@ import {
   normalizeRole,
   type AppRole,
 } from "@/lib/roles";
+import { useTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
 export function RoleShell({ role, breadcrumbs }: { role: AppRole; breadcrumbs?: ReactNode }) {
@@ -21,6 +22,7 @@ export function RoleShell({ role, breadcrumbs }: { role: AppRole; breadcrumbs?: 
   const [ready, setReady] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { resolvedTheme } = useTheme();
   const nav = ROLE_NAV[role];
 
   useEffect(() => {
@@ -44,7 +46,7 @@ export function RoleShell({ role, breadcrumbs }: { role: AppRole; breadcrumbs?: 
 
   if (!ready) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#020617] text-slate-400">
+      <div className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">
         Verifying role access…
       </div>
     );
@@ -52,24 +54,24 @@ export function RoleShell({ role, breadcrumbs }: { role: AppRole; breadcrumbs?: 
 
   const sidebar = (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between gap-2 border-b border-white/10 px-4 py-4">
+      <div className="flex items-center justify-between gap-2 border-b border-sidebar-border px-4 py-4">
         <Link to={ROLE_NAV[role][0].to as "/"} className="flex min-w-0 items-center gap-2">
           <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary to-cyan">
             <Shield className="h-5 w-5 text-white" />
           </span>
           {!collapsed && (
             <div className="min-w-0">
-              <p className="truncate text-sm font-bold text-slate-50">
+              <p className="truncate text-sm font-bold text-foreground">
                 Cyber<span className="text-cyan">Shield</span>
               </p>
-              <p className="truncate text-[10px] text-slate-500">{ROLE_LABEL[role]}</p>
+              <p className="truncate text-[10px] text-muted-foreground">{ROLE_LABEL[role]}</p>
             </div>
           )}
         </Link>
         <button
           type="button"
           onClick={() => setCollapsed((v) => !v)}
-          className="hidden h-8 w-8 place-items-center rounded-lg border border-white/10 text-slate-400 hover:text-white lg:grid"
+          className="hidden h-8 w-8 place-items-center rounded-lg border border-sidebar-border text-muted-foreground hover:bg-muted hover:text-foreground lg:grid"
           aria-label="Collapse sidebar"
         >
           {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
@@ -85,10 +87,10 @@ export function RoleShell({ role, breadcrumbs }: { role: AppRole; breadcrumbs?: 
               to={item.to as "/"}
               onClick={() => setMobileOpen(false)}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition",
+                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
                 active
-                  ? "bg-primary/15 text-primary shadow-[0_0_24px_-12px_rgba(59,130,246,0.8)]"
-                  : "text-slate-400 hover:bg-white/5 hover:text-slate-100",
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm dark:bg-primary/15 dark:text-primary dark:shadow-[0_0_24px_-12px_rgba(59,130,246,0.8)]"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
                 collapsed && "justify-center px-2",
               )}
               title={item.label}
@@ -100,12 +102,12 @@ export function RoleShell({ role, breadcrumbs }: { role: AppRole; breadcrumbs?: 
         })}
       </nav>
 
-      <div className="border-t border-white/10 p-2">
+      <div className="border-t border-sidebar-border p-2">
         <button
           type="button"
           onClick={logout}
           className={cn(
-            "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-400 transition hover:bg-red-500/10 hover:text-red-400",
+            "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition hover:bg-red-500/10 hover:text-red-500",
             collapsed && "justify-center px-2",
           )}
         >
@@ -117,10 +119,10 @@ export function RoleShell({ role, breadcrumbs }: { role: AppRole; breadcrumbs?: 
   );
 
   return (
-    <div className="min-h-screen bg-[#020617] text-slate-100">
+    <div className="min-h-screen bg-background text-foreground">
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 hidden border-r border-white/10 bg-[#020617]/95 backdrop-blur-xl transition-[width] duration-300 lg:block",
+          "fixed inset-y-0 left-0 z-40 hidden border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-[width] duration-300 lg:block",
           collapsed ? "w-[76px]" : "w-64",
         )}
       >
@@ -131,14 +133,14 @@ export function RoleShell({ role, breadcrumbs }: { role: AppRole; breadcrumbs?: 
         <div className="fixed inset-0 z-50 lg:hidden">
           <button
             type="button"
-            className="absolute inset-0 bg-black/60"
+            className="absolute inset-0 bg-black/60 backdrop-blur-xs"
             aria-label="Close menu"
             onClick={() => setMobileOpen(false)}
           />
           <motion.aside
             initial={{ x: -280 }}
             animate={{ x: 0 }}
-            className="relative h-full w-72 border-r border-white/10 bg-[#020617]"
+            className="relative h-full w-72 border-r border-sidebar-border bg-sidebar text-sidebar-foreground shadow-2xl"
           >
             {sidebar}
           </motion.aside>
@@ -150,7 +152,7 @@ export function RoleShell({ role, breadcrumbs }: { role: AppRole; breadcrumbs?: 
       >
         <RoleTopNavbar onMenu={() => setMobileOpen(true)} role={role} />
         {breadcrumbs && (
-          <div className="border-b border-white/5 px-4 py-2 text-xs text-slate-500 sm:px-6">
+          <div className="border-b border-border/40 px-4 py-2 text-xs text-muted-foreground sm:px-6">
             {breadcrumbs}
           </div>
         )}
@@ -164,7 +166,7 @@ export function RoleShell({ role, breadcrumbs }: { role: AppRole; breadcrumbs?: 
           <Outlet />
         </motion.main>
       </div>
-      <Toaster theme="dark" position="top-right" richColors />
+      <Toaster theme={resolvedTheme} position="top-right" richColors />
     </div>
   );
 }

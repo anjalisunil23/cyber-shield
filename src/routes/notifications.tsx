@@ -52,7 +52,7 @@ function Page() {
   );
 
   return (
-    <div className="min-h-screen bg-[#020617] px-4 py-8 text-slate-100">
+    <div className="min-h-screen bg-background px-4 py-8 text-foreground transition-colors">
       <div className="mx-auto max-w-3xl">
         <PageScaffold
           crumbs={[{ label: "App" }, { label: "Notifications" }]}
@@ -69,11 +69,11 @@ function Page() {
             <SelectFilter value={filter} onChange={setFilter} options={["All", "Unread", "Read"]} />
           </div>
           {loading ? (
-            <div className="flex items-center justify-center py-12 text-slate-400">
+            <div className="flex items-center justify-center py-12 text-muted-foreground">
               <Loader2 className="h-6 w-6 animate-spin mr-2" /> Loading notifications...
             </div>
           ) : shown.length === 0 ? (
-            <div className="rounded-xl border border-white/10 bg-slate-900/60 p-8 text-center text-slate-400">
+            <div className="rounded-2xl border border-border bg-card p-8 text-center text-muted-foreground shadow-xs">
               <Bell className="mx-auto h-8 w-8 opacity-40 mb-2" />
               <p>No notifications found.</p>
             </div>
@@ -83,21 +83,21 @@ function Page() {
                 <div
                   key={n.id}
                   onClick={() => !n.is_read && handleMarkRead(n.id)}
-                  className={`flex items-start justify-between rounded-xl border p-4 transition ${
+                  className={`flex items-start justify-between rounded-xl border p-4 transition shadow-xs ${
                     n.is_read
-                      ? "border-white/5 bg-slate-900/40 text-slate-400"
-                      : "border-purple-500/30 bg-purple-950/20 text-slate-100 hover:border-purple-500/50 cursor-pointer"
+                      ? "border-border bg-card/60 text-muted-foreground"
+                      : "border-primary/30 bg-primary/10 text-foreground hover:border-primary/50 cursor-pointer"
                   }`}
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="font-semibold text-sm">{n.title}</span>
                       {!n.is_read && (
-                        <span className="inline-block h-2 w-2 rounded-full bg-purple-500" />
+                        <span className="inline-block h-2 w-2 rounded-full bg-primary" />
                       )}
                     </div>
-                    <p className="text-xs text-slate-300">{n.message}</p>
-                    <p className="text-[10px] text-slate-500">
+                    <p className="text-xs text-muted-foreground">{n.message}</p>
+                    <p className="text-[10px] text-muted-foreground">
                       {new Date(n.created_at).toLocaleString()}
                     </p>
                   </div>

@@ -193,21 +193,21 @@ function Page() {
                   <div className="flex flex-wrap gap-2 text-xs">
                     <button
                       type="button"
-                      className="text-amber-300"
+                      className="text-amber-600 dark:text-amber-300 hover:underline"
                       onClick={() => archive.mutate(r.id)}
                     >
                       Archive
                     </button>
                     <button
                       type="button"
-                      className="text-emerald-300"
+                      className="text-emerald-600 dark:text-emerald-300 hover:underline"
                       onClick={() => updateStatus.mutate({ id: r.id, status: "completed" })}
                     >
                       Close
                     </button>
                     <button
                       type="button"
-                      className="text-rose-300"
+                      className="text-rose-600 dark:text-rose-300 hover:underline"
                       onClick={() => setDeleteId(r.id)}
                     >
                       Delete
@@ -238,18 +238,18 @@ function Page() {
             placeholder="Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
           <textarea
             placeholder="Description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="min-h-24 rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="min-h-24 rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
           <select
             value={newPriority}
             onChange={(e) => setNewPriority(e.target.value as CasePriority)}
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           >
             <option value="low">low</option>
             <option value="medium">medium</option>
@@ -259,7 +259,7 @@ function Page() {
           <select
             value={superiorId}
             onChange={(e) => setSuperiorId(e.target.value)}
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           >
             <option value="">Superior Officer (optional)</option>
             {(superiors.data?.items || []).map((u) => (
@@ -271,7 +271,7 @@ function Page() {
           <select
             value={investigatorId}
             onChange={(e) => setInvestigatorId(e.target.value)}
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           >
             <option value="">Investigator (optional)</option>
             {(investigators.data?.items || []).map((u) => (
@@ -289,8 +289,8 @@ function Page() {
 
       <Modal open={!!detail} title={detail?.case_number || "Case"} onClose={() => setDetail(null)}>
         {detail && (
-          <div className="space-y-2 text-sm text-slate-300">
-            <p className="font-semibold text-slate-100">{detail.title}</p>
+          <div className="space-y-2 text-sm text-muted-foreground">
+            <p className="font-semibold text-foreground">{detail.title}</p>
             <p>{detail.description || "No description"}</p>
             <p>
               Priority: {detail.priority} · Status: {detail.status}

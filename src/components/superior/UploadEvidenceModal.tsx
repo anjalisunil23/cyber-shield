@@ -86,21 +86,21 @@ export function UploadEvidenceModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0f172a] p-6 shadow-2xl">
-        <div className="flex items-center justify-between border-b border-white/10 pb-4">
+      <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl">
+        <div className="flex items-center justify-between border-b border-border pb-4">
           <div className="flex items-center gap-2">
-            <div className="grid h-8 w-8 place-items-center rounded-lg bg-cyan/20 text-cyan">
+            <div className="grid h-8 w-8 place-items-center rounded-lg bg-primary/20 text-primary">
               <Upload className="h-4 w-4" />
             </div>
-            <h3 className="text-base font-semibold text-slate-100">Upload Evidence</h3>
+            <h3 className="text-base font-semibold text-foreground">Upload Evidence</h3>
           </div>
-          <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-200">
+          <button type="button" onClick={onClose} className="text-muted-foreground hover:text-foreground">
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Mode selector */}
-        <div className="mt-4 flex rounded-xl bg-[#0b1220] p-1 border border-white/5">
+        <div className="mt-4 flex rounded-xl bg-muted p-1 border border-border">
           <button
             type="button"
             onClick={() => {
@@ -109,8 +109,8 @@ export function UploadEvidenceModal({
             }}
             className={`flex-1 rounded-lg py-1 text-xs font-semibold transition-colors ${
               uploadMode === "file"
-                ? "bg-cyan text-slate-950"
-                : "text-slate-400 hover:text-slate-200"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             📄 File(s)
@@ -123,8 +123,8 @@ export function UploadEvidenceModal({
             }}
             className={`flex-1 rounded-lg py-1 text-xs font-semibold transition-colors ${
               uploadMode === "folder"
-                ? "bg-cyan text-slate-950"
-                : "text-slate-400 hover:text-slate-200"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             📁 Folder
@@ -133,7 +133,7 @@ export function UploadEvidenceModal({
 
         <form onSubmit={handleSubmit} className="mt-3 space-y-4">
           <div>
-            <label className="block text-xs font-medium text-slate-400">
+            <label className="block text-xs font-medium text-muted-foreground">
               {uploadMode === "folder" ? "Folder Attachment *" : "File Attachment *"}
             </label>
             {uploadMode === "file" ? (
@@ -147,7 +147,7 @@ export function UploadEvidenceModal({
                     if (!name && list[0]) setName(list[0].name);
                   }
                 }}
-                className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1220] p-2 text-xs text-slate-300 file:mr-3 file:rounded-lg file:border-0 file:bg-cyan/20 file:px-3 file:py-1 file:text-xs file:text-cyan hover:file:bg-cyan/30"
+                className="mt-1 w-full rounded-xl border border-border bg-background p-2 text-xs text-foreground file:mr-3 file:rounded-lg file:border-0 file:bg-primary/20 file:px-3 file:py-1 file:text-xs file:text-primary hover:file:bg-primary/30"
               />
             ) : (
               <input
@@ -165,11 +165,11 @@ export function UploadEvidenceModal({
                       setName(list[0].webkitRelativePath.split("/")[0] || list[0].name);
                   }
                 }}
-                className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1220] p-2 text-xs text-slate-300 file:mr-3 file:rounded-lg file:border-0 file:bg-cyan/20 file:px-3 file:py-1 file:text-xs file:text-cyan hover:file:bg-cyan/30"
+                className="mt-1 w-full rounded-xl border border-border bg-background p-2 text-xs text-foreground file:mr-3 file:rounded-lg file:border-0 file:bg-primary/20 file:px-3 file:py-1 file:text-xs file:text-primary hover:file:bg-primary/30"
               />
             )}
             {files.length > 0 && (
-              <p className="mt-1 text-[11px] text-cyan">
+              <p className="mt-1 text-[11px] text-primary">
                 ✓ {files.length} file(s) selected (
                 {uploadMode === "folder" ? "Folder structure preserved" : "Batch upload"})
               </p>
@@ -177,7 +177,7 @@ export function UploadEvidenceModal({
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-400">
+            <label className="block text-xs font-medium text-muted-foreground">
               Evidence Name / Title
             </label>
             <input
@@ -186,17 +186,17 @@ export function UploadEvidenceModal({
               placeholder="e.g. disk_image_dump.raw"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm text-slate-100 placeholder:text-slate-600 focus:border-cyan focus:outline-none"
+              className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-slate-400">Evidence Type</label>
+              <label className="block text-xs font-medium text-muted-foreground">Evidence Type</label>
               <select
                 value={type}
                 onChange={(e) => setType(e.target.value as MockEvidence["type"])}
-                className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm text-slate-100 focus:border-cyan focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
               >
                 <option value="image">Image</option>
                 <option value="video">Video</option>
@@ -208,11 +208,11 @@ export function UploadEvidenceModal({
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-400">Associated Case</label>
+              <label className="block text-xs font-medium text-muted-foreground">Associated Case</label>
               <select
                 value={caseNumber}
                 onChange={(e) => setCaseNumber(e.target.value)}
-                className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm text-slate-100 focus:border-cyan focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
               >
                 {caseOptions.map((c) => (
                   <option key={c.id} value={c.caseNumber}>
@@ -224,7 +224,7 @@ export function UploadEvidenceModal({
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-400">
+            <label className="block text-xs font-medium text-muted-foreground">
               Tags (comma separated)
             </label>
             <input
@@ -232,7 +232,7 @@ export function UploadEvidenceModal({
               placeholder="forensics, disk, cctv"
               value={tags}
               onChange={(e) => setTags(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm text-slate-100 placeholder:text-slate-600 focus:border-cyan focus:outline-none"
+              className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
             />
           </div>
 

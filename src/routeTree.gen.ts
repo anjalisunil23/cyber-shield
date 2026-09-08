@@ -52,6 +52,7 @@ import { Route as InvestigatorCasesRouteImport } from './routes/investigator/cas
 import { Route as InvestigatorDashboardRouteImport } from './routes/investigator/dashboard'
 import { Route as InvestigatorEvidenceRouteImport } from './routes/investigator/evidence'
 import { Route as InvestigatorLeadsRouteImport } from './routes/investigator/leads'
+import { Route as InvestigatorMessagesRouteImport } from './routes/investigator/messages'
 import { Route as InvestigatorNotesRouteImport } from './routes/investigator/notes'
 import { Route as InvestigatorReportsRouteImport } from './routes/investigator/reports'
 import { Route as InvestigatorSettingsRouteImport } from './routes/investigator/settings'
@@ -78,6 +79,7 @@ import { Route as SuperiorDashboardRouteImport } from './routes/superior/dashboa
 import { Route as SuperiorEvidenceRouteImport } from './routes/superior/evidence'
 import { Route as SuperiorInvestigatorsRouteImport } from './routes/superior/investigators'
 import { Route as SuperiorLeadsRouteImport } from './routes/superior/leads'
+import { Route as SuperiorMessagesRouteImport } from './routes/superior/messages'
 import { Route as SuperiorRelationshipsRouteImport } from './routes/superior/relationships'
 import { Route as SuperiorReportsRouteImport } from './routes/superior/reports'
 import { Route as SuperiorSettingsRouteImport } from './routes/superior/settings'
@@ -313,6 +315,11 @@ const InvestigatorLeadsRoute = InvestigatorLeadsRouteImport.update({
   path: '/leads',
   getParentRoute: () => InvestigatorRoute,
 } as any)
+const InvestigatorMessagesRoute = InvestigatorMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => InvestigatorRoute,
+} as any)
 const InvestigatorNotesRoute = InvestigatorNotesRouteImport.update({
   id: '/notes',
   path: '/notes',
@@ -441,6 +448,11 @@ const SuperiorInvestigatorsRoute = SuperiorInvestigatorsRouteImport.update({
 const SuperiorLeadsRoute = SuperiorLeadsRouteImport.update({
   id: '/leads',
   path: '/leads',
+  getParentRoute: () => SuperiorRoute,
+} as any)
+const SuperiorMessagesRoute = SuperiorMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
   getParentRoute: () => SuperiorRoute,
 } as any)
 const SuperiorRelationshipsRoute = SuperiorRelationshipsRouteImport.update({
@@ -587,6 +599,7 @@ export interface FileRoutesByFullPath {
   '/investigator/dashboard': typeof InvestigatorDashboardRoute
   '/investigator/evidence': typeof InvestigatorEvidenceRouteWithChildren
   '/investigator/leads': typeof InvestigatorLeadsRoute
+  '/investigator/messages': typeof InvestigatorMessagesRoute
   '/investigator/notes': typeof InvestigatorNotesRoute
   '/investigator/reports': typeof InvestigatorReportsRoute
   '/investigator/settings': typeof InvestigatorSettingsRoute
@@ -613,6 +626,7 @@ export interface FileRoutesByFullPath {
   '/superior/evidence': typeof SuperiorEvidenceRouteWithChildren
   '/superior/investigators': typeof SuperiorInvestigatorsRoute
   '/superior/leads': typeof SuperiorLeadsRoute
+  '/superior/messages': typeof SuperiorMessagesRoute
   '/superior/relationships': typeof SuperiorRelationshipsRoute
   '/superior/reports': typeof SuperiorReportsRoute
   '/superior/settings': typeof SuperiorSettingsRoute
@@ -676,6 +690,7 @@ export interface FileRoutesByTo {
   '/investigator/dashboard': typeof InvestigatorDashboardRoute
   '/investigator/evidence': typeof InvestigatorEvidenceRouteWithChildren
   '/investigator/leads': typeof InvestigatorLeadsRoute
+  '/investigator/messages': typeof InvestigatorMessagesRoute
   '/investigator/notes': typeof InvestigatorNotesRoute
   '/investigator/reports': typeof InvestigatorReportsRoute
   '/investigator/settings': typeof InvestigatorSettingsRoute
@@ -701,6 +716,7 @@ export interface FileRoutesByTo {
   '/superior/evidence': typeof SuperiorEvidenceRouteWithChildren
   '/superior/investigators': typeof SuperiorInvestigatorsRoute
   '/superior/leads': typeof SuperiorLeadsRoute
+  '/superior/messages': typeof SuperiorMessagesRoute
   '/superior/relationships': typeof SuperiorRelationshipsRoute
   '/superior/reports': typeof SuperiorReportsRoute
   '/superior/settings': typeof SuperiorSettingsRoute
@@ -766,6 +782,7 @@ export interface FileRoutesById {
   '/investigator/dashboard': typeof InvestigatorDashboardRoute
   '/investigator/evidence': typeof InvestigatorEvidenceRouteWithChildren
   '/investigator/leads': typeof InvestigatorLeadsRoute
+  '/investigator/messages': typeof InvestigatorMessagesRoute
   '/investigator/notes': typeof InvestigatorNotesRoute
   '/investigator/reports': typeof InvestigatorReportsRoute
   '/investigator/settings': typeof InvestigatorSettingsRoute
@@ -792,6 +809,7 @@ export interface FileRoutesById {
   '/superior/evidence': typeof SuperiorEvidenceRouteWithChildren
   '/superior/investigators': typeof SuperiorInvestigatorsRoute
   '/superior/leads': typeof SuperiorLeadsRoute
+  '/superior/messages': typeof SuperiorMessagesRoute
   '/superior/relationships': typeof SuperiorRelationshipsRoute
   '/superior/reports': typeof SuperiorReportsRoute
   '/superior/settings': typeof SuperiorSettingsRoute
@@ -858,6 +876,7 @@ export interface FileRouteTypes {
     | '/investigator/dashboard'
     | '/investigator/evidence'
     | '/investigator/leads'
+    | '/investigator/messages'
     | '/investigator/notes'
     | '/investigator/reports'
     | '/investigator/settings'
@@ -884,6 +903,7 @@ export interface FileRouteTypes {
     | '/superior/evidence'
     | '/superior/investigators'
     | '/superior/leads'
+    | '/superior/messages'
     | '/superior/relationships'
     | '/superior/reports'
     | '/superior/settings'
@@ -947,6 +967,7 @@ export interface FileRouteTypes {
     | '/investigator/dashboard'
     | '/investigator/evidence'
     | '/investigator/leads'
+    | '/investigator/messages'
     | '/investigator/notes'
     | '/investigator/reports'
     | '/investigator/settings'
@@ -972,6 +993,7 @@ export interface FileRouteTypes {
     | '/superior/evidence'
     | '/superior/investigators'
     | '/superior/leads'
+    | '/superior/messages'
     | '/superior/relationships'
     | '/superior/reports'
     | '/superior/settings'
@@ -1036,6 +1058,7 @@ export interface FileRouteTypes {
     | '/investigator/dashboard'
     | '/investigator/evidence'
     | '/investigator/leads'
+    | '/investigator/messages'
     | '/investigator/notes'
     | '/investigator/reports'
     | '/investigator/settings'
@@ -1062,6 +1085,7 @@ export interface FileRouteTypes {
     | '/superior/evidence'
     | '/superior/investigators'
     | '/superior/leads'
+    | '/superior/messages'
     | '/superior/relationships'
     | '/superior/reports'
     | '/superior/settings'
@@ -1406,6 +1430,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InvestigatorLeadsRouteImport
       parentRoute: typeof InvestigatorRoute
     }
+    '/investigator/messages': {
+      id: '/investigator/messages'
+      path: '/messages'
+      fullPath: '/investigator/messages'
+      preLoaderRoute: typeof InvestigatorMessagesRouteImport
+      parentRoute: typeof InvestigatorRoute
+    }
     '/investigator/notes': {
       id: '/investigator/notes'
       path: '/notes'
@@ -1586,6 +1617,13 @@ declare module '@tanstack/react-router' {
       path: '/leads'
       fullPath: '/superior/leads'
       preLoaderRoute: typeof SuperiorLeadsRouteImport
+      parentRoute: typeof SuperiorRoute
+    }
+    '/superior/messages': {
+      id: '/superior/messages'
+      path: '/messages'
+      fullPath: '/superior/messages'
+      preLoaderRoute: typeof SuperiorMessagesRouteImport
       parentRoute: typeof SuperiorRoute
     }
     '/superior/relationships': {
@@ -1841,6 +1879,7 @@ interface InvestigatorRouteChildren {
   InvestigatorDashboardRoute: typeof InvestigatorDashboardRoute
   InvestigatorEvidenceRoute: typeof InvestigatorEvidenceRouteWithChildren
   InvestigatorLeadsRoute: typeof InvestigatorLeadsRoute
+  InvestigatorMessagesRoute: typeof InvestigatorMessagesRoute
   InvestigatorNotesRoute: typeof InvestigatorNotesRoute
   InvestigatorReportsRoute: typeof InvestigatorReportsRoute
   InvestigatorSettingsRoute: typeof InvestigatorSettingsRoute
@@ -1854,6 +1893,7 @@ const InvestigatorRouteChildren: InvestigatorRouteChildren = {
   InvestigatorDashboardRoute: InvestigatorDashboardRoute,
   InvestigatorEvidenceRoute: InvestigatorEvidenceRouteWithChildren,
   InvestigatorLeadsRoute: InvestigatorLeadsRoute,
+  InvestigatorMessagesRoute: InvestigatorMessagesRoute,
   InvestigatorNotesRoute: InvestigatorNotesRoute,
   InvestigatorReportsRoute: InvestigatorReportsRoute,
   InvestigatorSettingsRoute: InvestigatorSettingsRoute,
@@ -1996,6 +2036,7 @@ interface SuperiorRouteChildren {
   SuperiorEvidenceRoute: typeof SuperiorEvidenceRouteWithChildren
   SuperiorInvestigatorsRoute: typeof SuperiorInvestigatorsRoute
   SuperiorLeadsRoute: typeof SuperiorLeadsRoute
+  SuperiorMessagesRoute: typeof SuperiorMessagesRoute
   SuperiorRelationshipsRoute: typeof SuperiorRelationshipsRoute
   SuperiorReportsRoute: typeof SuperiorReportsRoute
   SuperiorSettingsRoute: typeof SuperiorSettingsRoute
@@ -2010,6 +2051,7 @@ const SuperiorRouteChildren: SuperiorRouteChildren = {
   SuperiorEvidenceRoute: SuperiorEvidenceRouteWithChildren,
   SuperiorInvestigatorsRoute: SuperiorInvestigatorsRoute,
   SuperiorLeadsRoute: SuperiorLeadsRoute,
+  SuperiorMessagesRoute: SuperiorMessagesRoute,
   SuperiorRelationshipsRoute: SuperiorRelationshipsRoute,
   SuperiorReportsRoute: SuperiorReportsRoute,
   SuperiorSettingsRoute: SuperiorSettingsRoute,

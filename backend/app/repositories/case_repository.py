@@ -23,6 +23,7 @@ class CaseRepository:
                 selectinload(Case.investigator_assignments).joinedload(InvestigatorAssignment.user),
                 joinedload(Case.created_by),
                 joinedload(Case.supervisor),
+                joinedload(Case.investigator_lead),
             )
             .where(Case.id == case_id)
         )
@@ -50,20 +51,32 @@ class CaseRepository:
             selectinload(Case.investigator_assignments).joinedload(InvestigatorAssignment.user),
             joinedload(Case.created_by),
             joinedload(Case.supervisor),
+            joinedload(Case.investigator_lead),
         )
         count_stmt = select(func.count()).select_from(Case)
 
         if user_role and user_id and user_role not in ("major_admin", "admin"):
             assigned_subquery = select(CaseAssignment.case_id).where(CaseAssignment.user_id == user_id)
+            inv_assigned_subquery = select(InvestigatorAssignment.case_id).where(
+                InvestigatorAssignment.user_id == user_id,
+                InvestigatorAssignment.status == "active",
+            )
             if user_role in ("supervisor", "superior_officer"):
                 scope_filter = or_(
                     Case.created_by_id == user_id,
                     Case.supervisor_id == user_id,
+                    Case.investigator_lead_id == user_id,
                     Case.id.in_(assigned_subquery),
+                    Case.id.in_(inv_assigned_subquery),
                     Case.department_id == user_department_id if user_department_id else False,
                 )
             else:  # investigator
-                scope_filter = or_(Case.created_by_id == user_id, Case.id.in_(assigned_subquery))
+                scope_filter = or_(
+                    Case.created_by_id == user_id,
+                    Case.investigator_lead_id == user_id,
+                    Case.id.in_(assigned_subquery),
+                    Case.id.in_(inv_assigned_subquery),
+                )
             stmt = stmt.where(scope_filter)
             count_stmt = count_stmt.where(scope_filter)
 
@@ -80,8 +93,13 @@ class CaseRepository:
             count_stmt = count_stmt.where(Case.priority == priority)
         if assigned_to:
             sub = select(CaseAssignment.case_id).where(CaseAssignment.user_id == assigned_to)
-            stmt = stmt.where(Case.id.in_(sub))
-            count_stmt = count_stmt.where(Case.id.in_(sub))
+            inv_sub = select(InvestigatorAssignment.case_id).where(
+                InvestigatorAssignment.user_id == assigned_to,
+                InvestigatorAssignment.status == "active",
+            )
+            filt = or_(Case.investigator_lead_id == assigned_to, Case.id.in_(sub), Case.id.in_(inv_sub))
+            stmt = stmt.where(filt)
+            count_stmt = count_stmt.where(filt)
 
         sort_col = {
             "created_at": Case.created_at,

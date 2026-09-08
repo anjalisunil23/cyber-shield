@@ -14,7 +14,7 @@ const FAQS = [
 
 function Page() {
   return (
-    <div className="min-h-screen bg-[#020617] px-4 py-8 text-slate-100">
+    <div className="min-h-screen bg-background px-4 py-8 text-foreground transition-colors">
       <div className="mx-auto max-w-3xl">
         <PageScaffold
           crumbs={[{ label: "App" }, { label: "Help Center" }]}
@@ -24,7 +24,7 @@ function Page() {
           <div className="space-y-3">
             {FAQS.map(([q, a]) => (
               <Panel key={q} title={q}>
-                <p className="text-sm text-slate-400">{a}</p>
+                <p className="text-sm text-muted-foreground">{a}</p>
               </Panel>
             ))}
           </div>

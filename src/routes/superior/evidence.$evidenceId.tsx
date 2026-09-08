@@ -26,7 +26,7 @@ function Page() {
         title="Evidence Not Found"
       >
         <Panel>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-muted-foreground">
             The requested evidence item does not exist or has been deleted.
           </p>
         </Panel>
@@ -42,7 +42,7 @@ function Page() {
       actions={
         <GhostButton
           onClick={handleDelete}
-          className="text-rose-400 hover:bg-rose-500/10 hover:text-rose-300"
+          className="text-rose-500 hover:bg-rose-500/10 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-300"
         >
           <Trash2 className="mr-1.5 inline h-4 w-4" /> Delete Evidence
         </GhostButton>
@@ -50,7 +50,7 @@ function Page() {
     >
       <div className="grid gap-4 lg:grid-cols-3">
         <Panel title="Viewer" className="lg:col-span-2">
-          <div className="grid h-64 place-items-center rounded-xl border border-dashed border-white/15 bg-black/30 text-sm text-slate-500">
+          <div className="grid h-64 place-items-center rounded-xl border border-dashed border-border bg-muted/40 text-sm text-muted-foreground">
             {e.type === "image" && "Image viewer mock"}
             {e.type === "video" && "Video player mock"}
             {e.type === "audio" && "Audio player mock"}
@@ -61,20 +61,20 @@ function Page() {
         <Panel title="Metadata">
           <dl className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <dt className="text-slate-500">Case</dt>
-              <dd className="text-cyan">{e.caseNumber}</dd>
+              <dt className="text-muted-foreground">Case</dt>
+              <dd className="text-cyan font-medium">{e.caseNumber}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-slate-500">SHA256</dt>
-              <dd className="font-mono text-xs">{e.sha256}</dd>
+              <dt className="text-muted-foreground">SHA256</dt>
+              <dd className="font-mono text-xs text-foreground">{e.sha256}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-slate-500">Uploaded</dt>
-              <dd>{e.uploadedAt}</dd>
+              <dt className="text-muted-foreground">Uploaded</dt>
+              <dd className="text-foreground">{e.uploadedAt}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-slate-500">By</dt>
-              <dd>{e.uploadedBy}</dd>
+              <dt className="text-muted-foreground">By</dt>
+              <dd className="text-foreground">{e.uploadedBy}</dd>
             </div>
           </dl>
           <div className="mt-3 flex flex-wrap gap-1">
@@ -82,7 +82,7 @@ function Page() {
               <StatusPill key={t} value={t} />
             ))}
           </div>
-          <div className="mt-4 rounded-xl border border-dashed border-cyan/30 bg-cyan/5 p-3 text-xs text-slate-400">
+          <div className="mt-4 rounded-xl border border-dashed border-cyan-500/30 bg-cyan-500/10 p-3 text-xs text-muted-foreground">
             AI panel placeholder — OCR / objects / transcript
           </div>
         </Panel>

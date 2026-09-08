@@ -14,6 +14,11 @@ import {
   Clock,
   ShieldAlert,
   Archive,
+  MessageSquare,
+  Users,
+  UserCheck,
+  UserPlus,
+  MoreVertical,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -26,6 +31,7 @@ import {
 import { getToken } from "@/lib/auth";
 import { apiMessage } from "@/services/apiClient";
 import { investigationApi } from "@/services/investigationApi";
+import { ChatInterface } from "@/components/chat/ChatInterface";
 import type {
   EntityKind,
   LeadPriority,
@@ -41,8 +47,12 @@ import type {
   TimelineItem,
   ReportItem,
   NoteItem,
+  CaseTeamResponse,
+  CaseInvestigator,
+  AdminUser,
 } from "@/services/types";
 import { getStoredCases, useEvidenceList } from "@/data/mock/platformState";
+import { MOCK_USERS } from "@/data/mock/platform";
 
 export const Route = createFileRoute("/dashboard/cases/$caseId")({
   component: CaseDetailPage,
@@ -79,6 +89,20 @@ export function CaseDetailPage() {
   const [requestChangesComment, setRequestChangesComment] = useState("");
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [approveComment, setApproveComment] = useState("");
+
+  // Case Investigation Team & Chat State
+  const [localLead, setLocalLead] = useState<CaseInvestigator | null>(null);
+  const [localTeamMembers, setLocalTeamMembers] = useState<CaseInvestigator[]>([]);
+  const [showAddInvestigatorModal, setShowAddInvestigatorModal] = useState(false);
+  const [addInvestigatorSearch, setAddInvestigatorSearch] = useState("");
+  const [selectedInvIds, setSelectedInvIds] = useState<string[]>([]);
+
+  const [showReassignLeadModal, setShowReassignLeadModal] = useState(false);
+  const [selectedNewLeadId, setSelectedNewLeadId] = useState("");
+  const [keepPrevLead, setKeepPrevLead] = useState(true);
+
+  const [showChatModal, setShowChatModal] = useState(false);
+  const [activeDirectChatUserId, setActiveDirectChatUserId] = useState<string | undefined>(undefined);
 
   const meQ = useQuery({ queryKey: ["me"], queryFn: () => investigationApi.me() });
   const userRole = meQ.data?.role || "";
@@ -293,6 +317,157 @@ export function CaseDetailPage() {
     },
     enabled: (tab === "activity" || tab === "overview") && validUUID,
     retry: false,
+  });
+
+  const teamQ = useQuery({
+    queryKey: ["case-team", resolvedCaseId],
+    queryFn: async () => {
+      if (!validUUID) return null;
+      try {
+        return await investigationApi.getCaseTeam(resolvedCaseId);
+      } catch {
+        return null;
+      }
+    },
+    enabled: validUUID,
+    retry: false,
+  });
+
+  const usersQ = useQuery({
+    queryKey: ["users-page-all"],
+    queryFn: async () => {
+      try {
+        const page = await investigationApi.listUsers();
+        return page.items || [];
+      } catch {
+        return [];
+      }
+    },
+    enabled: true,
+    retry: false,
+  });
+
+  const allUsersList: AdminUser[] = (() => {
+    const list: AdminUser[] = [...(usersQ.data || [])];
+    MOCK_USERS.forEach((mu) => {
+      if (!list.some((u) => u.id === mu.id || u.email.toLowerCase() === mu.email.toLowerCase())) {
+        list.push({
+          id: mu.id,
+          email: mu.email,
+          full_name: mu.name,
+          role: mu.role.toLowerCase(),
+          is_active: mu.status === "Active",
+          created_at: new Date().toISOString(),
+        } as AdminUser);
+      }
+    });
+    return list;
+  })();
+
+  const addTeamMutation = useMutation({
+    mutationFn: async (investigator_ids: string[]) => {
+      if (validUUID) {
+        try {
+          return await investigationApi.addTeamInvestigators(resolvedCaseId, { investigator_ids });
+        } catch (e) {
+          console.warn("API addTeamInvestigators error, using local state update:", e);
+        }
+      }
+      return null;
+    },
+    onSuccess: (_, investigator_ids) => {
+      const addedMembers: CaseInvestigator[] = [];
+      investigator_ids.forEach((id) => {
+        const u = allUsersList.find((x) => x.id === id);
+        if (u) {
+          addedMembers.push({
+            id: `team-local-${id}`,
+            case_id: resolvedCaseId,
+            user_id: u.id,
+            role: "INVESTIGATOR",
+            status: "active",
+            assigned_at: new Date().toISOString(),
+            user: {
+              id: u.id,
+              full_name: u.full_name,
+              email: u.email,
+              role: u.role,
+            },
+          });
+        }
+      });
+      setLocalTeamMembers((prev) => [...prev, ...addedMembers]);
+      toast.success(`${investigator_ids.length} investigator(s) assigned to case team`);
+      setShowAddInvestigatorModal(false);
+      setSelectedInvIds([]);
+      void qc.invalidateQueries({ queryKey: ["case-team", resolvedCaseId] });
+      void qc.invalidateQueries({ queryKey: ["case-resolved", caseIdParam] });
+      void qc.invalidateQueries({ queryKey: ["timeline", resolvedCaseId] });
+      void qc.invalidateQueries({ queryKey: ["activity"] });
+    },
+    onError: (e) => toast.error(apiMessage(e)),
+  });
+
+  const removeTeamMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      if (validUUID) {
+        try {
+          return await investigationApi.removeTeamInvestigator(resolvedCaseId, userId);
+        } catch (e) {
+          console.warn("API removeTeamInvestigator error, using local state update:", e);
+        }
+      }
+      return null;
+    },
+    onSuccess: (_, userId) => {
+      setLocalTeamMembers((prev) => prev.filter((m) => m.user_id !== userId));
+      toast.success("Investigator removed from case team");
+      void qc.invalidateQueries({ queryKey: ["case-team", resolvedCaseId] });
+      void qc.invalidateQueries({ queryKey: ["case-resolved", caseIdParam] });
+      void qc.invalidateQueries({ queryKey: ["timeline", resolvedCaseId] });
+      void qc.invalidateQueries({ queryKey: ["activity"] });
+    },
+    onError: (e) => toast.error(apiMessage(e)),
+  });
+
+  const reassignLeadMutation = useMutation({
+    mutationFn: async (payload: { new_investigator_lead_id: string; keep_previous_as_investigator: boolean }) => {
+      if (validUUID) {
+        try {
+          return await investigationApi.reassignCaseLead(resolvedCaseId, payload);
+        } catch (e) {
+          console.warn("API reassignCaseLead error, using local state update:", e);
+        }
+      }
+      return null;
+    },
+    onSuccess: (_, vars) => {
+      const newLeadUser = allUsersList.find((u) => u.id === vars.new_investigator_lead_id);
+      if (newLeadUser) {
+        setLocalLead({
+          id: `lead-local-${newLeadUser.id}`,
+          case_id: resolvedCaseId,
+          user_id: newLeadUser.id,
+          role: "INVESTIGATOR_LEAD",
+          status: "active",
+          assigned_at: new Date().toISOString(),
+          user: {
+            id: newLeadUser.id,
+            full_name: newLeadUser.full_name,
+            email: newLeadUser.email,
+            role: newLeadUser.role,
+          },
+        });
+      }
+      toast.success("Investigator Lead established successfully");
+      setShowReassignLeadModal(false);
+      setSelectedNewLeadId("");
+      void qc.invalidateQueries({ queryKey: ["case-team", resolvedCaseId] });
+      void qc.invalidateQueries({ queryKey: ["case-resolved", caseIdParam] });
+      void qc.invalidateQueries({ queryKey: ["timeline", resolvedCaseId] });
+      void qc.invalidateQueries({ queryKey: ["activity"] });
+    },
+    onError: (e) => toast.error(apiMessage(e)),
   });
 
   const updateCase = useMutation({
@@ -522,27 +697,147 @@ export function CaseDetailPage() {
 
   const canSubmitForReview = ["open", "in_progress", "changes_requested"].includes(c.status);
 
+  const currentUserId = meQ.data?.id;
+  const teamData = teamQ.data;
+  const rawLead =
+    localLead ||
+    teamData?.investigator_lead ||
+    (c?.investigator_lead
+      ? ({
+          id: "lead-assign",
+          case_id: resolvedCaseId,
+          user_id: c.investigator_lead.id,
+          role: "INVESTIGATOR_LEAD",
+          status: "active",
+          assigned_at: c.created_at,
+          user: c.investigator_lead,
+        } as CaseInvestigator)
+      : null);
+
+  // If not found in investigator_lead, check assignments for an actual INVESTIGATOR (never supervisor/admin)
+  const candidateFromAssignments =
+    !rawLead && c?.assignments?.length
+      ? c.assignments.find((a) => {
+          const role = (a.user?.role || "").toLowerCase();
+          const isNotSupervisor = !["supervisor", "superior_officer", "major_admin", "admin"].includes(
+            role,
+          );
+          const isNotSupervisorId =
+            a.user_id !== c.supervisor_id && a.user_id !== c.created_by_id;
+          return isNotSupervisor && isNotSupervisorId;
+        })
+      : null;
+
+  const leadInvestigator: CaseInvestigator | undefined = rawLead
+    ? ["supervisor", "superior_officer", "major_admin", "admin"].includes(
+        (rawLead.user?.role || "").toLowerCase(),
+      )
+      ? undefined
+      : rawLead
+    : candidateFromAssignments
+      ? ({
+          id: candidateFromAssignments.id || "lead-assign-primary",
+          case_id: resolvedCaseId,
+          user_id: candidateFromAssignments.user_id,
+          role: "INVESTIGATOR_LEAD",
+          status: "active",
+          assigned_at: candidateFromAssignments.assigned_at || c?.created_at,
+          user: candidateFromAssignments.user,
+        } as CaseInvestigator)
+      : undefined;
+
+  // Merge team data from backend, local state, and non-lead investigator assignments
+  const baseTeam = teamData?.team_investigators || [];
+  const assignedTeam = (c?.assignments || [])
+    .filter((a) => {
+      const role = (a.user?.role || "").toLowerCase();
+      const isInvestigatorRole = ![
+        "supervisor",
+        "superior_officer",
+        "major_admin",
+        "admin",
+      ].includes(role);
+      return isInvestigatorRole && a.user_id !== leadInvestigator?.user_id;
+    })
+    .map(
+      (a) =>
+        ({
+          id: a.id,
+          case_id: resolvedCaseId,
+          user_id: a.user_id,
+          role: "INVESTIGATOR",
+          status: "active",
+          assigned_at: a.assigned_at,
+          user: a.user,
+        }) as CaseInvestigator,
+    );
+
+  const mergedTeamMap = new Map<string, CaseInvestigator>();
+  baseTeam.forEach((inv) => mergedTeamMap.set(inv.user_id, inv));
+  assignedTeam.forEach((inv) => {
+    if (!mergedTeamMap.has(inv.user_id)) mergedTeamMap.set(inv.user_id, inv);
+  });
+  localTeamMembers.forEach((inv) => {
+    if (inv.user_id !== leadInvestigator?.user_id) {
+      mergedTeamMap.set(inv.user_id, inv);
+    }
+  });
+
+  const teamInvestigators = Array.from(mergedTeamMap.values()).filter(
+    (inv) =>
+      inv.user_id !== leadInvestigator?.user_id &&
+      !["supervisor", "superior_officer", "major_admin", "admin"].includes(
+        (inv.user?.role || "").toLowerCase(),
+      ),
+  );
+
+  const leadUserId = leadInvestigator?.user_id || c?.investigator_lead_id;
+  const isCaseLead = Boolean(currentUserId && leadUserId && currentUserId === leadUserId);
+  const canManageTeam = isCaseLead || isSupervisor;
+  const canReassignLead = isSupervisor;
+
+  const assignedUserIds = new Set<string>();
+  if (leadInvestigator?.user_id) assignedUserIds.add(leadInvestigator.user_id);
+  teamInvestigators.forEach((inv) => assignedUserIds.add(inv.user_id));
+
+  const availableInvestigators = allUsersList.filter((u) => {
+    const isInv = (u.role || "").toLowerCase().includes("investigator");
+    const isNotAssigned = !assignedUserIds.has(u.id);
+    const searchMatch =
+      addInvestigatorSearch.trim() === "" ||
+      u.full_name.toLowerCase().includes(addInvestigatorSearch.toLowerCase()) ||
+      u.email.toLowerCase().includes(addInvestigatorSearch.toLowerCase());
+    return isInv && isNotAssigned && searchMatch;
+  });
+
+  const eligibleLeadInvestigators = allUsersList.filter((u) => {
+    const isInv = (u.role || "").toLowerCase().includes("investigator");
+    return isInv && u.id !== leadUserId;
+  });
+
+  const totalTeamCount = (leadInvestigator ? 1 : 0) + teamInvestigators.length;
+
   return (
     <div className="space-y-5">
       {/* Header & Role Action Bar */}
-      <div className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-white/10 bg-[#111827]/90 p-5 shadow-lg">
+      <div className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-border bg-card p-5 shadow-sm">
         <div className="space-y-1">
           <Link
             to="/dashboard/cases"
-            className="text-xs text-cyan hover:underline inline-flex items-center gap-1"
+            className="text-xs text-primary hover:underline inline-flex items-center gap-1 font-medium"
           >
             ← Back to cases list
           </Link>
-          <h1 className="text-2xl font-bold text-slate-50">{c.title}</h1>
-          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400">
-            <span className="font-mono text-cyan font-semibold">{c.case_number}</span>
+          <h1 className="text-2xl font-bold text-foreground">{c.title}</h1>
+          <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+            <span className="font-mono text-primary font-semibold">{c.case_number}</span>
             <span>·</span>
             <span>Created by: {c.created_by?.full_name || "Investigator"}</span>
             {c.supervisor && (
               <>
                 <span>·</span>
-                <span className="text-slate-300">
-                  Supervisor: <strong className="text-cyan">{c.supervisor.full_name}</strong>
+                <span className="text-muted-foreground">
+                  Supervisor: <strong className="text-primary">{c.supervisor.full_name}</strong>
                 </span>
               </>
             )}
@@ -561,7 +856,7 @@ export function CaseDetailPage() {
               type="button"
               disabled={submitForReview.isPending}
               onClick={() => submitForReview.mutate()}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-cyan px-4 py-2 text-xs font-bold text-slate-950 hover:bg-cyan/90 transition-all shadow-md hover:shadow-cyan/20 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground hover:bg-primary/90 transition-all shadow-md disabled:opacity-50"
             >
               <Upload className="h-3.5 w-3.5" />
               {submitForReview.isPending ? "Submitting..." : "Submit for Supervisor Review"}
@@ -574,14 +869,14 @@ export function CaseDetailPage() {
               <button
                 type="button"
                 onClick={() => setShowRequestChangesModal(true)}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-500/20 px-3.5 py-2 text-xs font-bold text-amber-300 hover:bg-amber-500/30 transition-colors"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-500/20 px-3.5 py-2 text-xs font-bold text-amber-600 dark:text-amber-300 hover:bg-amber-500/30 transition-colors"
               >
                 <AlertTriangle className="h-3.5 w-3.5" /> Request Changes
               </button>
               <button
                 type="button"
                 onClick={() => setShowApproveModal(true)}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500 px-4 py-2 text-xs font-bold text-slate-950 hover:bg-emerald-400 transition-colors shadow-md hover:shadow-emerald-500/20"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 dark:bg-emerald-500 px-4 py-2 text-xs font-bold text-white dark:text-slate-950 hover:bg-emerald-500 transition-colors shadow-md"
               >
                 <CheckCircle2 className="h-3.5 w-3.5" /> Approve Case
               </button>
@@ -593,7 +888,7 @@ export function CaseDetailPage() {
               type="button"
               disabled={closeCase.isPending}
               onClick={() => closeCase.mutate()}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-slate-200 px-4 py-2 text-xs font-bold text-slate-950 hover:bg-white transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-muted px-4 py-2 text-xs font-bold text-foreground hover:bg-muted/80 transition-colors disabled:opacity-50 border border-border"
             >
               <Archive className="h-3.5 w-3.5" />
               {closeCase.isPending ? "Closing..." : "Close Case"}
@@ -718,7 +1013,7 @@ export function CaseDetailPage() {
       )}
 
       {/* Tabs Navigation */}
-      <div className="flex flex-wrap gap-1 border-b border-white/10 pb-2">
+      <div className="flex flex-wrap gap-1 border-b border-border pb-2">
         {tabs.map((t) => (
           <button
             key={t}
@@ -727,7 +1022,7 @@ export function CaseDetailPage() {
             className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
               tab === t
                 ? "bg-primary/20 text-primary border border-primary/30 font-semibold"
-                : "text-slate-400 hover:bg-white/5"
+                : "text-muted-foreground hover:bg-muted"
             }`}
           >
             {tabLabels[t]}
@@ -736,99 +1031,300 @@ export function CaseDetailPage() {
       </div>
 
       {tab === "overview" && (
-        <div className="grid gap-4 lg:grid-cols-2">
-          <div className="space-y-4 rounded-2xl border border-white/10 bg-[#111827]/90 p-5">
-            <h3 className="text-sm font-semibold text-slate-100">Case Details</h3>
-            <p className="text-sm text-slate-300 whitespace-pre-wrap">
-              {c.description || "No description provided."}
-            </p>
+        <div className="space-y-5">
+          <div className="grid gap-4 lg:grid-cols-2">
+            <div className="space-y-4 rounded-2xl border border-border bg-card p-5">
+              <h3 className="text-sm font-semibold text-foreground">Case Details</h3>
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                {c.description || "No description provided."}
+              </p>
 
-            {c.review_comment && (
-              <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-3">
-                <p className="text-xs font-bold text-amber-400 uppercase">
-                  Supervisor Review Comment
-                </p>
-                <p className="text-xs text-slate-300 mt-1">{c.review_comment}</p>
-              </div>
-            )}
+              {c.review_comment && (
+                <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-3">
+                  <p className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase">
+                    Supervisor Review Comment
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">{c.review_comment}</p>
+                </div>
+              )}
 
-            <div className="grid gap-3 sm:grid-cols-2 pt-2 border-t border-white/5">
-              <div className="block text-xs text-slate-400">
-                Status
-                <p className="mt-1">
-                  <Badge className={statusBadgeClass(c.status)}>{formatLabel(c.status)}</Badge>
-                </p>
-                <p className="mt-1.5 text-[11px] text-slate-500">
-                  Workflow status is changed by review actions, not this panel.
-                </p>
+              <div className="grid gap-3 sm:grid-cols-2 pt-2 border-t border-border">
+                <div className="block text-xs text-muted-foreground">
+                  Status
+                  <p className="mt-1">
+                    <Badge className={statusBadgeClass(c.status)}>{formatLabel(c.status)}</Badge>
+                  </p>
+                  <p className="mt-1.5 text-[11px] text-muted-foreground/80">
+                    Workflow status is changed by review actions, not this panel.
+                  </p>
+                </div>
+                <label className="block text-xs text-muted-foreground">
+                  Priority
+                  <select
+                    value={c.priority}
+                    onChange={(e) => updateCase.mutate({ priority: e.target.value as CasePriority })}
+                    className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground"
+                  >
+                    {(["low", "medium", "high", "critical"] as CasePriority[]).map((p) => (
+                      <option key={p} value={p}>
+                        {formatLabel(p)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
               </div>
-              <label className="block text-xs text-slate-400">
-                Priority
-                <select
-                  value={c.priority}
-                  onChange={(e) => updateCase.mutate({ priority: e.target.value as CasePriority })}
-                  className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm text-slate-200"
-                >
-                  {(["low", "medium", "high", "critical"] as CasePriority[]).map((p) => (
-                    <option key={p} value={p}>
-                      {formatLabel(p)}
-                    </option>
-                  ))}
-                </select>
-              </label>
             </div>
 
-            <div className="pt-2 border-t border-white/5">
-              <p className="text-xs text-slate-400 mb-1.5 font-medium">Assigned Personnel</p>
-              <ul className="space-y-1.5 text-sm text-slate-200">
-                {c.assignments.map((a) => (
-                  <li key={a.id} className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-cyan" />
-                    <span>{a.user?.full_name || a.user_id}</span>
-                    {a.is_primary && (
-                      <span className="text-[10px] text-cyan bg-cyan/10 px-1.5 py-0.5 rounded">
-                        Primary
-                      </span>
-                    )}
-                  </li>
-                ))}
-                {!c.assignments.length && (
-                  <li className="text-xs text-slate-500">No personnel assigned</li>
+            <div className="rounded-2xl border border-border bg-card p-5">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-sm font-semibold text-foreground">Recent Activity Timeline</h3>
+                <button
+                  type="button"
+                  onClick={() => setTab("timeline")}
+                  className="text-xs text-primary hover:underline"
+                >
+                  View all ({timelineQ.data?.length || 0}) →
+                </button>
+              </div>
+              <ul className="space-y-3">
+                {(timelineQ.data || [])
+                  .slice(-8)
+                  .reverse()
+                  .map((e) => (
+                    <li key={e.id} className="border-l-2 border-primary/50 pl-3 py-0.5">
+                      <p className="text-sm text-foreground font-medium">{e.title}</p>
+                      {e.description && (
+                        <p className="text-xs text-muted-foreground truncate">{e.description}</p>
+                      )}
+                      <p className="text-[10px] text-muted-foreground">
+                        {new Date(e.event_at).toLocaleString()}
+                      </p>
+                    </li>
+                  ))}
+                {!timelineQ.data?.length && (
+                  <p className="text-xs text-muted-foreground">No timeline events recorded</p>
                 )}
               </ul>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-[#111827]/90 p-5">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="text-sm font-semibold text-slate-100">Recent Activity Timeline</h3>
-              <button
-                type="button"
-                onClick={() => setTab("timeline")}
-                className="text-xs text-cyan hover:underline"
-              >
-                View all ({timelineQ.data?.length || 0}) →
-              </button>
+          {/* CASE INVESTIGATION TEAM & HIERARCHY SECTION */}
+          <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
+              <div className="flex items-center gap-3">
+                <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
+                  <Users className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-bold text-foreground">Case Investigation Team</h3>
+                    <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                      {totalTeamCount} Member{totalTeamCount === 1 ? "" : "s"}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Hierarchical structure: Investigator Lead and supporting team investigators.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveDirectChatUserId(undefined);
+                    setShowChatModal(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-primary/30 bg-primary/10 px-3.5 py-2 text-xs font-bold text-primary hover:bg-primary/20 transition-colors shadow-sm"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  Investigation Group Chat
+                </button>
+
+                {canManageTeam && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedInvIds([]);
+                      setAddInvestigatorSearch("");
+                      setShowAddInvestigatorModal(true);
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground hover:bg-primary/90 transition-all shadow-md"
+                  >
+                    <UserPlus className="h-4 w-4" />
+                    + Add Investigator
+                  </button>
+                )}
+              </div>
             </div>
-            <ul className="space-y-3">
-              {(timelineQ.data || [])
-                .slice(-8)
-                .reverse()
-                .map((e) => (
-                  <li key={e.id} className="border-l-2 border-cyan/50 pl-3 py-0.5">
-                    <p className="text-sm text-slate-200 font-medium">{e.title}</p>
-                    {e.description && (
-                      <p className="text-xs text-slate-400 truncate">{e.description}</p>
+
+            <div className="grid gap-4 lg:grid-cols-12">
+              {/* INVESTIGATOR LEAD CARD (5 cols) */}
+              <div className="lg:col-span-5 flex flex-col justify-between rounded-xl border-2 border-amber-500/30 bg-amber-500/5 p-4 space-y-4 relative overflow-hidden shadow-sm">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-500/20 px-2.5 py-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 border border-amber-500/30 uppercase tracking-wider">
+                      <UserCheck className="h-3.5 w-3.5" /> Investigator Lead
+                    </span>
+                    {leadInvestigator ? (
+                      <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded uppercase">
+                        Active Lead
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded uppercase">
+                        Unassigned
+                      </span>
                     )}
-                    <p className="text-[10px] text-slate-500">
-                      {new Date(e.event_at).toLocaleString()}
+                  </div>
+
+                  {leadInvestigator?.user ? (
+                    <div className="flex items-center gap-3">
+                      <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-amber-500/20 font-bold text-amber-600 dark:text-amber-400 text-lg border border-amber-500/30">
+                        {leadInvestigator.user.full_name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h4 className="text-sm font-bold text-foreground truncate">
+                          {leadInvestigator.user.full_name}
+                          {leadInvestigator.user_id === currentUserId && (
+                            <span className="ml-2 text-[10px] font-normal text-muted-foreground">(You)</span>
+                          )}
+                        </h4>
+                        <p className="text-xs text-muted-foreground truncate">{leadInvestigator.user.email}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                          Assigned: {leadInvestigator.assigned_at ? new Date(leadInvestigator.assigned_at).toLocaleDateString() : "Case creation"}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3 py-1">
+                      <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-amber-500/10 font-bold text-amber-600 dark:text-amber-400 text-base border border-dashed border-amber-500/30">
+                        ?
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h4 className="text-sm font-semibold text-foreground">No Investigator Lead Assigned</h4>
+                        <p className="text-xs text-muted-foreground">
+                          {isSupervisor
+                            ? "Assign an investigator to lead this case and direct the investigation team."
+                            : "A Superior Officer will assign a lead investigator to direct this case."}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-amber-500/20">
+                  {leadInvestigator?.user_id && leadInvestigator.user_id !== currentUserId && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveDirectChatUserId(leadInvestigator.user_id);
+                        setShowChatModal(true);
+                      }}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors shadow-sm"
+                    >
+                      <MessageSquare className="h-3.5 w-3.5 text-primary" />
+                      Direct Message
+                    </button>
+                  )}
+
+                  {canReassignLead && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedNewLeadId("");
+                        setKeepPrevLead(true);
+                        setShowReassignLeadModal(true);
+                      }}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/20 px-3.5 py-1.5 text-xs font-bold text-amber-600 dark:text-amber-400 hover:bg-amber-500/30 transition-colors shadow-sm"
+                    >
+                      <UserPlus className="h-3.5 w-3.5" />
+                      {leadInvestigator ? "Reassign Lead" : "Assign Investigator Lead"}
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* TEAM INVESTIGATORS LIST CARD (7 cols) */}
+              <div className="lg:col-span-7 rounded-xl border border-border bg-card/60 p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Users className="h-3.5 w-3.5 text-primary" />
+                    Team Investigators ({teamInvestigators.length})
+                  </h4>
+                  <span className="text-[10px] text-muted-foreground">
+                    {isCaseLead ? "Managed by you" : isSupervisor ? "Managed by Lead & Superior" : "Managed by Investigator Lead"}
+                  </span>
+                </div>
+
+                {teamInvestigators.length === 0 ? (
+                  <div className="rounded-lg border border-dashed border-border p-6 text-center space-y-1.5">
+                    <p className="text-xs font-medium text-foreground">No additional investigators assigned</p>
+                    <p className="text-[11px] text-muted-foreground max-w-sm mx-auto">
+                      {canManageTeam
+                        ? "Use '+ Add Investigator' above to assign investigators under the Lead to collaborate on this case."
+                        : "The Investigator Lead manages this case team and can add investigators to assist."}
                     </p>
-                  </li>
-                ))}
-              {!timelineQ.data?.length && (
-                <p className="text-xs text-slate-500">No timeline events recorded</p>
-              )}
-            </ul>
+                  </div>
+                ) : (
+                  <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                    {teamInvestigators.map((inv) => (
+                      <div
+                        key={inv.id}
+                        className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background/80 p-2.5 transition-colors hover:border-primary/30 shadow-sm"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                            {inv.user?.full_name?.charAt(0).toUpperCase() || "I"}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs font-semibold text-foreground truncate">
+                              {inv.user?.full_name || inv.user_id}
+                              {inv.user_id === currentUserId && (
+                                <span className="ml-1.5 text-[10px] font-normal text-muted-foreground">(You)</span>
+                              )}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground truncate">{inv.user?.email}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {inv.user_id !== currentUserId && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setActiveDirectChatUserId(inv.user_id);
+                                setShowChatModal(true);
+                              }}
+                              title="Send direct message"
+                              className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2.5 py-1 text-[11px] font-medium text-foreground hover:bg-muted transition-colors"
+                            >
+                              <MessageSquare className="h-3 w-3 text-primary" />
+                              Message
+                            </button>
+                          )}
+
+                          {canManageTeam && (
+                            <button
+                              type="button"
+                              disabled={removeTeamMutation.isPending}
+                              onClick={() => {
+                                if (window.confirm(`Remove ${inv.user?.full_name || "investigator"} from this case team?`)) {
+                                  removeTeamMutation.mutate(inv.user_id);
+                                }
+                              }}
+                              title="Remove from team"
+                              className="p-1.5 rounded-md hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -919,29 +1415,29 @@ export function CaseDetailPage() {
       {/* Supervisor Request Changes Modal */}
       {showRequestChangesModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md rounded-2xl border border-amber-500/30 bg-[#0f172a] p-6 shadow-2xl space-y-4">
+          <div className="w-full max-w-md rounded-2xl border border-amber-500/30 bg-card p-6 shadow-2xl space-y-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/20 text-amber-500">
                 <AlertTriangle className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-slate-100">Request Case Revisions</h3>
-                <p className="text-xs text-slate-400">
+                <h3 className="text-base font-bold text-foreground">Request Case Revisions</h3>
+                <p className="text-xs text-muted-foreground">
                   Specify mandatory feedback for assigned investigators
                 </p>
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
-                Supervisor Feedback & Required Changes <span className="text-amber-400">*</span>
+              <label className="block text-xs font-semibold text-foreground mb-1">
+                Supervisor Feedback & Required Changes <span className="text-amber-500">*</span>
               </label>
               <textarea
                 rows={4}
                 value={requestChangesComment}
                 onChange={(e) => setRequestChangesComment(e.target.value)}
                 placeholder="Detail what evidence needs further analysis, missing leads, or report updates..."
-                className="w-full rounded-xl border border-white/10 bg-[#0b1220] p-3 text-sm text-slate-200 placeholder-slate-500 focus:border-amber-500 focus:outline-none"
+                className="w-full rounded-xl border border-border bg-background p-3 text-sm text-foreground placeholder-muted-foreground focus:border-amber-500 focus:outline-none"
               />
             </div>
 
@@ -952,7 +1448,7 @@ export function CaseDetailPage() {
                   setShowRequestChangesModal(false);
                   setRequestChangesComment("");
                 }}
-                className="rounded-xl border border-white/10 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-white/5"
+                className="rounded-xl border border-border px-4 py-2 text-xs font-semibold text-foreground hover:bg-muted"
               >
                 Cancel
               </button>
@@ -977,21 +1473,21 @@ export function CaseDetailPage() {
       {/* Supervisor Approve Modal */}
       {showApproveModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md rounded-2xl border border-emerald-500/30 bg-[#0f172a] p-6 shadow-2xl space-y-4">
+          <div className="w-full max-w-md rounded-2xl border border-emerald-500/30 bg-card p-6 shadow-2xl space-y-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-500">
                 <CheckCircle2 className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-slate-100">Authorize & Approve Case</h3>
-                <p className="text-xs text-slate-400">
+                <h3 className="text-base font-bold text-foreground">Authorize & Approve Case</h3>
+                <p className="text-xs text-muted-foreground">
                   Sign off on all investigation findings and evidence
                 </p>
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
+              <label className="block text-xs font-semibold text-foreground mb-1">
                 Approval Note (Optional)
               </label>
               <textarea
@@ -999,7 +1495,7 @@ export function CaseDetailPage() {
                 value={approveComment}
                 onChange={(e) => setApproveComment(e.target.value)}
                 placeholder="Add any final sign-off notes or instructions..."
-                className="w-full rounded-xl border border-white/10 bg-[#0b1220] p-3 text-sm text-slate-200 placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
+                className="w-full rounded-xl border border-border bg-background p-3 text-sm text-foreground placeholder-muted-foreground focus:border-emerald-500 focus:outline-none"
               />
             </div>
 
@@ -1010,7 +1506,7 @@ export function CaseDetailPage() {
                   setShowApproveModal(false);
                   setApproveComment("");
                 }}
-                className="rounded-xl border border-white/10 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-white/5"
+                className="rounded-xl border border-border px-4 py-2 text-xs font-semibold text-foreground hover:bg-muted"
               >
                 Cancel
               </button>
@@ -1023,11 +1519,240 @@ export function CaseDetailPage() {
                     review_comment: approveComment.trim() || undefined,
                   })
                 }
-                className="rounded-xl bg-emerald-500 px-4 py-2 text-xs font-bold text-slate-950 hover:bg-emerald-400 disabled:opacity-50 transition-colors"
+                className="rounded-xl bg-emerald-600 dark:bg-emerald-500 px-4 py-2 text-xs font-bold text-white dark:text-slate-950 hover:bg-emerald-500 disabled:opacity-50 transition-colors"
               >
                 {reviewCase.isPending ? "Approving..." : "Confirm Sign-off & Approve"}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Team Investigator Modal */}
+      {showAddInvestigatorModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-4 max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary/10 text-primary">
+                  <UserPlus className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-foreground">Add Team Investigators</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Assign additional investigators under the Lead to collaborate on Case{" "}
+                    <span className="font-mono text-primary font-semibold">{resolvedCaseNumber}</span>
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAddInvestigatorModal(false)}
+                className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                <XCircle className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="relative">
+              <input
+                type="text"
+                value={addInvestigatorSearch}
+                onChange={(e) => setAddInvestigatorSearch(e.target.value)}
+                placeholder="Search investigators by name or email..."
+                className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none"
+              />
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-2 pr-1 min-h-[200px]">
+              {availableInvestigators.length === 0 ? (
+                <div className="py-12 text-center text-xs text-muted-foreground">
+                  No eligible unassigned investigators found.
+                </div>
+              ) : (
+                availableInvestigators.map((user) => {
+                  const isSelected = selectedInvIds.includes(user.id);
+                  return (
+                    <label
+                      key={user.id}
+                      className={`flex items-center justify-between gap-3 rounded-xl border p-3 cursor-pointer transition-all ${
+                        isSelected
+                          ? "border-primary bg-primary/10 shadow-sm"
+                          : "border-border bg-background/60 hover:border-border/80 hover:bg-muted/40"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedInvIds([...selectedInvIds, user.id]);
+                            } else {
+                              setSelectedInvIds(selectedInvIds.filter((id) => id !== user.id));
+                            }
+                          }}
+                          className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                        />
+                        <div className="grid h-8 w-8 place-items-center rounded-full bg-primary/20 text-xs font-bold text-primary">
+                          {user.full_name.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold text-foreground truncate">{user.full_name}</p>
+                          <p className="text-[11px] text-muted-foreground truncate">{user.email}</p>
+                        </div>
+                      </div>
+                      <span className="rounded bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground uppercase">
+                        Investigator
+                      </span>
+                    </label>
+                  );
+                })
+              )}
+            </div>
+
+            <div className="flex items-center justify-between border-t border-border pt-3">
+              <span className="text-xs font-medium text-muted-foreground">
+                Selected: <strong className="text-primary">{selectedInvIds.length}</strong> investigator(s)
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddInvestigatorModal(false)}
+                  className="rounded-xl border border-border px-4 py-2 text-xs font-semibold text-foreground hover:bg-muted"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={selectedInvIds.length === 0 || addTeamMutation.isPending}
+                  onClick={() => addTeamMutation.mutate(selectedInvIds)}
+                  className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors shadow-md"
+                >
+                  {addTeamMutation.isPending ? "Assigning..." : `Assign Selected (${selectedInvIds.length})`}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reassign / Assign Investigator Lead Modal (Superior Officers only) */}
+      {showReassignLeadModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl border border-amber-500/30 bg-card p-6 shadow-2xl space-y-4">
+            <div className="flex items-center gap-3 border-b border-border pb-3">
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-amber-500/20 text-amber-500">
+                <UserCheck className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-foreground">
+                  {leadInvestigator ? "Reassign Investigator Lead" : "Assign Investigator Lead"}
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  {leadInvestigator
+                    ? `Transfer case leadership for ${resolvedCaseNumber}`
+                    : `Establish Investigator Lead for ${resolvedCaseNumber}`}
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-foreground mb-1.5">
+                  Select Investigator Lead <span className="text-amber-500">*</span>
+                </label>
+                <select
+                  value={selectedNewLeadId}
+                  onChange={(e) => setSelectedNewLeadId(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-background p-3 text-sm text-foreground focus:border-amber-500 focus:outline-none"
+                >
+                  <option value="">-- Select Investigator --</option>
+                  {eligibleLeadInvestigators.map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.full_name} ({u.email})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {leadInvestigator && (
+                <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer pt-1">
+                  <input
+                    type="checkbox"
+                    checked={keepPrevLead}
+                    onChange={(e) => setKeepPrevLead(e.target.checked)}
+                    className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                  />
+                  <span>Keep previous lead ({leadInvestigator.user?.full_name}) as active team investigator</span>
+                </label>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-2 border-t border-border pt-3">
+              <button
+                type="button"
+                onClick={() => setShowReassignLeadModal(false)}
+                className="rounded-xl border border-border px-4 py-2 text-xs font-semibold text-foreground hover:bg-muted"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={!selectedNewLeadId || reassignLeadMutation.isPending}
+                onClick={() =>
+                  reassignLeadMutation.mutate({
+                    new_investigator_lead_id: selectedNewLeadId,
+                    keep_previous_as_investigator: keepPrevLead,
+                  })
+                }
+                className="rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-slate-950 hover:bg-amber-400 disabled:opacity-50 transition-colors shadow-md"
+              >
+                {reassignLeadMutation.isPending
+                  ? "Assigning..."
+                  : leadInvestigator
+                    ? "Confirm Reassignment"
+                    : "Confirm Assignment"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Embedded Chat Modal / Drawer */}
+      {showChatModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-2 sm:p-6">
+          <div className="relative flex h-full max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
+            <ChatInterface
+              initialCaseId={resolvedCaseId}
+              initialCaseNumber={resolvedCaseNumber}
+              initialCaseTitle={c.title}
+              initialTargetUserId={activeDirectChatUserId}
+              caseTeamMembers={[
+                ...(leadInvestigator ? [leadInvestigator] : []),
+                ...teamInvestigators,
+                ...(c.supervisor
+                  ? [
+                      {
+                        id: `sup-${c.supervisor.id}`,
+                        case_id: resolvedCaseId,
+                        user_id: c.supervisor.id,
+                        role: "SUPERVISOR",
+                        status: "active",
+                        assigned_at: c.created_at,
+                        user: {
+                          id: c.supervisor.id,
+                          full_name: c.supervisor.full_name,
+                          email: c.supervisor.email,
+                          role: "supervisor",
+                        },
+                      } as CaseInvestigator,
+                    ]
+                  : []),
+              ]}
+              onClose={() => setShowChatModal(false)}
+              isEmbedded={true}
+            />
           </div>
         </div>
       )}
@@ -1039,29 +1764,29 @@ function ActivitySection({ activities, caseId }: { activities: ActivityItem[]; c
   const scoped = activities.filter((a) => !a.case_id || a.case_id === caseId);
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-[#111827]/90 p-5 space-y-4">
+    <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
       <div>
-        <h3 className="text-sm font-semibold text-slate-100">Audit Activity History</h3>
-        <p className="text-xs text-slate-400 mt-1">Role-stamped actions recorded for this case.</p>
+        <h3 className="text-sm font-semibold text-foreground">Audit Activity History</h3>
+        <p className="text-xs text-muted-foreground mt-1">Role-stamped actions recorded for this case.</p>
       </div>
       {scoped.length === 0 ? (
-        <p className="text-sm text-slate-500 py-4">No audit activity recorded for this case yet.</p>
+        <p className="text-sm text-muted-foreground py-4">No audit activity recorded for this case yet.</p>
       ) : (
         <ol className="space-y-3">
           {scoped.map((a) => (
-            <li key={a.id} className="rounded-xl border border-white/5 bg-[#0b1220]/80 p-3">
+            <li key={a.id} className="rounded-xl border border-border bg-muted/40 p-3">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-xs font-bold uppercase tracking-wide text-cyan">
+                  <p className="text-xs font-bold uppercase tracking-wide text-primary">
                     {a.action.replace(/_/g, " ")}
                   </p>
-                  <p className="text-sm text-slate-200 mt-1">{a.description}</p>
-                  <p className="text-[11px] text-slate-400 mt-1">
+                  <p className="text-sm text-foreground mt-1">{a.description}</p>
+                  <p className="text-[11px] text-muted-foreground mt-1">
                     {a.user?.full_name || "System"}
                     {a.actor_role ? ` · ${a.actor_role.replace(/_/g, " ")}` : ""}
                   </p>
                 </div>
-                <span className="text-[10px] text-slate-500 shrink-0 font-mono">
+                <span className="text-[10px] text-muted-foreground shrink-0 font-mono">
                   {new Date(a.created_at).toLocaleString()}
                 </span>
               </div>
@@ -1114,12 +1839,12 @@ function CaseWorkflowProgressBar({ status }: { status: CaseStatus }) {
   const activeIdx = getActiveIndex(status);
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-[#0f172a]/90 p-4 sm:p-5 shadow-lg">
+    <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm">
       <div className="mb-3 flex items-center justify-between">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+        <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
           Investigation Lifecycle Workflow
         </h4>
-        <span className="rounded-full bg-cyan/10 px-2.5 py-0.5 text-[11px] font-semibold text-cyan">
+        <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
           Current State: {formatLabel(status)}
         </span>
       </div>
@@ -1136,26 +1861,26 @@ function CaseWorkflowProgressBar({ status }: { status: CaseStatus }) {
               key={step.key}
               className={`relative flex flex-col justify-between rounded-xl border p-3 transition-all ${
                 isChanges
-                  ? "border-amber-500/50 bg-amber-500/10 text-amber-200"
+                  ? "border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-200"
                   : isApproved
-                    ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-200"
+                    ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-600 dark:text-emerald-200"
                     : isCurrent
-                      ? "border-cyan/50 bg-cyan/10 text-cyan"
+                      ? "border-primary/50 bg-primary/10 text-primary font-semibold"
                       : isPassed
-                        ? "border-white/10 bg-[#111827] text-slate-300"
-                        : "border-white/5 bg-[#0b1220]/60 text-slate-500"
+                        ? "border-border bg-muted/60 text-foreground"
+                        : "border-border/60 bg-muted/30 text-muted-foreground"
               }`}
             >
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-[10px] font-mono font-bold uppercase">{step.label}</span>
                 {isPassed ? (
-                  <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
                 ) : isChanges ? (
-                  <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0 animate-pulse" />
+                  <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0 animate-pulse" />
                 ) : isCurrent ? (
-                  <Clock className="h-4 w-4 text-cyan shrink-0" />
+                  <Clock className="h-4 w-4 text-primary shrink-0" />
                 ) : (
-                  <div className="h-2 w-2 rounded-full bg-slate-600" />
+                  <div className="h-2 w-2 rounded-full bg-muted-foreground/40" />
                 )}
               </div>
               <p className="text-[11px] font-medium opacity-90 truncate">{step.desc}</p>
@@ -1205,13 +1930,13 @@ function EvidenceSection({
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-sm font-semibold text-slate-200">
+        <h3 className="text-sm font-semibold text-foreground">
           Evidence Vault ({evidenceList.length})
         </h3>
         <button
           type="button"
           onClick={() => setShowModal(true)}
-          className="inline-flex items-center gap-2 rounded-xl bg-cyan px-4 py-2 text-xs font-semibold text-slate-950 hover:bg-cyan/90 transition-colors"
+          className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
         >
           <Upload className="h-4 w-4" /> Upload Evidence
         </button>
@@ -1219,11 +1944,11 @@ function EvidenceSection({
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#111827] p-6 space-y-4">
-            <h3 className="text-lg font-bold text-slate-100">Upload Case Evidence</h3>
+          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 space-y-4 shadow-xl">
+            <h3 className="text-lg font-bold text-foreground">Upload Case Evidence</h3>
 
             {/* Mode selector: File vs Folder */}
-            <div className="flex rounded-xl bg-[#0b1220] p-1 border border-white/5">
+            <div className="flex rounded-xl bg-muted p-1 border border-border">
               <button
                 type="button"
                 onClick={() => {
@@ -1232,8 +1957,8 @@ function EvidenceSection({
                 }}
                 className={`flex-1 rounded-lg py-1.5 text-xs font-semibold transition-colors ${
                   uploadMode === "file"
-                    ? "bg-cyan text-slate-950"
-                    : "text-slate-400 hover:text-slate-200"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 📄 Upload File(s)
@@ -1246,8 +1971,8 @@ function EvidenceSection({
                 }}
                 className={`flex-1 rounded-lg py-1.5 text-xs font-semibold transition-colors ${
                   uploadMode === "folder"
-                    ? "bg-cyan text-slate-950"
-                    : "text-slate-400 hover:text-slate-200"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 📁 Upload Entire Folder
@@ -1256,7 +1981,7 @@ function EvidenceSection({
 
             <form onSubmit={handleUploadSubmit} className="space-y-3">
               <div>
-                <label className="block text-xs text-slate-400 mb-1">
+                <label className="block text-xs text-muted-foreground mb-1">
                   {uploadMode === "folder" ? "Select Folder *" : "Select File(s) *"}
                 </label>
                 {uploadMode === "file" ? (
@@ -1265,7 +1990,7 @@ function EvidenceSection({
                     multiple
                     required
                     onChange={(e) => setSelectedFiles(Array.from(e.target.files || []))}
-                    className="w-full text-xs text-slate-300 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:bg-cyan/10 file:text-cyan hover:file:bg-cyan/20"
+                    className="w-full text-xs text-foreground file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
                   />
                 ) : (
                   <input
@@ -1277,11 +2002,11 @@ function EvidenceSection({
                     multiple
                     required
                     onChange={(e) => setSelectedFiles(Array.from(e.target.files || []))}
-                    className="w-full text-xs text-slate-300 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:bg-cyan/10 file:text-cyan hover:file:bg-cyan/20"
+                    className="w-full text-xs text-foreground file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
                   />
                 )}
                 {uploadMode === "folder" && (
-                  <p className="mt-1 text-[11px] text-cyan/80">
+                  <p className="mt-1 text-[11px] text-primary">
                     💡 Selecting a folder will import all contained files preserving directory
                     structure.
                   </p>
@@ -1290,12 +2015,12 @@ function EvidenceSection({
 
               {/* Selected Files Count / Preview */}
               {selectedFiles.length > 0 && (
-                <div className="max-h-28 overflow-y-auto rounded-xl border border-white/10 bg-[#0b1220] p-2 space-y-1">
-                  <p className="text-[11px] font-semibold text-slate-300 mb-1">
+                <div className="max-h-28 overflow-y-auto rounded-xl border border-border bg-background p-2 space-y-1">
+                  <p className="text-[11px] font-semibold text-foreground mb-1">
                     {selectedFiles.length} file(s) ready to upload:
                   </p>
                   {selectedFiles.map((f, idx) => (
-                    <p key={idx} className="text-[10px] text-slate-400 font-mono truncate">
+                    <p key={idx} className="text-[10px] text-muted-foreground font-mono truncate">
                       • {f.webkitRelativePath || f.name} ({(f.size / 1024).toFixed(1)} KB)
                     </p>
                   ))}
@@ -1303,24 +2028,24 @@ function EvidenceSection({
               )}
 
               <div>
-                <label className="block text-xs text-slate-400 mb-1">Description (optional)</label>
+                <label className="block text-xs text-muted-foreground mb-1">Description (optional)</label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Context or notes about these files..."
-                  className="w-full rounded-xl border border-white/10 bg-[#0b1220] p-2.5 text-xs text-slate-200"
+                  className="w-full rounded-xl border border-border bg-background p-2.5 text-xs text-foreground"
                   rows={2}
                 />
               </div>
 
               <div>
-                <label className="block text-xs text-slate-400 mb-1">Tags (comma-separated)</label>
+                <label className="block text-xs text-muted-foreground mb-1">Tags (comma-separated)</label>
                 <input
                   type="text"
                   value={tagsStr}
                   onChange={(e) => setTagsStr(e.target.value)}
                   placeholder="e.g. mobile, chat_log, suspect"
-                  className="w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-xs text-slate-200"
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground"
                 />
               </div>
 
@@ -1328,14 +2053,14 @@ function EvidenceSection({
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="rounded-xl border border-white/10 px-4 py-2 text-xs text-slate-300 hover:bg-white/5"
+                  className="rounded-xl border border-border px-4 py-2 text-xs text-foreground hover:bg-muted"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={selectedFiles.length === 0 || isUploading}
-                  className="rounded-xl bg-cyan px-4 py-2 text-xs font-semibold text-slate-950 hover:bg-cyan/90 disabled:opacity-50"
+                  className="rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
                 >
                   {isUploading
                     ? "Uploading..."
@@ -1358,12 +2083,12 @@ function EvidenceSection({
           return (
             <div
               key={item.id}
-              className="rounded-2xl border border-white/10 bg-[#111827]/90 p-4 space-y-3 flex flex-col justify-between"
+              className="rounded-2xl border border-border bg-card p-4 space-y-3 flex flex-col justify-between"
             >
               <div>
                 {/* Duplicate Warning Banner */}
                 {item.is_duplicate && (
-                  <div className="mb-2 flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 p-2 text-xs text-amber-300">
+                  <div className="mb-2 flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 p-2 text-xs text-amber-600 dark:text-amber-300">
                     <AlertTriangle className="h-4 w-4 shrink-0" />
                     <span>{warning || "Duplicate File Warning"}</span>
                   </div>
@@ -1371,28 +2096,28 @@ function EvidenceSection({
 
                 <div className="flex justify-between items-start gap-2">
                   <p
-                    className="truncate text-sm font-semibold text-slate-100"
+                    className="truncate text-sm font-semibold text-foreground"
                     title={item.original_name}
                   >
                     {item.original_name}
                   </p>
-                  <span className="rounded-md bg-white/5 px-2 py-0.5 text-[10px] font-mono text-cyan uppercase">
+                  <span className="rounded-md bg-muted px-2 py-0.5 text-[10px] font-mono text-primary uppercase">
                     {item.file_type}
                   </span>
                 </div>
 
-                <p className="mt-1 text-xs text-slate-400">
+                <p className="mt-1 text-xs text-muted-foreground">
                   Size: {(item.file_size / 1024).toFixed(1)} KB · Uploaded{" "}
                   {new Date(item.upload_date).toLocaleDateString()}
                 </p>
 
                 {/* SHA256 Hash Display */}
-                <div className="mt-2 rounded-lg bg-[#0b1220] p-2 border border-white/5">
-                  <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">
+                <div className="mt-2 rounded-lg bg-background p-2 border border-border">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
                     SHA-256 Hash
                   </p>
                   <p
-                    className="truncate font-mono text-[10px] text-slate-300 select-all"
+                    className="truncate font-mono text-[10px] text-foreground select-all"
                     title={hash}
                   >
                     {hash}
@@ -1402,10 +2127,10 @@ function EvidenceSection({
                 {/* EXIF / File Metadata rendering */}
                 {exif && (
                   <details className="mt-2 text-xs">
-                    <summary className="cursor-pointer text-[11px] text-cyan hover:underline font-medium">
+                    <summary className="cursor-pointer text-[11px] text-primary hover:underline font-medium">
                       📷 EXIF / Device Metadata ({Object.keys(exif).length} fields)
                     </summary>
-                    <div className="mt-1 space-y-0.5 rounded-lg bg-[#0b1220] p-2 font-mono text-[10px] text-slate-300 border border-white/5">
+                    <div className="mt-1 space-y-0.5 rounded-lg bg-background p-2 font-mono text-[10px] text-foreground border border-border">
                       {exif.Make && <p>Make: {exif.Make}</p>}
                       {exif.Model && <p>Model: {exif.Model}</p>}
                       {exif.DateTimeOriginal && <p>Photo Time: {exif.DateTimeOriginal}</p>}
@@ -1420,11 +2145,11 @@ function EvidenceSection({
                 )}
 
                 {item.description && (
-                  <p className="mt-2 text-xs text-slate-300 italic">"{item.description}"</p>
+                  <p className="mt-2 text-xs text-muted-foreground italic">"{item.description}"</p>
                 )}
               </div>
 
-              <div className="pt-3 border-t border-white/5 flex gap-2 justify-end">
+              <div className="pt-3 border-t border-border flex gap-2 justify-end">
                 <a
                   href={investigationApi.downloadEvidenceUrl(item.id)}
                   onClick={async (e) => {
@@ -1441,13 +2166,13 @@ function EvidenceSection({
                     a.click();
                     URL.revokeObjectURL(url);
                   }}
-                  className="inline-flex items-center gap-1 rounded-lg bg-white/5 px-2.5 py-1 text-xs text-slate-300 hover:bg-white/10 transition-colors"
+                  className="inline-flex items-center gap-1 rounded-lg bg-muted px-2.5 py-1 text-xs text-foreground hover:bg-muted/80 transition-colors"
                 >
                   <Download className="h-3 w-3" /> Download
                 </a>
                 <button
                   type="button"
-                  className="inline-flex items-center gap-1 rounded-lg bg-red-500/10 px-2.5 py-1 text-xs text-red-400 hover:bg-red-500/20 transition-colors"
+                  className="inline-flex items-center gap-1 rounded-lg bg-destructive/10 px-2.5 py-1 text-xs text-destructive hover:bg-destructive/20 transition-colors"
                   onClick={() => onDelete(item.id)}
                 >
                   <Trash2 className="h-3 w-3" /> Delete
@@ -1529,25 +2254,25 @@ function RelationshipSection({
 
   return (
     <div className="space-y-5">
-      <div className="rounded-2xl border border-white/10 bg-[#111827]/90 p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-slate-100">Manual Relationship Linker</h3>
+      <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+        <h3 className="text-sm font-semibold text-foreground">Manual Relationship Linker</h3>
         <form onSubmit={handleSubmit} className="space-y-3">
           <div className="grid gap-3 sm:grid-cols-2">
             {/* Entity A */}
-            <div className="space-y-2 rounded-xl border border-white/5 bg-[#0b1220] p-3">
-              <p className="text-xs font-semibold text-cyan">Entity A (Source)</p>
+            <div className="space-y-2 rounded-xl border border-border bg-background p-3">
+              <p className="text-xs font-semibold text-primary">Entity A (Source)</p>
               <input
                 type="text"
                 required
                 value={srcLabel}
                 onChange={(e) => setSrcLabel(e.target.value)}
                 placeholder="Name / Label (e.g. John Doe, +123456...)"
-                className="w-full rounded-lg border border-white/10 bg-[#111827] px-3 py-1.5 text-xs text-slate-200"
+                className="w-full rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-foreground"
               />
               <select
                 value={srcKind}
                 onChange={(e) => setSrcKind(e.target.value as EntityKind)}
-                className="w-full rounded-lg border border-white/10 bg-[#111827] px-3 py-1.5 text-xs text-slate-200"
+                className="w-full rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-foreground"
               >
                 {entityKinds.map((k) => (
                   <option key={k} value={k}>
@@ -1558,20 +2283,20 @@ function RelationshipSection({
             </div>
 
             {/* Entity B */}
-            <div className="space-y-2 rounded-xl border border-white/5 bg-[#0b1220] p-3">
-              <p className="text-xs font-semibold text-emerald-400">Entity B (Target)</p>
+            <div className="space-y-2 rounded-xl border border-border bg-background p-3">
+              <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Entity B (Target)</p>
               <input
                 type="text"
                 required
                 value={tgtLabel}
                 onChange={(e) => setTgtLabel(e.target.value)}
                 placeholder="Name / Label (e.g. iPhone 13, Suspect Org)"
-                className="w-full rounded-lg border border-white/10 bg-[#111827] px-3 py-1.5 text-xs text-slate-200"
+                className="w-full rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-foreground"
               />
               <select
                 value={tgtKind}
                 onChange={(e) => setTgtKind(e.target.value as EntityKind)}
-                className="w-full rounded-lg border border-white/10 bg-[#111827] px-3 py-1.5 text-xs text-slate-200"
+                className="w-full rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-foreground"
               >
                 {entityKinds.map((k) => (
                   <option key={k} value={k}>
@@ -1584,11 +2309,11 @@ function RelationshipSection({
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label className="block text-xs text-slate-400 mb-1">Relationship Type</label>
+              <label className="block text-xs text-muted-foreground mb-1">Relationship Type</label>
               <select
                 value={relType}
                 onChange={(e) => setRelType(e.target.value as RelationshipType)}
-                className="w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-xs text-slate-200"
+                className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground"
               >
                 {relTypes.map((t) => (
                   <option key={t} value={t}>
@@ -1598,13 +2323,13 @@ function RelationshipSection({
               </select>
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1">Free-text Connection Note</label>
+              <label className="block text-xs text-muted-foreground mb-1">Free-text Connection Note</label>
               <input
                 type="text"
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="Investigator explanation of connection..."
-                className="w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-xs text-slate-200"
+                className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground"
               />
             </div>
           </div>
@@ -1612,7 +2337,7 @@ function RelationshipSection({
           <div className="flex justify-end">
             <button
               type="submit"
-              className="rounded-xl bg-cyan px-4 py-2 text-xs font-semibold text-slate-950 hover:bg-cyan/90"
+              className="rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
             >
               + Add Relationship Link
             </button>
@@ -1621,14 +2346,14 @@ function RelationshipSection({
       </div>
 
       {/* Relationships Table / List */}
-      <div className="rounded-2xl border border-white/10 bg-[#111827]/90 p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-slate-100">
+      <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+        <h3 className="text-sm font-semibold text-foreground">
           Case Relationships ({relationships.length})
         </h3>
         {relationships.length === 0 ? (
-          <p className="text-xs text-slate-400">No relationships mapped yet.</p>
+          <p className="text-xs text-muted-foreground">No relationships mapped yet.</p>
         ) : (
-          <div className="divide-y divide-white/5">
+          <div className="divide-y divide-border">
             {relationships.map((r) => (
               <div
                 key={r.id}
@@ -1636,26 +2361,26 @@ function RelationshipSection({
               >
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-cyan">{r.source_label}</span>
-                    <span className="rounded bg-cyan/10 px-1.5 py-0.5 text-[10px] text-cyan">
+                    <span className="font-semibold text-primary">{r.source_label}</span>
+                    <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] text-primary">
                       {r.source_kind}
                     </span>
-                    <span className="text-slate-500 font-mono">
+                    <span className="text-muted-foreground font-mono">
                       -[ {r.relationship_type.replace(/_/g, " ")} ]-➔
                     </span>
-                    <span className="font-semibold text-emerald-400">{r.target_label}</span>
-                    <span className="rounded bg-emerald-400/10 px-1.5 py-0.5 text-[10px] text-emerald-400">
+                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">{r.target_label}</span>
+                    <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 text-[10px] text-emerald-600 dark:text-emerald-400">
                       {r.target_kind}
                     </span>
                   </div>
                   {r.description && (
-                    <p className="text-slate-400 text-xs italic">Note: {r.description}</p>
+                    <p className="text-muted-foreground text-xs italic">Note: {r.description}</p>
                   )}
                 </div>
                 <button
                   type="button"
                   onClick={() => onDelete(r.id)}
-                  className="text-xs text-red-400 hover:underline"
+                  className="text-xs text-destructive hover:underline"
                 >
                   Remove
                 </button>
@@ -1720,29 +2445,29 @@ function LeadsSection({
   return (
     <div className="space-y-5">
       {/* Create Lead Form */}
-      <div className="rounded-2xl border border-white/10 bg-[#111827]/90 p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-slate-100">Create Investigation Lead</h3>
+      <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+        <h3 className="text-sm font-semibold text-foreground">Create Investigation Lead</h3>
         <form onSubmit={handleCreate} className="space-y-3">
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label className="block text-xs text-slate-400 mb-1">Lead Title *</label>
+              <label className="block text-xs text-muted-foreground mb-1">Lead Title *</label>
               <input
                 type="text"
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. Verify IP address ownership"
-                className="w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-xs text-slate-200"
+                className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground"
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1">
+              <label className="block text-xs text-muted-foreground mb-1">
                 Priority (Manual Selection) *
               </label>
               <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as LeadPriority)}
-                className="w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-xs text-slate-200"
+                className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground"
               >
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
@@ -1753,18 +2478,18 @@ function LeadsSection({
           </div>
 
           <div>
-            <label className="block text-xs text-slate-400 mb-1">Lead Description</label>
+            <label className="block text-xs text-muted-foreground mb-1">Lead Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Detailed description of action items..."
-              className="w-full rounded-xl border border-white/10 bg-[#0b1220] p-2.5 text-xs text-slate-200"
+              className="w-full rounded-xl border border-border bg-background p-2.5 text-xs text-foreground"
               rows={2}
             />
           </div>
 
           <div>
-            <label className="block text-xs text-slate-400 mb-1">
+            <label className="block text-xs text-muted-foreground mb-1">
               Justification Text * (Investigator explanation of flagging)
             </label>
             <textarea
@@ -1772,33 +2497,33 @@ function LeadsSection({
               value={justification}
               onChange={(e) => setJustification(e.target.value)}
               placeholder="Explain why this lead is flagged and relevant to the case..."
-              className="w-full rounded-xl border border-white/10 bg-[#0b1220] p-2.5 text-xs text-slate-200"
+              className="w-full rounded-xl border border-border bg-background p-2.5 text-xs text-foreground"
               rows={2}
             />
           </div>
 
           {/* Evidence Multi-select */}
           <div>
-            <label className="block text-xs text-slate-400 mb-1">
+            <label className="block text-xs text-muted-foreground mb-1">
               Link Evidence Items (Multi-select)
             </label>
-            <div className="max-h-32 overflow-y-auto rounded-xl border border-white/10 bg-[#0b1220] p-2 space-y-1">
+            <div className="max-h-32 overflow-y-auto rounded-xl border border-border bg-background p-2 space-y-1">
               {evidenceList.length === 0 ? (
-                <p className="text-xs text-slate-500">No evidence uploaded yet.</p>
+                <p className="text-xs text-muted-foreground">No evidence uploaded yet.</p>
               ) : (
                 evidenceList.map((item) => (
                   <label
                     key={item.id}
-                    className="flex items-center gap-2 text-xs text-slate-300 cursor-pointer hover:bg-white/5 p-1 rounded"
+                    className="flex items-center gap-2 text-xs text-foreground cursor-pointer hover:bg-muted p-1 rounded"
                   >
                     <input
                       type="checkbox"
                       checked={selectedEvIds.includes(item.id)}
                       onChange={() => toggleEvidence(item.id)}
-                      className="rounded border-white/10 bg-[#111827]"
+                      className="rounded border-border bg-card"
                     />
                     <span>{item.original_name}</span>
-                    <span className="text-[10px] text-slate-500 font-mono">({item.file_type})</span>
+                    <span className="text-[10px] text-muted-foreground font-mono">({item.file_type})</span>
                   </label>
                 ))
               )}
@@ -1808,7 +2533,7 @@ function LeadsSection({
           <div className="flex justify-end">
             <button
               type="submit"
-              className="rounded-xl bg-cyan px-4 py-2 text-xs font-semibold text-slate-950 hover:bg-cyan/90"
+              className="rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
             >
               Create Lead
             </button>
@@ -1817,48 +2542,48 @@ function LeadsSection({
       </div>
 
       {/* Leads List / Superior Officer Review Queue */}
-      <div className="rounded-2xl border border-white/10 bg-[#111827]/90 p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-slate-100">
+      <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+        <h3 className="text-sm font-semibold text-foreground">
           Leads & Review Queue ({leads.length})
         </h3>
         <div className="space-y-3">
           {leads.map((l) => (
             <div
               key={l.id}
-              className="rounded-xl border border-white/10 bg-[#0b1220] p-4 space-y-3"
+              className="rounded-xl border border-border bg-background p-4 space-y-3"
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <h4 className="text-sm font-bold text-slate-100">{l.title}</h4>
+                  <h4 className="text-sm font-bold text-foreground">{l.title}</h4>
                   <Badge className={priorityBadgeClass(l.priority)}>{l.priority}</Badge>
                 </div>
                 <Badge className={statusBadgeClass(l.status)}>{l.status}</Badge>
               </div>
 
-              {l.description && <p className="text-xs text-slate-300">{l.description}</p>}
+              {l.description && <p className="text-xs text-muted-foreground">{l.description}</p>}
 
               {/* Justification Box */}
               {l.justification && (
-                <div className="rounded-lg bg-[#111827] p-2.5 border border-white/5">
-                  <p className="text-[10px] text-cyan uppercase font-bold">
+                <div className="rounded-lg bg-card p-2.5 border border-border">
+                  <p className="text-[10px] text-primary uppercase font-bold">
                     Investigator Justification
                   </p>
-                  <p className="text-xs text-slate-300 mt-0.5">{l.justification}</p>
+                  <p className="text-xs text-foreground mt-0.5">{l.justification}</p>
                 </div>
               )}
 
               {/* Review Comment Box */}
               {l.review_comment && (
-                <div className="rounded-lg bg-cyan/5 p-2.5 border border-cyan/20">
-                  <p className="text-[10px] text-cyan uppercase font-bold">
+                <div className="rounded-lg bg-primary/5 p-2.5 border border-primary/20">
+                  <p className="text-[10px] text-primary uppercase font-bold">
                     Superior Officer Review Comment
                   </p>
-                  <p className="text-xs text-slate-200 mt-0.5">{l.review_comment}</p>
+                  <p className="text-xs text-foreground mt-0.5">{l.review_comment}</p>
                 </div>
               )}
 
               {/* Action Bar for Superior Officer / Investigator */}
-              <div className="pt-2 border-t border-white/5 space-y-2">
+              <div className="pt-2 border-t border-border space-y-2">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <input
                     type="text"
@@ -1867,27 +2592,27 @@ function LeadsSection({
                     onChange={(e) =>
                       setReviewCommentMap({ ...reviewCommentMap, [l.id]: e.target.value })
                     }
-                    className="flex-1 min-w-[200px] rounded-lg border border-white/10 bg-[#111827] px-3 py-1 text-xs text-slate-200"
+                    className="flex-1 min-w-[200px] rounded-lg border border-border bg-card px-3 py-1 text-xs text-foreground"
                   />
                   <div className="flex gap-1.5">
                     <button
                       type="button"
                       onClick={() => onUpdateStatus(l.id, "approved", reviewCommentMap[l.id])}
-                      className="rounded-lg bg-emerald-500/20 px-2.5 py-1 text-xs font-semibold text-emerald-400 hover:bg-emerald-500/30"
+                      className="rounded-lg bg-emerald-500/20 px-2.5 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/30"
                     >
                       Approve
                     </button>
                     <button
                       type="button"
                       onClick={() => onUpdateStatus(l.id, "rejected", reviewCommentMap[l.id])}
-                      className="rounded-lg bg-red-500/20 px-2.5 py-1 text-xs font-semibold text-red-400 hover:bg-red-500/30"
+                      className="rounded-lg bg-red-500/20 px-2.5 py-1 text-xs font-semibold text-red-500 hover:bg-red-500/30"
                     >
                       Reject
                     </button>
                     <button
                       type="button"
                       onClick={() => onDelete(l.id)}
-                      className="rounded-lg bg-white/5 px-2 py-1 text-xs text-slate-400 hover:bg-white/10"
+                      className="rounded-lg bg-muted px-2 py-1 text-xs text-muted-foreground hover:bg-muted/80"
                     >
                       Delete
                     </button>
@@ -1958,39 +2683,39 @@ function TimelineSection({
   return (
     <div className="space-y-5">
       {/* Add Event Form */}
-      <div className="rounded-2xl border border-white/10 bg-[#111827]/90 p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-slate-100">Manual Timeline Event Entry</h3>
+      <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+        <h3 className="text-sm font-semibold text-foreground">Manual Timeline Event Entry</h3>
         <form onSubmit={handleSubmit} className="space-y-3">
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label className="block text-xs text-slate-400 mb-1">Event Title *</label>
+              <label className="block text-xs text-muted-foreground mb-1">Event Title *</label>
               <input
                 type="text"
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. Suspect device confiscated"
-                className="w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-xs text-slate-200"
+                className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground"
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1">Event Time (event_at)</label>
+              <label className="block text-xs text-muted-foreground mb-1">Event Time (event_at)</label>
               <input
                 type="datetime-local"
                 value={eventAt}
                 onChange={(e) => setEventAt(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-xs text-slate-200"
+                className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground"
               />
             </div>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label className="block text-xs text-slate-400 mb-1">Event Type</label>
+              <label className="block text-xs text-muted-foreground mb-1">Event Type</label>
               <select
                 value={eventType}
                 onChange={(e) => setEventType(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-xs text-slate-200"
+                className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground"
               >
                 <option value="manual">Manual Entry</option>
                 <option value="evidence_uploaded">Evidence Uploaded</option>
@@ -2000,13 +2725,13 @@ function TimelineSection({
               </select>
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1">
+              <label className="block text-xs text-muted-foreground mb-1">
                 Related Evidence (Optional)
               </label>
               <select
                 value={relEvId}
                 onChange={(e) => setRelEvId(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-xs text-slate-200"
+                className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground"
               >
                 <option value="">-- None --</option>
                 {evidenceList.map((item) => (
@@ -2019,12 +2744,12 @@ function TimelineSection({
           </div>
 
           <div>
-            <label className="block text-xs text-slate-400 mb-1">Event Description</label>
+            <label className="block text-xs text-muted-foreground mb-1">Event Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Chronological notes..."
-              className="w-full rounded-xl border border-white/10 bg-[#0b1220] p-2.5 text-xs text-slate-200"
+              className="w-full rounded-xl border border-border bg-background p-2.5 text-xs text-foreground"
               rows={2}
             />
           </div>
@@ -2032,7 +2757,7 @@ function TimelineSection({
           <div className="flex justify-end">
             <button
               type="submit"
-              className="rounded-xl bg-cyan px-4 py-2 text-xs font-semibold text-slate-950 hover:bg-cyan/90"
+              className="rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
             >
               Add Event
             </button>
@@ -2041,16 +2766,16 @@ function TimelineSection({
       </div>
 
       {/* Filter & List */}
-      <div className="rounded-2xl border border-white/10 bg-[#111827]/90 p-4 space-y-4">
+      <div className="rounded-2xl border border-border bg-card p-4 space-y-4">
         <div className="flex flex-wrap justify-between items-center gap-2">
-          <h3 className="text-sm font-semibold text-slate-100">Timeline Events</h3>
+          <h3 className="text-sm font-semibold text-foreground">Timeline Events</h3>
           <div className="flex items-center gap-2">
-            <Filter className="h-3.5 w-3.5 text-slate-400" />
-            <span className="text-xs text-slate-400">Filter by Evidence:</span>
+            <Filter className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground">Filter by Evidence:</span>
             <select
               value={filterEvidenceId}
               onChange={(e) => onFilterChange(e.target.value)}
-              className="rounded-lg border border-white/10 bg-[#0b1220] px-2.5 py-1 text-xs text-slate-200"
+              className="rounded-lg border border-border bg-background px-2.5 py-1 text-xs text-foreground"
             >
               <option value="all">All Events</option>
               {evidenceList.map((item) => (
@@ -2064,23 +2789,23 @@ function TimelineSection({
 
         <ol className="space-y-4">
           {filteredEvents.map((e) => (
-            <li key={e.id} className="relative border-l-2 border-cyan/40 pl-4 space-y-1">
-              <span className="absolute -left-[5px] top-1.5 h-2 w-2 rounded-full bg-cyan" />
+            <li key={e.id} className="relative border-l-2 border-primary/50 pl-4 space-y-1">
+              <span className="absolute -left-[5px] top-1.5 h-2 w-2 rounded-full bg-primary" />
               <div className="flex justify-between items-start">
-                <p className="text-sm font-medium text-slate-100">{e.title}</p>
+                <p className="text-sm font-medium text-foreground">{e.title}</p>
                 <button
                   type="button"
                   onClick={() => onDelete(e.id)}
-                  className="text-[10px] text-red-400 hover:underline"
+                  className="text-[10px] text-destructive hover:underline"
                 >
                   Delete
                 </button>
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-muted-foreground">
                 <span className="capitalize">{e.event_type}</span> ·{" "}
                 {new Date(e.event_at).toLocaleString()}
               </p>
-              {e.description && <p className="text-xs text-slate-300">{e.description}</p>}
+              {e.description && <p className="text-xs text-muted-foreground">{e.description}</p>}
             </li>
           ))}
         </ol>
@@ -2117,21 +2842,21 @@ function ReportsSection({
 
   return (
     <div className="space-y-5">
-      <div className="rounded-2xl border border-white/10 bg-[#111827]/90 p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-slate-100">Compile Case Report (Draft)</h3>
+      <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+        <h3 className="text-sm font-semibold text-foreground">Compile Case Report (Draft)</h3>
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
-            <label className="block text-xs text-slate-400 mb-1">Report Title</label>
+            <label className="block text-xs text-muted-foreground mb-1">Report Title</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Phase 1 Draft Report"
-              className="w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-xs text-slate-200"
+              className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground"
             />
           </div>
           <div>
-            <label className="block text-xs text-slate-400 mb-1">
+            <label className="block text-xs text-muted-foreground mb-1">
               Manually Written Case Summary *
             </label>
             <textarea
@@ -2139,23 +2864,23 @@ function ReportsSection({
               value={summary}
               onChange={(e) => setSummary(e.target.value)}
               placeholder="Investigator overview summary..."
-              className="w-full rounded-xl border border-white/10 bg-[#0b1220] p-2.5 text-xs text-slate-200"
+              className="w-full rounded-xl border border-border bg-background p-2.5 text-xs text-foreground"
               rows={3}
             />
           </div>
           <div className="flex items-center gap-4">
-            <label className="text-xs text-slate-400">Export Format:</label>
+            <label className="text-xs text-muted-foreground">Export Format:</label>
             <select
               value={format}
               onChange={(e) => setFormat(e.target.value)}
-              className="rounded-lg border border-white/10 bg-[#0b1220] px-3 py-1.5 text-xs text-slate-200"
+              className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs text-foreground"
             >
               <option value="html">HTML / PDF Print</option>
               <option value="csv">CSV Export</option>
             </select>
             <button
               type="submit"
-              className="rounded-xl bg-cyan px-4 py-2 text-xs font-semibold text-slate-950 hover:bg-cyan/90"
+              className="rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
             >
               Generate Report
             </button>
@@ -2164,19 +2889,19 @@ function ReportsSection({
       </div>
 
       {/* Generated Reports List */}
-      <div className="rounded-2xl border border-white/10 bg-[#111827]/90 p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-slate-100">
+      <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+        <h3 className="text-sm font-semibold text-foreground">
           Compiled Reports ({reports.length})
         </h3>
         <div className="space-y-2">
           {reports.map((r) => (
             <div
               key={r.id}
-              className="flex items-center justify-between rounded-xl border border-white/10 bg-[#0b1220] p-3 text-xs"
+              className="flex items-center justify-between rounded-xl border border-border bg-background p-3 text-xs"
             >
               <div>
-                <p className="font-semibold text-slate-100">{r.title}</p>
-                <p className="text-slate-400">
+                <p className="font-semibold text-foreground">{r.title}</p>
+                <p className="text-muted-foreground">
                   {r.format.toUpperCase()} · {new Date(r.created_at).toLocaleString()}
                 </p>
               </div>
@@ -2184,7 +2909,7 @@ function ReportsSection({
                 <button
                   type="button"
                   onClick={() => setSelectedReport(r)}
-                  className="rounded bg-white/10 px-2.5 py-1 text-slate-200 hover:bg-white/20"
+                  className="rounded bg-muted px-2.5 py-1 text-foreground hover:bg-muted/80"
                 >
                   Preview
                 </button>
@@ -2199,7 +2924,7 @@ function ReportsSection({
                     w.focus();
                     w.print();
                   }}
-                  className="rounded bg-cyan px-2.5 py-1 text-slate-950 font-semibold hover:bg-cyan/90"
+                  className="rounded bg-primary px-2.5 py-1 text-primary-foreground font-semibold hover:bg-primary/90"
                 >
                   Print / Export PDF
                 </button>
@@ -2212,19 +2937,19 @@ function ReportsSection({
       {/* Preview Modal */}
       {selectedReport && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="w-full max-w-3xl max-h-[85vh] overflow-y-auto rounded-2xl border border-white/10 bg-white text-slate-900 p-6 space-y-4">
-            <div className="flex justify-between items-center border-b pb-3">
+          <div className="w-full max-w-3xl max-h-[85vh] overflow-y-auto rounded-2xl border border-border bg-card text-foreground p-6 space-y-4">
+            <div className="flex justify-between items-center border-b border-border pb-3">
               <h3 className="text-lg font-bold">{selectedReport.title}</h3>
               <button
                 type="button"
                 onClick={() => setSelectedReport(null)}
-                className="text-xs bg-slate-200 px-3 py-1 rounded hover:bg-slate-300"
+                className="text-xs bg-muted px-3 py-1 rounded hover:bg-muted/80"
               >
                 Close Preview
               </button>
             </div>
             <div
-              className="prose text-xs max-w-none"
+              className="prose text-xs max-w-none text-foreground"
               dangerouslySetInnerHTML={{ __html: selectedReport.content || "<p>Empty report</p>" }}
             />
           </div>
@@ -2268,20 +2993,20 @@ function NotesPanel({
           value={v}
           onChange={(e) => setV(e.target.value)}
           placeholder="Write a markdown note..."
-          className="flex-1 rounded-xl border border-white/10 bg-[#111827] px-3 py-2 text-sm text-slate-200"
+          className="flex-1 rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground"
         />
         <button
           type="submit"
-          className="rounded-xl bg-cyan px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan/90"
+          className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >
           Add Note
         </button>
       </form>
       <ul className="space-y-3">
         {notes.map((n) => (
-          <li key={n.id} className="rounded-2xl border border-white/10 bg-[#111827]/90 p-4">
+          <li key={n.id} className="rounded-2xl border border-border bg-card p-4">
             <div className="mb-2 flex items-center justify-between gap-2">
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-muted-foreground">
                 {n.author?.full_name || "Investigator"} · {new Date(n.updated_at).toLocaleString()}
                 {n.is_pinned ? " · 📌 Pinned" : ""}
               </p>
@@ -2289,20 +3014,20 @@ function NotesPanel({
                 <button
                   type="button"
                   onClick={() => onPin(n.id, !n.is_pinned)}
-                  className="text-slate-400 hover:text-cyan"
+                  className="text-muted-foreground hover:text-primary"
                 >
                   <Pin className="h-3.5 w-3.5" />
                 </button>
                 <button
                   type="button"
                   onClick={() => onDelete(n.id)}
-                  className="text-slate-400 hover:text-red-400"
+                  className="text-muted-foreground hover:text-destructive"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
               </div>
             </div>
-            <pre className="whitespace-pre-wrap font-sans text-sm text-slate-200">{n.body}</pre>
+            <pre className="whitespace-pre-wrap font-sans text-sm text-foreground">{n.body}</pre>
           </li>
         ))}
       </ul>

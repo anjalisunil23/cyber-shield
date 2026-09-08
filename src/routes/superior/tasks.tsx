@@ -39,7 +39,7 @@ function Page() {
       <Toolbar search={table.search} onSearch={table.setSearch} />
 
       {table.rows.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-white/10 p-8 text-center text-sm text-slate-500">
+        <div className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
           No tasks assigned yet. Click "Assign New Task" above to assign a task to an investigator.
         </div>
       ) : (

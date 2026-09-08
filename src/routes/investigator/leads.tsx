@@ -18,6 +18,7 @@ function Page() {
   const [items, setItems] = useState(MOCK_LEADS);
   const table = useClientTable(items);
   const [title, setTitle] = useState("");
+
   return (
     <PageScaffold
       crumbs={[{ label: "Investigator", to: "/investigator/dashboard" }, { label: "Manual Leads" }]}
@@ -48,7 +49,7 @@ function Page() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="New lead"
-            className="flex-1 rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="flex-1 rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/60 transition"
           />
           <PrimaryButton type="submit">Create</PrimaryButton>
         </form>
@@ -66,7 +67,7 @@ function Page() {
               <Link
                 to="/investigator/cases/$caseId"
                 params={{ caseId: r.caseNumber }}
-                className="text-cyan hover:underline font-semibold"
+                className="text-primary hover:underline font-semibold"
               >
                 {r.caseNumber}
               </Link>

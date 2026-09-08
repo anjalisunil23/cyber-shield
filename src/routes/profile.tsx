@@ -39,37 +39,37 @@ function Page() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#020617] text-slate-400">
+      <div className="flex items-center justify-center min-h-screen bg-background text-muted-foreground">
         <Loader2 className="h-6 w-6 animate-spin mr-2" /> Loading profile...
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#020617] px-4 py-8 text-slate-100 sm:px-8">
+    <div className="min-h-screen bg-background px-4 py-8 text-foreground transition-colors sm:px-8">
       <div className="mx-auto max-w-4xl">
         <PageScaffold
           crumbs={[{ label: "Home", to: "/" }, { label: "Profile" }]}
           title="User Profile"
           subtitle="View and edit your account settings"
           actions={
-            <Link to="/profile/edit" className="text-sm text-purple-400 hover:text-purple-300">
+            <Link to="/profile/edit" className="text-sm font-semibold text-primary hover:underline">
               Edit profile
             </Link>
           }
         >
-          <div className="rounded-xl border border-white/10 bg-slate-900/60 p-6 flex flex-col sm:flex-row items-center gap-4">
-            <div className="h-16 w-16 rounded-full bg-purple-600/30 border border-purple-500/50 flex items-center justify-center text-xl font-bold text-purple-300">
+          <div className="rounded-2xl border border-border bg-card p-6 flex flex-col sm:flex-row items-center gap-4 shadow-xs">
+            <div className="h-16 w-16 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center text-xl font-bold text-primary shadow-xs">
               {user?.full_name?.charAt(0) || "U"}
             </div>
             <div className="text-center sm:text-left space-y-1">
-              <h2 className="text-lg font-bold">{user?.full_name || "Agent"}</h2>
-              <p className="text-sm text-slate-400">{user?.email}</p>
+              <h2 className="text-lg font-bold text-foreground">{user?.full_name || "Agent"}</h2>
+              <p className="text-sm text-muted-foreground">{user?.email}</p>
               <div className="flex flex-wrap gap-2 justify-center sm:justify-start mt-1">
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/25">
                   {user?.role}
                 </span>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-white/5">
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md bg-muted text-muted-foreground border border-border">
                   {user?.department || "General Unit"}
                 </span>
               </div>
@@ -80,24 +80,24 @@ function Page() {
             <Panel title="Security & Notifications">
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link to="/profile/edit" className="text-purple-400 hover:underline">
+                  <Link to="/profile/edit" className="text-primary hover:underline font-medium">
                     Edit Account Details
                   </Link>
                 </li>
                 <li>
-                  <Link to="/profile/security" className="text-purple-400 hover:underline">
+                  <Link to="/profile/security" className="text-primary hover:underline font-medium">
                     Change Password
                   </Link>
                 </li>
                 <li>
-                  <Link to="/notifications" className="text-purple-400 hover:underline">
+                  <Link to="/notifications" className="text-primary hover:underline font-medium">
                     System Alerts Center
                   </Link>
                 </li>
               </ul>
             </Panel>
             <Panel title="Session Management">
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-muted-foreground">
                 Signed in via secure JWT token authentication.
               </p>
               <PrimaryButton onClick={handleSignOut} className="mt-3">

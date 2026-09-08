@@ -28,7 +28,7 @@ function Page() {
           <Panel key={r.role} title={r.role}>
             <ul className="space-y-2">
               {r.perms.map((p) => (
-                <li key={p} className="flex items-center justify-between text-sm text-slate-300">
+                <li key={p} className="flex items-center justify-between text-sm text-foreground">
                   <span>{p}</span>
                   <StatusPill value="Allowed" />
                 </li>

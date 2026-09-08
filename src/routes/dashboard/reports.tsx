@@ -15,8 +15,8 @@ function ReportsHubPage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold text-slate-50">Reports</h1>
-        <p className="text-sm text-slate-400">
+        <h1 className="text-2xl font-bold text-foreground">Reports</h1>
+        <p className="text-sm text-muted-foreground">
           Generate investigation summaries — HTML (print/PDF) and CSV exports
         </p>
       </div>
@@ -26,10 +26,10 @@ function ReportsHubPage() {
             <Link
               to="/dashboard/cases/$caseId"
               params={{ caseId: c.id }}
-              className="flex items-center justify-between rounded-xl border border-white/10 bg-[#111827]/90 px-4 py-3 hover:border-cyan/30"
+              className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3 hover:border-primary/40 shadow-sm transition-colors"
             >
-              <span className="text-sm text-slate-200">{c.title}</span>
-              <span className="text-xs text-cyan">Open reports tab →</span>
+              <span className="text-sm text-foreground font-medium">{c.title}</span>
+              <span className="text-xs text-primary font-medium">Open reports tab →</span>
             </Link>
           </li>
         ))}

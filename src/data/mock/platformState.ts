@@ -3,14 +3,17 @@ import {
   MOCK_EVIDENCE,
   MOCK_TASKS,
   MOCK_CASES,
+  MOCK_NOTES,
   MockEvidence,
   MockTask,
   MockCase,
+  MockNote,
 } from "./platform";
 
 const EVIDENCE_KEY = "cybershield_mock_evidence_v1";
 const TASKS_KEY = "cybershield_mock_tasks_v1";
 const CASES_KEY = "cybershield_mock_cases_v1";
+const NOTES_KEY = "cybershield_mock_notes_v1";
 
 const listeners: Set<() => void> = new Set();
 
@@ -175,6 +178,119 @@ export function useCaseList(): MockCase[] {
   const [data, setData] = useState<MockCase[]>(getStoredCases);
   useEffect(() => {
     const update = () => setData(getStoredCases());
+    listeners.add(update);
+    return () => {
+      listeners.delete(update);
+    };
+  }, []);
+  return data;
+}
+
+export function getStoredNotes(): MockNote[] {
+  if (typeof window === "undefined") return MOCK_NOTES;
+  try {
+    const raw = localStorage.getItem(NOTES_KEY);
+    if (!raw) return MOCK_NOTES;
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) && parsed.length > 0 ? parsed : MOCK_NOTES;
+  } catch {
+    return MOCK_NOTES;
+  }
+}
+
+export function saveNotes(list: MockNote[]) {
+  if (typeof window !== "undefined") {
+    localStorage.setItem(NOTES_KEY, JSON.stringify(list));
+  }
+  notify();
+}
+
+export function addNoteItem(
+  note?: Partial<MockNote> & { title?: string; body?: string },
+): MockNote {
+  const list = getStoredNotes();
+  const now = new Date();
+  const formattedDate = `${now.toLocaleDateString("en-US", { month: "short", day: "numeric" })}, ${now.getFullYear()}`;
+  
+  const newNote: MockNote = {
+    id: note?.id || `n_${Date.now()}`,
+    title: note?.title || "Untitled Note",
+    body: note?.body || "",
+    caseNumber: note?.caseNumber || "CS-2026-0142",
+    author: note?.author || "Alex Mercer",
+    pinned: note?.pinned ?? false,
+    updatedAt: note?.updatedAt || formattedDate,
+    created: note?.created || formattedDate,
+    tags: note?.tags || ["investigation"],
+    status: note?.status || "Working",
+  };
+  saveNotes([newNote, ...list]);
+  return newNote;
+}
+
+export function updateNoteItem(id: string, updates: Partial<MockNote>): MockNote | null {
+  const list = getStoredNotes();
+  const now = new Date();
+  const formattedDate = `${now.toLocaleDateString("en-US", { month: "short", day: "numeric" })}, ${now.getFullYear()}`;
+  
+  let updatedNote: MockNote | null = null;
+  const next = list.map((n) => {
+    if (n.id === id) {
+      updatedNote = {
+        ...n,
+        ...updates,
+        updatedAt: updates.updatedAt || formattedDate,
+      };
+      return updatedNote;
+    }
+    return n;
+  });
+
+  if (updatedNote) {
+    saveNotes(next);
+  }
+  return updatedNote;
+}
+
+export function deleteNoteItem(id: string): boolean {
+  const list = getStoredNotes();
+  const next = list.filter((n) => n.id !== id);
+  saveNotes(next);
+  return next.length < list.length;
+}
+
+export function duplicateNoteItem(id: string): MockNote | null {
+  const list = getStoredNotes();
+  const source = list.find((n) => n.id === id);
+  if (!source) return null;
+
+  const now = new Date();
+  const formattedDate = `${now.toLocaleDateString("en-US", { month: "short", day: "numeric" })}, ${now.getFullYear()}`;
+
+  const copy: MockNote = {
+    ...source,
+    id: `n_${Date.now()}`,
+    title: `${source.title} (Copy)`,
+    pinned: false,
+    updatedAt: formattedDate,
+    created: formattedDate,
+  };
+
+  saveNotes([copy, ...list]);
+  return copy;
+}
+
+export function togglePinNote(id: string): boolean {
+  const list = getStoredNotes();
+  const next = list.map((n) => (n.id === id ? { ...n, pinned: !n.pinned } : n));
+  saveNotes(next);
+  return true;
+}
+
+export function useNotesList(): MockNote[] {
+  const [data, setData] = useState<MockNote[]>(getStoredNotes);
+  useEffect(() => {
+    const update = () => setData(getStoredNotes());
     listeners.add(update);
     return () => {
       listeners.delete(update);

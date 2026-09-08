@@ -56,8 +56,25 @@ function Page() {
     }
   }, [c.assignee, investigatorOptions]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const selectedObj = investigatorOptions.find(
+      (u) => u.name === selectedInvestigator || u.id === selectedInvestigator,
+    );
+    const selectedId = selectedObj?.id;
+
+    // Backend API sync if valid UUID
+    if (selectedId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(c.id)) {
+      try {
+        await investigationApi.reassignCaseLead(c.id, {
+          new_investigator_lead_id: selectedId,
+          keep_previous_as_investigator: true,
+        });
+      } catch (err) {
+        console.warn("Backend reassignCaseLead error:", err);
+      }
+    }
+
     assignCaseToInvestigator(c.id, selectedInvestigator);
 
     if (taskInstructions.trim()) {
@@ -74,7 +91,7 @@ function Page() {
     setSuccessMsg(true);
     setTimeout(() => {
       navigate({ to: "/superior/cases/$caseId", params: { caseId: c.id } });
-    }, 1200);
+    }, 1000);
   };
 
   return (
@@ -88,21 +105,21 @@ function Page() {
     >
       <Panel className="mx-auto max-w-lg">
         {successMsg ? (
-          <div className="flex flex-col items-center justify-center py-6 text-center text-emerald-400">
+          <div className="flex flex-col items-center justify-center py-6 text-center text-emerald-500">
             <CheckCircle2 className="mb-2 h-10 w-10 animate-bounce" />
             <p className="text-base font-semibold">Investigator & Task Assigned Successfully!</p>
-            <p className="mt-1 text-xs text-slate-400">Redirecting to case details...</p>
+            <p className="mt-1 text-xs text-muted-foreground">Redirecting to case details...</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-slate-400">
+              <label className="block text-xs font-medium text-muted-foreground">
                 Select Investigator
               </label>
               <select
                 value={selectedInvestigator}
                 onChange={(e) => setSelectedInvestigator(e.target.value)}
-                className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm text-slate-100 focus:border-cyan focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
               >
                 {investigatorOptions.map((u) => (
                   <option key={u.id} value={u.name}>
@@ -113,7 +130,7 @@ function Page() {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-400">
+              <label className="block text-xs font-medium text-muted-foreground">
                 Assignment Note / Task Instructions (Optional)
               </label>
               <textarea
@@ -121,7 +138,7 @@ function Page() {
                 placeholder="e.g. Conduct forensic imaging of hard drives and cross-reference PII records."
                 value={taskInstructions}
                 onChange={(e) => setTaskInstructions(e.target.value)}
-                className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm text-slate-100 placeholder:text-slate-600 focus:border-cyan focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
               />
             </div>
 

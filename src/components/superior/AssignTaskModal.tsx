@@ -121,26 +121,26 @@ export function AssignTaskModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0f172a] p-6 shadow-2xl">
-        <div className="flex items-center justify-between border-b border-white/10 pb-4">
+      <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl">
+        <div className="flex items-center justify-between border-b border-border pb-4">
           <div className="flex items-center gap-2">
-            <div className="grid h-8 w-8 place-items-center rounded-lg bg-cyan/20 text-cyan">
+            <div className="grid h-8 w-8 place-items-center rounded-lg bg-primary/20 text-primary">
               <UserCheck className="h-4 w-4" />
             </div>
-            <h3 className="text-base font-semibold text-slate-100">Assign Task to Investigator</h3>
+            <h3 className="text-base font-semibold text-foreground">Assign Task to Investigator</h3>
           </div>
-          <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-200">
+          <button type="button" onClick={onClose} className="text-muted-foreground hover:text-foreground">
             <X className="h-5 w-5" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <div>
-            <label className="block text-xs font-medium text-slate-400">Target Investigator</label>
+            <label className="block text-xs font-medium text-muted-foreground">Target Investigator</label>
             <select
               value={assignee}
               onChange={(e) => setAssignee(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm text-slate-100 focus:border-cyan focus:outline-none"
+              className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
             >
               {investigatorOptions.map((u) => (
                 <option key={u.id} value={u.name}>
@@ -151,7 +151,7 @@ export function AssignTaskModal({
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-400">
+            <label className="block text-xs font-medium text-muted-foreground">
               Task Title / Instructions
             </label>
             <input
@@ -160,17 +160,17 @@ export function AssignTaskModal({
               placeholder="e.g. Extract CDN server logs for IP correlation"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm text-slate-100 placeholder:text-slate-600 focus:border-cyan focus:outline-none"
+              className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-slate-400">Target Case</label>
+              <label className="block text-xs font-medium text-muted-foreground">Target Case</label>
               <select
                 value={caseNumber}
                 onChange={(e) => setCaseNumber(e.target.value)}
-                className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm text-slate-100 focus:border-cyan focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
               >
                 {caseOptions.map((c) => (
                   <option key={c.id} value={c.caseNumber}>
@@ -181,23 +181,23 @@ export function AssignTaskModal({
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-400">Due Date</label>
+              <label className="block text-xs font-medium text-muted-foreground">Due Date</label>
               <input
                 type="date"
                 required
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm text-slate-100 focus:border-cyan focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-400">Task Priority</label>
+            <label className="block text-xs font-medium text-muted-foreground">Task Priority</label>
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm text-slate-100 focus:border-cyan focus:outline-none"
+              className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
             >
               <option value="Low">Low Priority</option>
               <option value="Medium">Medium Priority</option>

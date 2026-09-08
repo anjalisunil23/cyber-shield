@@ -22,8 +22,8 @@ export function CaseTable({ rows, filter = "" }: { rows: InvestigationCase[]; fi
 
   if (!filtered.length) {
     return (
-      <div className="rounded-2xl border border-dashed border-white/15 bg-[#111827]/60 px-6 py-16 text-center">
-        <p className="text-sm text-slate-400">
+      <div className="rounded-2xl border border-dashed border-border bg-card/60 px-6 py-16 text-center shadow-xs">
+        <p className="text-sm text-muted-foreground">
           No cases found. Create your first investigation case.
         </p>
       </div>
@@ -31,17 +31,17 @@ export function CaseTable({ rows, filter = "" }: { rows: InvestigationCase[]; fi
   }
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[#111827]/90">
+    <div className="overflow-x-auto rounded-2xl border border-border bg-card shadow-xs">
       <table className="w-full min-w-[720px] text-left text-sm">
-        <thead className="border-b border-white/10 bg-white/[0.03] text-xs uppercase tracking-wide text-slate-400">
+        <thead className="border-b border-border bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground font-semibold">
           <tr>
-            <th className="px-4 py-3 font-medium">Case ID</th>
-            <th className="px-4 py-3 font-medium">Title</th>
-            <th className="px-4 py-3 font-medium">Priority</th>
-            <th className="px-4 py-3 font-medium">Assigned Officer</th>
-            <th className="px-4 py-3 font-medium">Status</th>
-            <th className="px-4 py-3 font-medium">Last Updated</th>
-            <th className="px-4 py-3 font-medium">Actions</th>
+            <th className="px-4 py-3 font-semibold">Case ID</th>
+            <th className="px-4 py-3 font-semibold">Title</th>
+            <th className="px-4 py-3 font-semibold">Priority</th>
+            <th className="px-4 py-3 font-semibold">Assigned Officer</th>
+            <th className="px-4 py-3 font-semibold">Status</th>
+            <th className="px-4 py-3 font-semibold">Last Updated</th>
+            <th className="px-4 py-3 font-semibold">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -52,8 +52,8 @@ export function CaseTable({ rows, filter = "" }: { rows: InvestigationCase[]; fi
               row.created_by?.full_name ||
               "—";
             return (
-              <tr key={row.id} className="border-b border-white/5 transition hover:bg-white/[0.03]">
-                <td className="px-4 py-3 font-medium text-cyan">
+              <tr key={row.id} className="border-b border-border/50 transition hover:bg-muted/30">
+                <td className="px-4 py-3 font-semibold text-primary">
                   <Link
                     to="/dashboard/cases/$caseId"
                     params={{ caseId: row.id }}
@@ -62,24 +62,24 @@ export function CaseTable({ rows, filter = "" }: { rows: InvestigationCase[]; fi
                     {row.case_number}
                   </Link>
                 </td>
-                <td className="px-4 py-3 text-slate-200">{row.title}</td>
+                <td className="px-4 py-3 font-medium text-foreground">{row.title}</td>
                 <td className="px-4 py-3">
                   <Badge className={priorityBadgeClass(row.priority)}>
                     {formatLabel(row.priority)}
                   </Badge>
                 </td>
-                <td className="px-4 py-3 text-slate-300">{officer}</td>
+                <td className="px-4 py-3 text-muted-foreground">{officer}</td>
                 <td className="px-4 py-3">
                   <Badge className={statusBadgeClass(row.status)}>{formatLabel(row.status)}</Badge>
                 </td>
-                <td className="px-4 py-3 text-slate-400">
+                <td className="px-4 py-3 text-muted-foreground">
                   {new Date(row.updated_at).toLocaleString()}
                 </td>
                 <td className="px-4 py-3">
                   <Link
                     to="/dashboard/cases/$caseId"
                     params={{ caseId: row.id }}
-                    className="rounded-lg p-1.5 text-slate-400 hover:bg-white/5 hover:text-white inline-flex"
+                    className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground inline-flex transition"
                     aria-label="Open case"
                   >
                     <MoreHorizontal className="h-4 w-4" />

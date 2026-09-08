@@ -24,26 +24,26 @@ function Page() {
         <Panel title="Account">
           <dl className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <dt className="text-slate-500">Status</dt>
+              <dt className="text-muted-foreground">Status</dt>
               <dd>
                 <StatusPill value={user.status} />
               </dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-slate-500">Phone</dt>
-              <dd>{user.phone || "—"}</dd>
+              <dt className="text-muted-foreground">Phone</dt>
+              <dd className="text-foreground">{user.phone || "—"}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-slate-500">Last login</dt>
-              <dd>{user.lastLogin}</dd>
+              <dt className="text-muted-foreground">Last login</dt>
+              <dd className="text-foreground">{user.lastLogin}</dd>
             </div>
           </dl>
         </Panel>
         <Panel title="Recent activity" className="lg:col-span-2">
           <ul className="space-y-2">
             {MOCK_AUDIT.slice(0, 4).map((a) => (
-              <li key={a.id} className="text-sm text-slate-300">
-                <span className="text-cyan">{a.action}</span> — {a.resource}
+              <li key={a.id} className="text-sm text-muted-foreground">
+                <span className="text-cyan font-medium">{a.action}</span> — {a.resource}
               </li>
             ))}
           </ul>

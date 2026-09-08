@@ -82,7 +82,7 @@ function Page() {
             <button
               type="button"
               onClick={() => setView(view === "table" ? "grid" : "table")}
-              className="rounded-xl border border-white/10 px-3 py-2 text-xs bg-slate-900/40 text-slate-300 hover:text-white"
+              className="rounded-xl border border-border px-3 py-2 text-xs bg-card text-muted-foreground hover:text-foreground transition-colors"
             >
               {view === "table" ? "Grid view" : "Table view"}
             </button>
@@ -90,11 +90,11 @@ function Page() {
         }
       />
       {loading ? (
-        <div className="flex items-center justify-center py-12 text-slate-400">
+        <div className="flex items-center justify-center py-12 text-muted-foreground">
           <Loader2 className="h-6 w-6 animate-spin mr-2" /> Loading cases...
         </div>
       ) : cases.length === 0 ? (
-        <div className="rounded-xl border border-white/10 bg-slate-900/60 p-8 text-center text-slate-400">
+        <div className="rounded-xl border border-border bg-card p-8 text-center text-muted-foreground">
           No cases found.
         </div>
       ) : view === "table" ? (
@@ -109,7 +109,7 @@ function Page() {
                   <Link
                     to="/superior/cases/$caseId"
                     params={{ caseId: r.id }}
-                    className="text-purple-400 hover:text-purple-300 font-semibold hover:underline"
+                    className="text-primary hover:underline font-semibold"
                   >
                     {r.case_number}
                   </Link>

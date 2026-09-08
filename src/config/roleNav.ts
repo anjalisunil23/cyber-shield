@@ -13,6 +13,7 @@ import {
   HardDrive,
   KeyRound,
   LayoutDashboard,
+  MessageSquare,
   Network,
   NotebookPen,
   Settings,
@@ -34,6 +35,7 @@ export type NavItem = {
 const supervisorNav: NavItem[] = [
   { to: "/superior/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/superior/cases", label: "Cases", icon: FolderOpen },
+  { to: "/superior/messages", label: "Messages", icon: MessageSquare },
   { to: "/superior/evidence", label: "Evidence", icon: FileStack },
   { to: "/superior/timeline", label: "Timeline", icon: Timer },
   { to: "/superior/relationships", label: "Relationships", icon: Network },
@@ -76,6 +78,7 @@ export const ROLE_NAV: Record<AppRole, NavItem[]> = {
   investigator: [
     { to: "/investigator/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
     { to: "/investigator/cases", label: "My Cases", icon: FolderOpen },
+    { to: "/investigator/messages", label: "Messages", icon: MessageSquare },
     { to: "/investigator/upload", label: "Upload Evidence", icon: Upload },
     { to: "/investigator/evidence", label: "Evidence Repo", icon: FileStack },
     { to: "/investigator/timeline", label: "Timeline", icon: Timer },

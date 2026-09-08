@@ -77,7 +77,7 @@ class AdminUserUpdate(BaseModel):
     is_active: bool | None = None
 
 
-# ---- Cases ----
+# ---- Cases & Team Hierarchy ----
 
 class CaseCreate(BaseModel):
     title: str = Field(..., min_length=1, max_length=500)
@@ -86,6 +86,7 @@ class CaseCreate(BaseModel):
     status: CaseStatus = CaseStatus.open
     notes: str | None = None
     assignee_ids: list[UUID] = Field(default_factory=list)
+    investigator_lead_id: UUID | None = None
 
 
 class CaseUpdate(BaseModel):
@@ -110,6 +111,35 @@ class CaseAssignmentOut(BaseModel):
     user: UserBrief | None = None
 
 
+class CaseInvestigatorOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: UUID
+    case_id: UUID
+    user_id: UUID
+    role: str
+    status: str
+    assigned_by_id: UUID | None = None
+    assigned_at: datetime
+    user: UserBrief | None = None
+
+
+class AddTeamInvestigatorsRequest(BaseModel):
+    investigator_ids: list[UUID] = Field(..., min_length=1)
+
+
+class ReassignLeadRequest(BaseModel):
+    new_lead_id: UUID
+    keep_previous_lead: bool = True
+
+
+class CaseTeamResponse(BaseModel):
+    case_id: UUID
+    case_number: str
+    investigator_lead: CaseInvestigatorOut | None = None
+    team_investigators: list[CaseInvestigatorOut] = Field(default_factory=list)
+    total_members: int = 0
+
+
 class CaseReviewRequest(BaseModel):
     action: str = Field(..., pattern="^(approve|request_changes)$")
     review_comment: str | None = None
@@ -126,6 +156,7 @@ class CaseOut(BaseModel):
     notes: str | None
     department_id: UUID | None = None
     supervisor_id: UUID | None = None
+    investigator_lead_id: UUID | None = None
     review_comment: str | None = None
     submitted_at: datetime | None = None
     reviewed_at: datetime | None = None
@@ -134,7 +165,9 @@ class CaseOut(BaseModel):
     updated_at: datetime
     created_by: UserBrief | None = None
     supervisor: UserBrief | None = None
+    investigator_lead: UserBrief | None = None
     assignments: list[CaseAssignmentOut] = Field(default_factory=list)
+    investigator_assignments: list[CaseInvestigatorOut] = Field(default_factory=list)
 
 
 
@@ -373,3 +406,54 @@ class DashboardStats(BaseModel):
     recent_activity: list[ActivityOut]
     recent_cases: list[CaseOut]
     latest_uploads: list[EvidenceOut]
+
+
+# ---- Chat & Communication ----
+
+class ChatParticipantOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: UUID
+    conversation_id: UUID
+    user_id: UUID
+    role_in_case: str
+    is_active: bool
+    joined_at: datetime
+    left_at: datetime | None = None
+    last_read_at: datetime
+    user: UserBrief | None = None
+
+
+class ChatMessageCreate(BaseModel):
+    content: str = Field(..., min_length=1, max_length=10000)
+
+
+class ChatMessageOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: UUID
+    conversation_id: UUID
+    sender_id: UUID | None = None
+    content: str
+    is_system: bool
+    created_at: datetime
+    sender: UserBrief | None = None
+
+
+class ChatConversationOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: UUID
+    case_id: UUID | None = None
+    type: str
+    title: str
+    created_by_id: UUID | None = None
+    created_at: datetime
+    updated_at: datetime
+    case_number: str | None = None
+    participants: list[ChatParticipantOut] = Field(default_factory=list)
+    last_message: ChatMessageOut | None = None
+    unread_count: int = 0
+
+
+class DirectChatCreate(BaseModel):
+    target_user_id: UUID
+    case_id: UUID | None = None
+

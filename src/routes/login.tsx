@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
-import { Eye, EyeOff, Lock, Shield, User } from "lucide-react";
+import { useState, useEffect, useRef, type FormEvent } from "react";
+import { Eye, EyeOff, Lock, Shield, User, X } from "lucide-react";
 import { ApiError, loginUser } from "@/lib/api";
-import { setTokens } from "@/lib/auth";
+import { clearToken, isAuthenticated, setTokens } from "@/lib/auth";
 import { homeForRole } from "@/lib/roles";
+import { investigationApi } from "@/services/investigationApi";
 import { HudAuthCard, HudShell, HudVisualStage, hudInput } from "@/components/HudShell";
 
 export const Route = createFileRoute("/login")({
@@ -25,41 +26,109 @@ export const Route = createFileRoute("/login")({
   component: LoginPage,
 });
 
+const REMEMBERED_EMAIL_KEY = "cybershield_remembered_email";
+const REMEMBER_ME_KEY = "cybershield_remember_me";
+
 function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const passwordInputRef = useRef<HTMLInputElement>(null);
+
+  // Initialize email & rememberMe from localStorage
+  const [email, setEmail] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem(REMEMBERED_EMAIL_KEY) || "";
+    }
+    return "";
+  });
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(() => {
+    if (typeof window !== "undefined") {
+      const storedVal = localStorage.getItem(REMEMBER_ME_KEY);
+      if (storedVal !== null) return storedVal === "true";
+      return !!localStorage.getItem(REMEMBERED_EMAIL_KEY);
+    }
+    return false;
+  });
+
+  // If already authenticated with a valid token, seamlessly redirect to dashboard
+  useEffect(() => {
+    if (typeof window !== "undefined" && isAuthenticated()) {
+      investigationApi
+        .me()
+        .then((me) => {
+          if (me && me.role) {
+            window.location.assign(homeForRole(me.role));
+          }
+        })
+        .catch(() => {
+          // Token is expired or invalid; clean up so user can log in
+          clearToken();
+        });
+    }
+  }, []);
+
+  // Autofocus password if email is already remembered
+  useEffect(() => {
+    if (email && passwordInputRef.current) {
+      passwordInputRef.current.focus();
+    }
+  }, []);
+
+  function handleClearRemembered() {
+    setEmail("");
+    setPassword("");
+    setRememberMe(false);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(REMEMBERED_EMAIL_KEY);
+      localStorage.removeItem(REMEMBER_ME_KEY);
+    }
+  }
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
 
-    const form = e.currentTarget;
-    const data = new FormData(form);
-    const email = String(data.get("email") ?? "")
-      .trim()
-      .toLowerCase();
-    const password = String(data.get("password") ?? "");
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPassword = password;
 
-    if (!email || !password) {
+    if (!cleanEmail || !cleanPassword) {
       setError("Email and password are required.");
       return;
     }
 
     setSubmitting(true);
     try {
-      const token = await loginUser({ email, password });
+      const token = await loginUser({ email: cleanEmail, password: cleanPassword });
+
+      // Handle Remember Me persistence
+      if (typeof window !== "undefined") {
+        if (rememberMe) {
+          localStorage.setItem(REMEMBERED_EMAIL_KEY, cleanEmail);
+          localStorage.setItem(REMEMBER_ME_KEY, "true");
+        } else {
+          localStorage.removeItem(REMEMBERED_EMAIL_KEY);
+          localStorage.removeItem(REMEMBER_ME_KEY);
+        }
+      }
+
       setTokens(token.access_token, token.refresh_token);
       window.location.assign(homeForRole(token.role));
     } catch (err) {
-      const message =
-        err instanceof ApiError
-          ? err.message
-          : err instanceof TypeError
-            ? "Cannot reach the API. Make sure the backend is running on port 8001."
-            : err instanceof Error
-              ? err.message
-              : "Could not sign in.";
+      let message = "Could not sign in.";
+      if (err instanceof ApiError) {
+        if (err.status === 502 || err.message.toLowerCase().includes("bad gateway")) {
+          message =
+            "Cannot reach the backend server (502 Bad Gateway). Please ensure the Python API is running on port 8001.";
+        } else {
+          message = err.message;
+        }
+      } else if (err instanceof TypeError) {
+        message = "Cannot reach the API. Make sure the backend server is running on port 8001.";
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
       setError(message);
     } finally {
       setSubmitting(false);
@@ -94,13 +163,26 @@ function LoginPage() {
               )}
 
               <label className="block">
-                <span className="mb-1.5 block text-xs tracking-wide text-white/60">Email</span>
+                <div className="mb-1.5 flex items-center justify-between text-xs tracking-wide text-white/60">
+                  <span>Email</span>
+                  {email && rememberMe && (
+                    <button
+                      type="button"
+                      onClick={handleClearRemembered}
+                      className="text-[11px] text-white/40 hover:text-white/80 transition-colors inline-flex items-center gap-1"
+                    >
+                      <X className="h-3 w-3" /> Clear remembered
+                    </button>
+                  )}
+                </div>
                 <div className="flex items-center gap-3 rounded-md bg-[#2a3340] px-3 py-3">
                   <User className="h-4 w-4 shrink-0 text-white/55" />
                   <input
                     name="email"
                     type="email"
                     required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     autoComplete="username"
                     placeholder="officer@agency.gov"
                     className={hudInput}
@@ -113,9 +195,12 @@ function LoginPage() {
                 <div className="flex items-center gap-3 rounded-md bg-[#2a3340] px-3 py-3">
                   <Lock className="h-4 w-4 shrink-0 text-white/55" />
                   <input
+                    ref={passwordInputRef}
                     name="password"
                     type={showPassword ? "text" : "password"}
                     required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     autoComplete="current-password"
                     placeholder="••••••••••"
                     className={hudInput}
@@ -132,9 +217,14 @@ function LoginPage() {
               </label>
 
               <div className="flex items-center justify-between text-xs text-white/80">
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" className="h-3.5 w-3.5 accent-white" />
-                  Remember me
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="h-3.5 w-3.5 accent-white cursor-pointer"
+                  />
+                  <span>Remember me</span>
                 </label>
                 <Link to="/forgot-password" className="hover:underline">
                   Forgot Password?
@@ -162,3 +252,4 @@ function LoginPage() {
     </HudShell>
   );
 }
+

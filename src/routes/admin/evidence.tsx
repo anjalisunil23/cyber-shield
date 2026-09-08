@@ -126,21 +126,21 @@ function Page() {
         onClose={() => setSelected(null)}
       >
         {selected && (
-          <div className="space-y-2 text-sm text-slate-300">
-            <p>Case: {selected.case_number || selected.case_id}</p>
+          <div className="space-y-2 text-sm text-muted-foreground">
+            <p className="text-foreground"><span className="text-muted-foreground">Case:</span> {selected.case_number || selected.case_id}</p>
             <p>
-              Type: {selected.file_type} · Size: {formatBytes(selected.file_size)}
+              Type: <span className="text-foreground font-medium">{selected.file_type}</span> · Size: {formatBytes(selected.file_size)}
             </p>
             <p>Uploaded: {new Date(selected.upload_date).toLocaleString()}</p>
-            <p className="break-all text-xs text-slate-500">SHA-256: {selected.sha256_hash}</p>
+            <p className="break-all font-mono text-xs text-muted-foreground">SHA-256: {selected.sha256_hash}</p>
             <p>Duplicate: {selected.is_duplicate ? "Yes (placeholder detection)" : "No"}</p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-muted-foreground">
               AI fields reserved: ocr_text, speech_text, entities, embeddings…
             </p>
             <div className="mt-4 flex gap-2">
               <button
                 type="button"
-                className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white"
+                className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 transition-colors"
                 onClick={() =>
                   void investigationApi
                     .adminDownloadEvidence(selected.id, selected.original_name)
@@ -151,7 +151,7 @@ function Page() {
                 Download
               </button>
               <GhostButton
-                className="border-rose-500/30 text-rose-300"
+                className="border-rose-500/30 text-rose-600 hover:bg-rose-500/10 dark:text-rose-300"
                 onClick={() => setDeleteId(selected.id)}
               >
                 Delete

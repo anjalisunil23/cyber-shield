@@ -16,6 +16,7 @@ export const Route = createFileRoute("/investigator/reports")({ component: Page 
 function Page() {
   const table = useClientTable(MOCK_REPORTS);
   const [draft, setDraft] = useState(false);
+
   return (
     <PageScaffold
       crumbs={[
@@ -33,7 +34,7 @@ function Page() {
             setDraft(true);
           }}
         >
-          <select className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm">
+          <select className="rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground outline-none focus:border-primary/60">
             {MOCK_CASES.map((c) => (
               <option key={c.id}>{c.caseNumber}</option>
             ))}
@@ -43,7 +44,7 @@ function Page() {
       </Panel>
       {draft && (
         <Panel title="Draft preview" className="mt-4">
-          <p className="text-sm text-slate-300">
+          <p className="text-sm text-foreground">
             Draft report body (mock). Ready for superior review.
           </p>
           <PrimaryButton className="mt-3" onClick={() => window.print()}>

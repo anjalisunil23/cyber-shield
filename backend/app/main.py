@@ -17,6 +17,7 @@ from app.api.routes.evidence import router as evidence_router
 from app.api.routes.modules import router as modules_router
 from app.api.routes.platform import router as platform_router
 from app.api.routes.rbac import router as rbac_router
+from app.api.routes.chat import router as chat_router
 from app.core.config import get_settings
 from app.services.storage import ensure_upload_tree
 
@@ -83,6 +84,7 @@ async def database_exception_handler(_request: Request, _exc: SQLAlchemyError) -
 app.include_router(auth_router, prefix="/api")
 app.include_router(admin_router, prefix="/api")
 app.include_router(cases_router, prefix="/api")
+app.include_router(chat_router, prefix="/api")
 app.include_router(evidence_router, prefix="/api")
 app.include_router(modules_router, prefix="/api")
 app.include_router(platform_router, prefix="/api")

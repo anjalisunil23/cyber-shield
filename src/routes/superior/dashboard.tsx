@@ -40,14 +40,16 @@ import {
   statusBadgeClass,
 } from "@/components/dashboard/Badge";
 import { investigationApi } from "@/services/investigationApi";
+import { useTheme } from "@/lib/theme";
 
 export const Route = createFileRoute("/superior/dashboard")({
   component: SuperiorDashboard,
 });
 
-const COLORS = ["#3B82F6", "#06B6D4", "#F59E0B", "#EF4444"];
+const COLORS = ["#2563EB", "#0284C7", "#16A34A", "#EAB308", "#EF4444"];
 
 function SuperiorDashboard() {
+  const { isDark } = useTheme();
   const navigate = useNavigate();
   const [selectedInvestigator, setSelectedInvestigator] = useState<string>("all");
 
@@ -97,19 +99,19 @@ function SuperiorDashboard() {
         />
 
         {/* Investigator Filter */}
-        <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-[#111827] px-3 py-2 shrink-0">
-          <Filter className="h-4 w-4 text-cyan" />
-          <span className="text-xs text-slate-400 font-medium">Investigator:</span>
+        <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 shrink-0 shadow-sm">
+          <Filter className="h-4 w-4 text-primary" />
+          <span className="text-xs text-muted-foreground font-medium">Investigator:</span>
           <select
             value={selectedInvestigator}
             onChange={(e) => setSelectedInvestigator(e.target.value)}
-            className="bg-transparent text-xs text-slate-200 focus:outline-none cursor-pointer"
+            className="bg-transparent text-xs text-foreground focus:outline-none cursor-pointer"
           >
-            <option value="all" className="bg-[#0f172a]">
+            <option value="all" className="bg-card text-foreground">
               All Investigators ({investigatorsList.length})
             </option>
             {investigatorsList.map((inv) => (
-              <option key={inv.id} value={inv.id} className="bg-[#0f172a]">
+              <option key={inv.id} value={inv.id} className="bg-card text-foreground">
                 {inv.full_name}
               </option>
             ))}
@@ -119,12 +121,12 @@ function SuperiorDashboard() {
 
       {/* Review Alert Banner */}
       {awaitingReviewCount > 0 && (
-        <div className="rounded-2xl border border-cyan/40 bg-cyan/10 p-4 text-cyan-200 flex items-center justify-between gap-4 shadow-lg">
+        <div className="rounded-2xl border border-primary/40 bg-primary/10 p-4 text-foreground flex items-center justify-between gap-4 shadow-sm">
           <div className="flex items-center gap-3">
-            <Clock className="h-5 w-5 text-cyan shrink-0 animate-spin" />
+            <Clock className="h-5 w-5 text-primary shrink-0 animate-spin" />
             <div>
-              <p className="text-sm font-bold text-cyan">Review Queue Pending</p>
-              <p className="text-xs text-cyan-100/80">
+              <p className="text-sm font-bold text-primary">Review Queue Pending</p>
+              <p className="text-xs text-muted-foreground">
                 You have {awaitingReviewCount} case{awaitingReviewCount > 1 ? "s" : ""} submitted by
                 investigators awaiting your review & sign-off.
               </p>
@@ -133,7 +135,7 @@ function SuperiorDashboard() {
           <button
             type="button"
             onClick={() => void navigate({ to: "/superior/cases" })}
-            className="shrink-0 rounded-xl bg-cyan px-3.5 py-1.5 text-xs font-bold text-slate-950 hover:bg-cyan/90 transition-colors shadow-md"
+            className="shrink-0 rounded-xl bg-primary px-3.5 py-1.5 text-xs font-bold text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm"
           >
             Open Review Queue →
           </button>
@@ -196,11 +198,19 @@ function SuperiorDashboard() {
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={d?.monthly_cases || []}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-                <XAxis dataKey="month" stroke="#64748b" fontSize={11} />
-                <YAxis stroke="#64748b" fontSize={11} allowDecimals={false} />
-                <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid #334155" }} />
-                <Bar dataKey="count" fill="#3B82F6" radius={[6, 6, 0, 0]} />
+                <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#1f2937" : "#e2e8f0"} />
+                <XAxis dataKey="month" stroke={isDark ? "#64748b" : "#94a3b8"} fontSize={11} />
+                <YAxis stroke={isDark ? "#64748b" : "#94a3b8"} fontSize={11} allowDecimals={false} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: isDark ? "#0f172a" : "#ffffff",
+                    borderColor: isDark ? "#334155" : "#e2e8f0",
+                    color: isDark ? "#f8fafc" : "#0f172a",
+                    borderRadius: "0.75rem",
+                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                  }}
+                />
+                <Bar dataKey="count" fill="#2563EB" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -219,7 +229,15 @@ function SuperiorDashboard() {
                     <Cell key={i} fill={COLORS[i % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid #334155" }} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: isDark ? "#0f172a" : "#ffffff",
+                    borderColor: isDark ? "#334155" : "#e2e8f0",
+                    color: isDark ? "#f8fafc" : "#0f172a",
+                    borderRadius: "0.75rem",
+                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                  }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -236,19 +254,19 @@ function SuperiorDashboard() {
                   key={c.id}
                   className={`flex items-center justify-between gap-3 rounded-xl border p-3 transition-all ${
                     isUnderReview
-                      ? "border-cyan/40 bg-cyan/10"
-                      : "border-white/5 bg-[#0b1220]/60 hover:border-white/20"
+                      ? "border-primary/40 bg-primary/10"
+                      : "border-border bg-card hover:border-primary/30"
                   }`}
                 >
                   <div className="min-w-0 flex-1">
                     <Link
                       to="/superior/cases/$caseId"
                       params={{ caseId: c.id }}
-                      className="text-sm font-semibold text-slate-200 hover:text-cyan hover:underline truncate block"
+                      className="text-sm font-semibold text-foreground hover:text-primary hover:underline truncate block"
                     >
                       {c.case_number} · {c.title}
                     </Link>
-                    <p className="text-xs text-slate-400 truncate">
+                    <p className="text-xs text-muted-foreground truncate">
                       Assigned:{" "}
                       {c.assignments
                         ?.map((a) => a.user?.full_name)
@@ -266,7 +284,7 @@ function SuperiorDashboard() {
               );
             })}
             {!filteredCases.length && (
-              <p className="text-sm text-slate-500 py-2">No cases found matching filter</p>
+              <p className="text-sm text-muted-foreground py-2">No cases found matching filter</p>
             )}
           </ul>
         </Panel>
@@ -276,23 +294,23 @@ function SuperiorDashboard() {
             {(d?.latest_uploads || []).map((e) => (
               <li
                 key={e.id}
-                className="flex items-center justify-between gap-2 text-xs border-b border-white/5 pb-2"
+                className="flex items-center justify-between gap-2 text-xs border-b border-border pb-2"
               >
                 <div className="truncate">
-                  <span className="font-semibold text-slate-200 block truncate">
+                  <span className="font-semibold text-foreground block truncate">
                     {e.original_name}
                   </span>
-                  <span className="text-[11px] text-slate-400 font-mono">
+                  <span className="text-[11px] text-muted-foreground font-mono">
                     {e.sha256_hash?.substring(0, 16)}...
                   </span>
                 </div>
-                <span className="text-[10px] text-cyan shrink-0 uppercase bg-cyan/10 px-2 py-0.5 rounded">
+                <span className="text-[10px] text-primary shrink-0 uppercase bg-primary/10 px-2 py-0.5 rounded font-mono">
                   {e.file_type}
                 </span>
               </li>
             ))}
             {!d?.latest_uploads?.length && (
-              <p className="text-sm text-slate-500 py-2">No uploads yet</p>
+              <p className="text-sm text-muted-foreground py-2">No uploads yet</p>
             )}
           </ul>
         </Panel>

@@ -66,7 +66,7 @@ function Page() {
             placeholder="Full name"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
           <input
             required
@@ -74,24 +74,24 @@ function Page() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
           <input
             placeholder="Phone"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
           <input
             placeholder="Badge number"
             value={badge}
             onChange={(e) => setBadge(e.target.value)}
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
           <select
             value={role}
             onChange={(e) => setRole(e.target.value as "investigator" | "superior_officer")}
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           >
             <option value="investigator">Investigator</option>
             <option value="superior_officer">Superior Officer</option>
@@ -102,7 +102,7 @@ function Page() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
           <input
             required
@@ -110,12 +110,12 @@ function Page() {
             type="password"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           >
             <option>Active</option>
             <option>Suspended</option>
@@ -124,7 +124,7 @@ function Page() {
             type="file"
             accept="image/*"
             onChange={(e) => setAvatar(e.target.files?.[0] || null)}
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
           <PrimaryButton type="submit">{create.isPending ? "Creating…" : "Create"}</PrimaryButton>
         </form>

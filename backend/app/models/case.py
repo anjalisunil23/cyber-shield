@@ -38,6 +38,9 @@ class Case(Base):
     supervisor_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True
     )
+    investigator_lead_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True
+    )
     review_comment: Mapped[str | None] = mapped_column(Text, nullable=True)
     submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -53,6 +56,7 @@ class Case(Base):
 
     created_by = relationship("User", foreign_keys=[created_by_id])
     supervisor = relationship("User", foreign_keys=[supervisor_id])
+    investigator_lead = relationship("User", foreign_keys=[investigator_lead_id])
     department_ref = relationship("Department", foreign_keys=[department_id])
     assignments = relationship("CaseAssignment", back_populates="case", cascade="all, delete-orphan")
     investigator_assignments = relationship(
@@ -64,6 +68,7 @@ class Case(Base):
     relationships_list = relationship("Relationship", back_populates="case", cascade="all, delete-orphan")
     leads = relationship("ManualLead", back_populates="case", cascade="all, delete-orphan")
     reports = relationship("Report", back_populates="case", cascade="all, delete-orphan")
+    chat_conversations = relationship("ChatConversation", back_populates="case", cascade="all, delete-orphan")
 
 
 class CaseAssignment(Base):
@@ -101,6 +106,8 @@ class InvestigatorAssignment(Base):
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
+    role: Mapped[str] = mapped_column(String(32), nullable=False, default="INVESTIGATOR", server_default="INVESTIGATOR")
+    status: Mapped[str] = mapped_column(String(32), nullable=False, default="active", server_default="active")
     assigned_by_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )

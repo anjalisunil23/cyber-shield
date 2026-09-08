@@ -13,11 +13,11 @@ function Page() {
     >
       <ol className="space-y-4">
         {MOCK_TIMELINE.map((t) => (
-          <li key={t.id} className="relative border-l border-white/15 pl-4">
+          <li key={t.id} className="relative border-l border-border pl-4">
             <span className="absolute -left-1.5 top-1 h-3 w-3 rounded-full bg-primary" />
-            <p className="text-sm font-medium text-slate-100">{t.title}</p>
-            <p className="text-xs text-slate-500">{t.at}</p>
-            <p className="text-sm text-slate-400">{t.detail}</p>
+            <p className="text-sm font-semibold text-foreground">{t.title}</p>
+            <p className="text-xs text-muted-foreground">{t.at}</p>
+            <p className="text-sm text-muted-foreground">{t.detail}</p>
           </li>
         ))}
       </ol>

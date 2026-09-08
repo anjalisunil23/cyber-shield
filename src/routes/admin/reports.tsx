@@ -86,7 +86,7 @@ function Page() {
           <select
             value={reportType}
             onChange={(e) => setReportType(e.target.value as typeof reportType)}
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           >
             <option value="department">Department Report</option>
             <option value="case">Case Report</option>
@@ -96,7 +96,7 @@ function Page() {
           <select
             value={format}
             onChange={(e) => setFormat(e.target.value as typeof format)}
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           >
             <option value="csv">Export CSV</option>
             <option value="html">Export PDF/HTML</option>
@@ -106,7 +106,7 @@ function Page() {
             <select
               value={caseId}
               onChange={(e) => setCaseId(e.target.value)}
-              className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+              className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
             >
               <option value="">Select case</option>
               {(cases.data?.items || []).map((c) => (
@@ -120,7 +120,7 @@ function Page() {
             <select
               value={investigatorId}
               onChange={(e) => setInvestigatorId(e.target.value)}
-              className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+              className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
             >
               <option value="">Select investigator</option>
               {(investigators.data?.items || []).map((u) => (

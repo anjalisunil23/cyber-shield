@@ -29,8 +29,8 @@ function Page() {
             ].map(([n, t, s]) => (
               <li key={n} className="flex items-center justify-between text-sm">
                 <div>
-                  <p className="text-slate-100">{n}</p>
-                  <p className="text-xs text-slate-500">{t}</p>
+                  <p className="font-medium text-foreground">{n}</p>
+                  <p className="text-xs text-muted-foreground">{t}</p>
                 </div>
                 <StatusPill value={s} />
               </li>
@@ -42,11 +42,11 @@ function Page() {
           </div>
         </Panel>
         <Panel title="Restore">
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-muted-foreground">
             Select a snapshot to restore into a staging environment. Destructive restore is disabled
             in UI mock.
           </p>
-          <select className="mt-3 w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm">
+          <select className="mt-3 w-full rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary">
             <option>Nightly full — Aug 3</option>
             <option>Incremental — Aug 2</option>
           </select>

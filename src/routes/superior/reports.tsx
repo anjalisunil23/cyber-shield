@@ -30,12 +30,12 @@ function Page() {
             setPreview(true);
           }}
         >
-          <select className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm">
+          <select className="rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground">
             {MOCK_CASES.map((c) => (
               <option key={c.id}>{c.caseNumber}</option>
             ))}
           </select>
-          <select className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm">
+          <select className="rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground">
             <option>HTML</option>
             <option>PDF</option>
             <option>CSV</option>
@@ -45,7 +45,7 @@ function Page() {
       </Panel>
       {preview && (
         <Panel title="Report preview" className="mt-4">
-          <p className="text-sm text-slate-300">
+          <p className="text-sm text-muted-foreground">
             Investigation Summary — mock content suitable for print/PDF export.
           </p>
           <div className="mt-3 flex gap-2">

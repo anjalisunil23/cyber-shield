@@ -18,16 +18,16 @@ function Page() {
         <Panel title="Overview">
           <dl className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <dt className="text-slate-500">Code</dt>
-              <dd>{dept.code}</dd>
+              <dt className="text-muted-foreground">Code</dt>
+              <dd className="text-foreground font-medium">{dept.code}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-slate-500">Officers</dt>
-              <dd>{dept.officers}</dd>
+              <dt className="text-muted-foreground">Officers</dt>
+              <dd className="text-foreground">{dept.officers}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-slate-500">Cases</dt>
-              <dd>{dept.cases}</dd>
+              <dt className="text-muted-foreground">Cases</dt>
+              <dd className="text-foreground">{dept.cases}</dd>
             </div>
           </dl>
         </Panel>
@@ -35,7 +35,7 @@ function Page() {
           <ul className="space-y-2">
             {MOCK_USERS.slice(0, 4).map((u) => (
               <li key={u.id} className="flex justify-between text-sm">
-                <span>{u.name}</span>
+                <span className="text-foreground">{u.name}</span>
                 <span className="text-cyan text-xs">{u.role}</span>
               </li>
             ))}
@@ -44,8 +44,8 @@ function Page() {
         <Panel title="Recent cases" className="lg:col-span-3">
           <ul className="space-y-2">
             {MOCK_CASES.slice(0, 4).map((c) => (
-              <li key={c.id} className="text-sm text-slate-300">
-                {c.caseNumber} — {c.title}
+              <li key={c.id} className="text-sm text-muted-foreground">
+                <span className="text-foreground">{c.caseNumber}</span> — {c.title}
               </li>
             ))}
           </ul>

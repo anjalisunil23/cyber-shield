@@ -45,7 +45,7 @@ function Page() {
       subtitle="Drag & drop or browse files and folders"
     >
       <Panel>
-        <div className="mb-4 flex rounded-xl bg-[#0b1220] p-1 border border-white/5 max-w-sm">
+        <div className="mb-4 flex rounded-xl bg-muted p-1 border border-border max-w-sm">
           <button
             type="button"
             onClick={() => {
@@ -54,8 +54,8 @@ function Page() {
             }}
             className={`flex-1 rounded-lg py-1.5 text-xs font-semibold transition-colors ${
               uploadMode === "file"
-                ? "bg-cyan text-slate-950"
-                : "text-slate-400 hover:text-slate-200"
+                ? "bg-primary text-white shadow-xs"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             📄 Select File(s)
@@ -68,17 +68,17 @@ function Page() {
             }}
             className={`flex-1 rounded-lg py-1.5 text-xs font-semibold transition-colors ${
               uploadMode === "folder"
-                ? "bg-cyan text-slate-950"
-                : "text-slate-400 hover:text-slate-200"
+                ? "bg-primary text-white shadow-xs"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             📁 Select Entire Folder
           </button>
         </div>
 
-        <label className="mb-3 block text-xs text-slate-400">
+        <label className="mb-3 block text-xs font-medium text-muted-foreground">
           Case
-          <select className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm">
+          <select className="mt-1 w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground outline-none focus:border-primary/60">
             {caseOptions.map((c) => (
               <option key={c.id}>
                 {c.caseNumber} — {c.title}
@@ -99,22 +99,24 @@ function Page() {
             const names = Array.from(e.dataTransfer.files).map((f) => f.name);
             setFiles((p) => [...p, ...names]);
           }}
-          className={`grid place-items-center rounded-2xl border border-dashed px-6 py-14 text-center transition ${drag ? "border-cyan bg-cyan/10" : "border-white/15 bg-black/20"}`}
+          className={`grid place-items-center rounded-2xl border border-dashed px-6 py-14 text-center transition ${
+            drag ? "border-primary bg-primary/10" : "border-border bg-muted/30"
+          }`}
         >
           {uploadMode === "folder" ? (
-            <FolderUp className="mb-3 h-10 w-10 text-cyan" />
+            <FolderUp className="mb-3 h-10 w-10 text-primary" />
           ) : (
-            <Upload className="mb-3 h-10 w-10 text-cyan" />
+            <Upload className="mb-3 h-10 w-10 text-primary" />
           )}
-          <p className="text-sm font-medium text-slate-200">
+          <p className="text-sm font-medium text-foreground">
             {uploadMode === "folder" ? "Drop evidence folder here" : "Drop evidence files here"}
           </p>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-muted-foreground">
             {uploadMode === "folder"
               ? "Preserves directory hierarchy and all nested files"
               : "Images, video, audio, PDF, documents, exports"}
           </p>
-          <label className="mt-4 inline-flex cursor-pointer items-center gap-2 rounded-xl bg-cyan px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan/90">
+          <label className="mt-4 inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 transition shadow-xs">
             {uploadMode === "folder" ? "Choose Folder" : "Browse Files"}
             {uploadMode === "file" ? (
               <input
@@ -147,12 +149,12 @@ function Page() {
 
         {!!files.length && (
           <div className="mt-4">
-            <p className="text-xs text-slate-400 font-semibold mb-2">
+            <p className="text-xs text-muted-foreground font-semibold mb-2">
               {files.length} Item(s) Selected:
             </p>
-            <ul className="max-h-40 overflow-y-auto space-y-1 rounded-xl border border-white/10 bg-[#0b1220] p-2">
+            <ul className="max-h-40 overflow-y-auto space-y-1 rounded-xl border border-border bg-muted/50 p-2">
               {files.map((f, i) => (
-                <li key={i} className="text-xs font-mono text-slate-300 truncate">
+                <li key={i} className="text-xs font-mono text-foreground truncate">
                   • {f}
                 </li>
               ))}

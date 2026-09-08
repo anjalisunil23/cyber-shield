@@ -8,6 +8,7 @@ from app.models.audit import (
     Report,
 )
 from app.models.case import Case, CaseAssignment, InvestigatorAssignment
+from app.models.chat import ChatConversation, ChatMessage, ChatParticipant
 from app.models.role import Role
 from app.models.enums import (
     ActivityAction,
@@ -36,6 +37,9 @@ __all__ = [
     "Case",
     "CaseAssignment",
     "InvestigatorAssignment",
+    "ChatConversation",
+    "ChatParticipant",
+    "ChatMessage",
     "Role",
     "Evidence",
     "Note",

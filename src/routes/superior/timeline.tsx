@@ -37,18 +37,18 @@ function Page() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Event title"
-            className="flex-1 rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="flex-1 rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground"
           />
           <PrimaryButton type="submit">Add</PrimaryButton>
         </form>
       </Panel>
       <ol className="mt-4 space-y-4">
         {events.map((t) => (
-          <li key={t.id} className="relative border-l border-white/15 pl-4">
-            <span className="absolute -left-1.5 top-1 h-3 w-3 rounded-full bg-cyan" />
-            <p className="text-sm font-medium text-slate-100">{t.title}</p>
-            <p className="text-xs text-slate-500">{t.at}</p>
-            <p className="text-sm text-slate-400">{t.detail}</p>
+          <li key={t.id} className="relative border-l-2 border-primary/50 pl-4">
+            <span className="absolute -left-[5px] top-1.5 h-2 w-2 rounded-full bg-primary" />
+            <p className="text-sm font-medium text-foreground">{t.title}</p>
+            <p className="text-xs text-muted-foreground">{t.at}</p>
+            <p className="text-sm text-muted-foreground">{t.detail}</p>
           </li>
         ))}
       </ol>

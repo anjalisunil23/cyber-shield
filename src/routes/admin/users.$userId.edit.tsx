@@ -93,7 +93,7 @@ function Page() {
         crumbs={[{ label: "Users", to: "/admin/users" }, { label: "Edit" }]}
         title="Edit User"
       >
-        <p className="text-sm text-rose-300">{apiMessage(user.error, "User not found")}</p>
+        <p className="text-sm text-rose-500 dark:text-rose-300">{apiMessage(user.error, "User not found")}</p>
       </PageScaffold>
     );
   }
@@ -115,29 +115,29 @@ function Page() {
           <input
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
           <input
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="Phone"
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
           <input
             value={badge}
             onChange={(e) => setBadge(e.target.value)}
             placeholder="Badge number"
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
           <input
             value={department}
             onChange={(e) => setDepartment(e.target.value)}
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           >
             <option>Active</option>
             <option>Suspended</option>
@@ -146,21 +146,21 @@ function Page() {
             type="file"
             accept="image/*"
             onChange={(e) => setAvatar(e.target.files?.[0] || null)}
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
           <input
             type="password"
             placeholder="Reset password (optional)"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
           <input
             type="password"
             placeholder="Confirm new password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
           <div className="flex flex-wrap gap-2">
             <PrimaryButton type="submit">{save.isPending ? "Saving…" : "Save"}</PrimaryButton>
@@ -168,7 +168,7 @@ function Page() {
               <GhostButton>Back</GhostButton>
             </Link>
             <GhostButton
-              className="border-rose-500/30 text-rose-300"
+              className="border-rose-500/30 text-rose-600 hover:bg-rose-500/10 dark:text-rose-300"
               onClick={() => setConfirmDelete(true)}
             >
               Delete

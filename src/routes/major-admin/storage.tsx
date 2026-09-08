@@ -14,9 +14,9 @@ function Page() {
       <div className="grid gap-4 md:grid-cols-3">
         {MOCK_STORAGE.map((s) => (
           <Panel key={s.name} title={s.name}>
-            <p className="text-2xl font-bold text-slate-50">{s.used}%</p>
-            <p className="text-xs text-slate-500">of {s.total}</p>
-            <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+            <p className="text-2xl font-bold text-foreground">{s.used}%</p>
+            <p className="text-xs text-muted-foreground">of {s.total}</p>
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-primary to-cyan"
                 style={{ width: `${s.used}%` }}

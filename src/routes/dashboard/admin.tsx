@@ -33,15 +33,15 @@ function AdminPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-50">Admin Panel</h1>
-        <p className="text-sm text-slate-400">
+        <h1 className="text-2xl font-bold text-foreground">Admin Panel</h1>
+        <p className="text-sm text-muted-foreground">
           Manage users and review activity logs (admin role required)
         </p>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-[#111827]/90 overflow-x-auto">
+      <div className="rounded-2xl border border-border bg-card overflow-x-auto shadow-sm">
         <table className="w-full min-w-[640px] text-left text-sm">
-          <thead className="border-b border-white/10 text-xs uppercase text-slate-400">
+          <thead className="border-b border-border text-xs uppercase text-muted-foreground">
             <tr>
               <th className="px-4 py-3">User</th>
               <th className="px-4 py-3">Role</th>
@@ -58,17 +58,17 @@ function AdminPage() {
                 role: string;
                 is_active?: boolean;
               }) => (
-                <tr key={u.id} className="border-b border-white/5">
+                <tr key={u.id} className="border-b border-border/50 hover:bg-muted/30">
                   <td className="px-4 py-3">
-                    <p className="text-slate-200">{u.full_name}</p>
-                    <p className="text-xs text-slate-500">{u.email}</p>
+                    <p className="text-foreground font-medium">{u.full_name}</p>
+                    <p className="text-xs text-muted-foreground">{u.email}</p>
                   </td>
-                  <td className="px-4 py-3 text-cyan">{u.role}</td>
-                  <td className="px-4 py-3">{u.is_active === false ? "No" : "Yes"}</td>
+                  <td className="px-4 py-3 text-primary font-mono">{u.role}</td>
+                  <td className="px-4 py-3 text-foreground">{u.is_active === false ? "No" : "Yes"}</td>
                   <td className="px-4 py-3">
                     <button
                       type="button"
-                      className="text-xs text-amber-400 hover:underline"
+                      className="text-xs text-amber-600 dark:text-amber-400 font-medium hover:underline"
                       onClick={() =>
                         toggleActive.mutate({ id: u.id, is_active: u.is_active === false })
                       }
@@ -83,13 +83,13 @@ function AdminPage() {
         </table>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-[#111827]/90 p-5">
-        <h3 className="mb-3 text-sm font-semibold text-slate-100">Activity logs</h3>
+      <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <h3 className="mb-3 text-sm font-semibold text-foreground">Activity logs</h3>
         <ul className="space-y-2">
           {(activityQ.data?.items || []).map((a) => (
-            <li key={a.id} className="text-sm text-slate-300">
-              <span className="text-cyan">{a.action}</span> — {a.description}
-              <span className="ml-2 text-xs text-slate-500">
+            <li key={a.id} className="text-sm text-foreground/90">
+              <span className="text-primary font-mono">{a.action}</span> — {a.description}
+              <span className="ml-2 text-xs text-muted-foreground">
                 {new Date(a.created_at).toLocaleString()}
               </span>
             </li>

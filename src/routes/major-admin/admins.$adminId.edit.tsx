@@ -22,25 +22,25 @@ function Page() {
     >
       <Panel>
         <form className="mx-auto grid max-w-2xl gap-4" onSubmit={(e) => e.preventDefault()}>
-          <label className="text-xs text-slate-400">
+          <label className="text-xs text-muted-foreground">
             Full name
             <input
               defaultValue={user.name}
-              className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+              className="mt-1 w-full rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </label>
-          <label className="text-xs text-slate-400">
+          <label className="text-xs text-muted-foreground">
             Department
             <input
               defaultValue={user.department}
-              className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+              className="mt-1 w-full rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </label>
-          <label className="text-xs text-slate-400">
+          <label className="text-xs text-muted-foreground">
             Status
             <select
               defaultValue={user.status}
-              className="mt-1 w-full rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+              className="mt-1 w-full rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
             >
               <option>Active</option>
               <option>Suspended</option>

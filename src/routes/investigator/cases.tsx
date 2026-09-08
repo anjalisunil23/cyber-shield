@@ -49,11 +49,11 @@ function Page() {
     >
       <Toolbar search={searchQuery} onSearch={setSearchQuery} />
       {loading ? (
-        <div className="flex items-center justify-center py-12 text-slate-400">
+        <div className="flex items-center justify-center py-12 text-muted-foreground">
           <Loader2 className="h-6 w-6 animate-spin mr-2" /> Loading cases...
         </div>
       ) : cases.length === 0 ? (
-        <div className="rounded-xl border border-white/10 bg-slate-900/60 p-8 text-center text-slate-400">
+        <div className="rounded-2xl border border-border bg-card p-8 text-center text-muted-foreground shadow-xs">
           No cases assigned.
         </div>
       ) : (
@@ -68,7 +68,7 @@ function Page() {
                   <Link
                     to="/investigator/cases/$caseId"
                     params={{ caseId: r.id }}
-                    className="text-purple-400 hover:text-purple-300 font-semibold hover:underline"
+                    className="text-primary font-semibold hover:underline"
                   >
                     {r.case_number}
                   </Link>

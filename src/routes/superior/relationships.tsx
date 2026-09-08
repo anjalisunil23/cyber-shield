@@ -31,14 +31,14 @@ function Page() {
             value={source}
             onChange={(e) => setSource(e.target.value)}
             placeholder="Source"
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground"
           />
-          <span className="grid place-items-center text-slate-500">→</span>
+          <span className="grid place-items-center text-muted-foreground">→</span>
           <input
             value={target}
             onChange={(e) => setTarget(e.target.value)}
             placeholder="Target"
-            className="rounded-xl border border-white/10 bg-[#0b1220] px-3 py-2 text-sm"
+            className="rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground"
           />
           <PrimaryButton type="submit">Link</PrimaryButton>
         </form>

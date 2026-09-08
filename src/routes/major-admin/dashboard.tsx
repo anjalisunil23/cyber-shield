@@ -34,6 +34,7 @@ import {
 } from "@/components/layouts/DashboardWidgets";
 import { StatsCard } from "@/components/layouts/StatsCard";
 import { investigationApi } from "@/services/investigationApi";
+import { useTheme } from "@/lib/theme";
 
 export const Route = createFileRoute("/major-admin/dashboard")({
   component: MajorAdminDashboard,
@@ -43,6 +44,7 @@ const COLORS = ["#3B82F6", "#06B6D4", "#F59E0B", "#EF4444", "#10B981", "#8B5CF6"
 
 function MajorAdminDashboard() {
   const navigate = useNavigate();
+  const { isDark } = useTheme();
   const stats = useQuery({
     queryKey: ["dashboard"],
     queryFn: () => investigationApi.dashboardStats(),
@@ -59,6 +61,18 @@ function MajorAdminDashboard() {
   const admins = items.filter((u) => u.role === "admin").length;
   const superiors = items.filter((u) => u.role === "superior_officer").length;
   const investigators = items.filter((u) => u.role === "investigator").length;
+
+  const gridStroke = isDark ? "#1f2937" : "#e2e8f0";
+  const axisStroke = isDark ? "#64748b" : "#94a3b8";
+  const tooltipStyle = {
+    backgroundColor: isDark ? "#0f172a" : "#ffffff",
+    borderColor: isDark ? "#334155" : "#e2e8f0",
+    color: isDark ? "#f8fafc" : "#0f172a",
+    borderRadius: "8px",
+    boxShadow: isDark
+      ? "0 4px 6px -1px rgba(0, 0, 0, 0.5)"
+      : "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+  };
 
   return (
     <div className="space-y-6">
@@ -125,10 +139,10 @@ function MajorAdminDashboard() {
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={d?.monthly_cases || []}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-                <XAxis dataKey="month" stroke="#64748b" fontSize={11} />
-                <YAxis stroke="#64748b" fontSize={11} allowDecimals={false} />
-                <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid #334155" }} />
+                <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+                <XAxis dataKey="month" stroke={axisStroke} fontSize={11} />
+                <YAxis stroke={axisStroke} fontSize={11} allowDecimals={false} />
+                <Tooltip contentStyle={tooltipStyle} />
                 <Bar dataKey="count" fill="#3B82F6" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -148,7 +162,7 @@ function MajorAdminDashboard() {
                     <Cell key={i} fill={COLORS[i % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid #334155" }} />
+                <Tooltip contentStyle={tooltipStyle} />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -157,10 +171,10 @@ function MajorAdminDashboard() {
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={d?.evidence_types || []}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-                <XAxis dataKey="type" stroke="#64748b" fontSize={11} />
-                <YAxis stroke="#64748b" fontSize={11} allowDecimals={false} />
-                <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid #334155" }} />
+                <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+                <XAxis dataKey="type" stroke={axisStroke} fontSize={11} />
+                <YAxis stroke={axisStroke} fontSize={11} allowDecimals={false} />
+                <Tooltip contentStyle={tooltipStyle} />
                 <Area type="monotone" dataKey="count" stroke="#06B6D4" fill="#06B6D433" />
               </AreaChart>
             </ResponsiveContainer>
@@ -174,9 +188,9 @@ function MajorAdminDashboard() {
               ["Storage", "68% used"],
               ["AI Queue", "Phase 2"],
             ].map(([k, v]) => (
-              <div key={k} className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3">
-                <p className="text-xs text-slate-500">{k}</p>
-                <p className="text-sm font-medium text-emerald-400">{v}</p>
+              <div key={k} className="rounded-xl border border-border bg-card px-3 py-3">
+                <p className="text-xs text-muted-foreground">{k}</p>
+                <p className="text-sm font-medium text-emerald-500 dark:text-emerald-400">{v}</p>
               </div>
             ))}
           </div>
@@ -188,7 +202,7 @@ function MajorAdminDashboard() {
           <ul className="space-y-2">
             {items.slice(0, 6).map((u) => (
               <li key={u.id} className="flex justify-between text-sm">
-                <span className="text-slate-200">{u.full_name}</span>
+                <span className="text-foreground">{u.full_name}</span>
                 <span className="text-xs text-cyan">{u.role}</span>
               </li>
             ))}
@@ -198,18 +212,18 @@ function MajorAdminDashboard() {
           <ul className="space-y-2">
             {(d?.recent_cases || []).map((c) => (
               <li key={c.id} className="text-sm">
-                <p className="text-slate-200">{c.title}</p>
-                <p className="text-xs text-slate-500">{c.case_number}</p>
+                <p className="text-foreground">{c.title}</p>
+                <p className="text-xs text-muted-foreground">{c.case_number}</p>
               </li>
             ))}
-            {!d?.recent_cases?.length && <p className="text-sm text-slate-500">No cases yet</p>}
+            {!d?.recent_cases?.length && <p className="text-sm text-muted-foreground">No cases yet</p>}
           </ul>
         </Panel>
         <Panel title="Audit Logs" className="lg:col-span-1">
           <ul className="space-y-2">
             {(activity.data?.items || []).slice(0, 6).map((a) => (
-              <li key={a.id} className="text-sm text-slate-300">
-                <span className="text-cyan">{a.action}</span> — {a.description}
+              <li key={a.id} className="text-sm text-muted-foreground">
+                <span className="text-cyan font-medium">{a.action}</span> — {a.description}
               </li>
             ))}
           </ul>

@@ -24,12 +24,12 @@ export function StatCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.45 }}
       whileHover={{ y: -4, scale: 1.01 }}
-      className="rounded-2xl border border-white/10 bg-[#111827]/90 p-5 shadow-[0_0_30px_-18px_rgba(59,130,246,0.55)] backdrop-blur"
+      className="rounded-2xl border border-border bg-card p-5 shadow-xs backdrop-blur-sm transition-all dark:shadow-[0_0_30px_-18px_rgba(59,130,246,0.55)]"
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs text-slate-400">{label}</p>
-          <p className="mt-2 text-2xl font-bold tracking-tight text-slate-50">
+          <p className="text-xs text-muted-foreground">{label}</p>
+          <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">
             <span ref={ref}>{n.toLocaleString()}</span>
           </p>
         </div>
@@ -39,8 +39,10 @@ export function StatCard({
       </div>
       <p
         className={cn(
-          "mt-3 text-xs",
-          delta.startsWith("-") ? "text-amber-400" : "text-emerald-400",
+          "mt-3 text-xs font-semibold",
+          delta.startsWith("-")
+            ? "text-amber-600 dark:text-amber-400"
+            : "text-emerald-600 dark:text-emerald-400",
         )}
       >
         {delta}

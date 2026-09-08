@@ -12,7 +12,17 @@ from app.core.deps import get_current_user
 from app.db.session import get_db
 from app.models.enums import CasePriority, CaseStatus
 from app.models.user import User
-from app.schemas.domain import CaseAssign, CaseCreate, CaseOut, CaseReviewRequest, CaseUpdate, PageOut
+from app.schemas.domain import (
+    AddTeamInvestigatorsRequest,
+    CaseAssign,
+    CaseCreate,
+    CaseOut,
+    CaseReviewRequest,
+    CaseTeamResponse,
+    CaseUpdate,
+    PageOut,
+    ReassignLeadRequest,
+)
 from app.services.case_service import CaseService
 from app.utils.pagination import paginate
 
@@ -62,6 +72,58 @@ def get_case(
     user: Annotated[User, Depends(get_current_user)],
 ) -> CaseOut:
     return CaseOut.model_validate(CaseService(db).get(case_id, actor=user))
+
+
+@router.get("/{case_id}/team", response_model=CaseTeamResponse)
+def get_case_team(
+    case_id: UUID,
+    db: Annotated[Session, Depends(get_db)],
+    user: Annotated[User, Depends(get_current_user)],
+) -> CaseTeamResponse:
+    return CaseService(db).get_team(case_id, actor=user)
+
+
+@router.post("/{case_id}/team", response_model=CaseTeamResponse)
+def add_case_team_investigators(
+    case_id: UUID,
+    payload: AddTeamInvestigatorsRequest,
+    db: Annotated[Session, Depends(get_db)],
+    user: Annotated[User, Depends(get_current_user)],
+) -> CaseTeamResponse:
+    return CaseService(db).add_team_investigators(
+        case_id=case_id,
+        investigator_ids=payload.investigator_ids,
+        actor=user,
+    )
+
+
+@router.delete("/{case_id}/team/{investigator_user_id}", response_model=CaseTeamResponse)
+def remove_case_team_investigator(
+    case_id: UUID,
+    investigator_user_id: UUID,
+    db: Annotated[Session, Depends(get_db)],
+    user: Annotated[User, Depends(get_current_user)],
+) -> CaseTeamResponse:
+    return CaseService(db).remove_team_investigator(
+        case_id=case_id,
+        user_id=investigator_user_id,
+        actor=user,
+    )
+
+
+@router.post("/{case_id}/reassign-lead", response_model=CaseTeamResponse)
+def reassign_case_lead(
+    case_id: UUID,
+    payload: ReassignLeadRequest,
+    db: Annotated[Session, Depends(get_db)],
+    user: Annotated[User, Depends(get_current_user)],
+) -> CaseTeamResponse:
+    return CaseService(db).reassign_lead(
+        case_id=case_id,
+        new_lead_id=payload.new_lead_id,
+        keep_previous_lead=payload.keep_previous_lead,
+        actor=user,
+    )
 
 
 @router.patch("/{case_id}", response_model=CaseOut)
@@ -127,4 +189,5 @@ def close_case(
     user: Annotated[User, Depends(get_current_user)],
 ) -> CaseOut:
     return CaseOut.model_validate(CaseService(db).close_case(case_id, user))
+
 

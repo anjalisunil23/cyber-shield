@@ -137,7 +137,7 @@ function Page() {
                     </Link>
                     <button
                       type="button"
-                      className="text-amber-300"
+                      className="text-amber-600 dark:text-amber-300 hover:underline"
                       onClick={() =>
                         setConfirm({ id: r.id, action: r.is_active ? "suspend" : "activate" })
                       }
@@ -146,7 +146,7 @@ function Page() {
                     </button>
                     <button
                       type="button"
-                      className="text-rose-300"
+                      className="text-rose-600 dark:text-rose-300 hover:underline"
                       onClick={() => setConfirm({ id: r.id, action: "delete" })}
                     >
                       Delete
