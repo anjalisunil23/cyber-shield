@@ -16,6 +16,8 @@ import {
 import { useTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
+import { useUnreadChatCount } from "@/hooks/useUnreadChatCount";
+
 export function RoleShell({ role, breadcrumbs }: { role: AppRole; breadcrumbs?: ReactNode }) {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -24,6 +26,7 @@ export function RoleShell({ role, breadcrumbs }: { role: AppRole; breadcrumbs?: 
   const [mobileOpen, setMobileOpen] = useState(false);
   const { resolvedTheme } = useTheme();
   const nav = ROLE_NAV[role];
+  const unreadChatCount = useUnreadChatCount();
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -81,13 +84,16 @@ export function RoleShell({ role, breadcrumbs }: { role: AppRole; breadcrumbs?: 
       <nav className="flex-1 space-y-1 overflow-y-auto px-2 py-3">
         {nav.map((item) => {
           const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
+          const isMessages =
+            item.label.toLowerCase().includes("message") || item.to.includes("messages");
+
           return (
             <Link
               key={item.to}
               to={item.to as "/"}
               onClick={() => setMobileOpen(false)}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
+                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition relative",
                 active
                   ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm dark:bg-primary/15 dark:text-primary dark:shadow-[0_0_24px_-12px_rgba(59,130,246,0.8)]"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -95,8 +101,24 @@ export function RoleShell({ role, breadcrumbs }: { role: AppRole; breadcrumbs?: 
               )}
               title={item.label}
             >
-              <item.icon className="h-4 w-4 shrink-0" />
-              {!collapsed && <span className="truncate">{item.label}</span>}
+              <div className="relative shrink-0 flex items-center justify-center">
+                <item.icon className="h-4 w-4 shrink-0" />
+                {isMessages && unreadChatCount > 0 && collapsed && (
+                  <span className="absolute -top-1.5 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-500 px-1 text-[9px] font-extrabold text-white shadow-xs animate-in zoom-in-75 duration-150">
+                    {unreadChatCount > 99 ? "99+" : unreadChatCount}
+                  </span>
+                )}
+              </div>
+              {!collapsed && (
+                <>
+                  <span className="truncate">{item.label}</span>
+                  {isMessages && unreadChatCount > 0 && (
+                    <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-500 px-1.5 text-[10px] font-extrabold text-white shadow-xs animate-in zoom-in-75 duration-150">
+                      {unreadChatCount > 99 ? "99+" : unreadChatCount}
+                    </span>
+                  )}
+                </>
+              )}
             </Link>
           );
         })}

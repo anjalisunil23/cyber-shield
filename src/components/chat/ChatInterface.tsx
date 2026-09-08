@@ -14,7 +14,6 @@ import {
   ChevronUp,
   Plus,
   Crown,
-  Check,
 } from "lucide-react";
 import { investigationApi } from "@/services/investigationApi";
 import type { ChatConversation, ChatMessage, CaseInvestigator, UserBrief } from "@/services/types";
@@ -108,7 +107,17 @@ function markConversationAsReadLocal(convId: string, userId?: string) {
   } catch {}
 }
 
-function getEffectiveLastMessage(conv: ChatConversation): ChatMessage | null {
+function getCleanConvTitle(conv: ChatConversation): string {
+  let title = conv.title || "";
+  if (conv.case_number) {
+    const escaped = conv.case_number.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(`^${escaped}\\s*([·\\-:]\\s*)?`, "i");
+    title = title.replace(regex, "").trim();
+  }
+  return title || conv.title || (conv.case_number ? `Case ${conv.case_number}` : "Investigation Team");
+}
+
+function getEffectiveLastMessage(conv: ChatConversation, currentUserId?: string): ChatMessage | null {
   const candidates: ChatMessage[] = [];
   if (conv.last_message && conv.last_message.content) {
     candidates.push(conv.last_message);
@@ -122,6 +131,14 @@ function getEffectiveLastMessage(conv: ChatConversation): ChatMessage | null {
     candidates.push(...localByCaseGroup);
     const localByRawCaseId = getLocalMessages(conv.case_id);
     candidates.push(...localByRawCaseId);
+  }
+
+  if (conv.type === "direct") {
+    const otherPart = conv.participants?.find((p) => p.user_id !== currentUserId);
+    if (otherPart?.user_id) {
+      candidates.push(...getLocalMessages(`direct-${otherPart.user_id}`));
+      candidates.push(...getLocalMessages(otherPart.user_id));
+    }
   }
 
   if (candidates.length === 0) return null;
@@ -247,7 +264,11 @@ export function ChatInterface({
     }
 
     const handleStorage = (e: StorageEvent) => {
-      if (e.key?.startsWith(LOCAL_STORAGE_MSGS_PREFIX) || e.key?.startsWith(LOCAL_STORAGE_READ_PREFIX) || e.key === "cybershield_chat_ping") {
+      if (
+        e.key?.startsWith(LOCAL_STORAGE_MSGS_PREFIX) ||
+        e.key?.startsWith(LOCAL_STORAGE_READ_PREFIX) ||
+        e.key === "cybershield_chat_ping"
+      ) {
         handleSync();
       }
     };
@@ -327,7 +348,7 @@ export function ChatInterface({
     return Array.from(map.values());
   }, [caseTeamMembers, contactsQ.data, initialCaseId]);
 
-  // 7. Synthesize Case Group Chats from all sources
+  // 7. Synthesize Case Group Chats from all sources (Without duplicate case numbers in title)
   const caseGroupConvs = useMemo(() => {
     const list: ChatConversation[] = [];
     const addedCaseIds = new Set<string>();
@@ -335,7 +356,7 @@ export function ChatInterface({
     // A. Active initialCaseId if provided
     if (initialCaseId) {
       const initNum = initialCaseNumber || (initialCaseId.startsWith("CS-") ? initialCaseId : "CS-2026-0001");
-      const initTitle = initialCaseTitle ? `${initNum} · ${initialCaseTitle}` : `${initNum} Investigation Team`;
+      const initTitle = initialCaseTitle || "Investigation Team";
       list.push({
         id: `case-group-${initialCaseId}`,
         case_id: initialCaseId,
@@ -373,7 +394,7 @@ export function ChatInterface({
           id: `case-group-${bc.id}`,
           case_id: bc.id,
           case_number: bc.case_number,
-          title: `${bc.case_number} · ${bc.title}`,
+          title: bc.title || "Investigation Team",
           type: "case_group",
           created_by_id: bc.created_by_id || "system",
           created_at: bc.created_at || new Date().toISOString(),
@@ -429,7 +450,7 @@ export function ChatInterface({
           id: `case-group-${sc.id}`,
           case_id: sc.id,
           case_number: sc.caseNumber,
-          title: `${sc.caseNumber} · ${sc.title}`,
+          title: sc.title || "Investigation Team",
           type: "case_group",
           created_by_id: "system",
           created_at: sc.created || new Date().toISOString(),
@@ -471,11 +492,11 @@ export function ChatInterface({
     return list;
   }, [initialCaseId, initialCaseNumber, initialCaseTitle, unifiedTeamMembers, currentUserId, casesQ.data]);
 
-  // 8. Combine backend conversations and synthesized case group chats & Sort WhatsApp-Style (Newest on Top)
+  // 8. Combine backend conversations, case groups, and direct chats into Unified List (Newest Activity on Top)
   const allConversations = useMemo(() => {
     const map = new Map<string, ChatConversation>();
 
-    // A. Backend API conversations
+    // A. Backend API conversations (groups & direct chats)
     (convsQ.data || []).forEach((c) => {
       map.set(c.id, c);
       if (c.case_id) map.set(`case-group-${c.case_id}`, c);
@@ -491,9 +512,45 @@ export function ChatInterface({
       }
     });
 
+    // C. Synthesize direct chats from team members / contacts if they have local messages
+    unifiedTeamMembers.forEach((member) => {
+      if (member.user_id !== currentUserId) {
+        const directKey = `direct-${member.user_id}`;
+        const hasDirectMsgs =
+          getLocalMessages(directKey).length > 0 || getLocalMessages(member.user_id).length > 0;
+        const exists = Array.from(map.values()).some(
+          (c) =>
+            c.type === "direct" &&
+            c.participants?.some((p) => p.user_id === member.user_id)
+        );
+
+        if (hasDirectMsgs && !exists && !map.has(directKey)) {
+          map.set(directKey, {
+            id: directKey,
+            type: "direct",
+            title: member.user?.full_name || "Investigator",
+            created_by_id: currentUserId || "me",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            unread_count: 0,
+            participants: [
+              {
+                id: `part-${member.user_id}`,
+                conversation_id: directKey,
+                user_id: member.user_id,
+                joined_at: new Date().toISOString(),
+                user: member.user || null,
+              },
+            ],
+            last_message: undefined,
+          });
+        }
+      }
+    });
+
     const rawList = Array.from(map.values());
 
-    // Deduplicate so each case/chat appears only once
+    // Deduplicate so each case/direct chat appears only once
     const uniqueList: ChatConversation[] = [];
     const seenKeys = new Set<string>();
     rawList.forEach((c) => {
@@ -505,10 +562,10 @@ export function ChatInterface({
       }
     });
 
-    // WHATSAPP SORTING: Sort strictly by latest message / activity timestamp descending (most active at top)
+    // WHATSAPP SORTING: Sort strictly by latest message / activity timestamp descending (Incoming & Outgoing bump to top)
     uniqueList.sort((a, b) => {
-      const msgA = getEffectiveLastMessage(a);
-      const msgB = getEffectiveLastMessage(b);
+      const msgA = getEffectiveLastMessage(a, currentUserId);
+      const msgB = getEffectiveLastMessage(b, currentUserId);
       const timeA = msgA?.created_at
         ? new Date(msgA.created_at).getTime()
         : new Date(a.updated_at || a.created_at || 0).getTime();
@@ -519,7 +576,7 @@ export function ChatInterface({
     });
 
     return uniqueList;
-  }, [convsQ.data, caseGroupConvs]);
+  }, [convsQ.data, caseGroupConvs, unifiedTeamMembers, currentUserId]);
 
   // 9. Calculate Unread Counts per Conversation (WhatsApp Style)
   const getUnreadCountForConv = useCallback(
@@ -899,11 +956,12 @@ export function ChatInterface({
 
   // Filter conversations
   const filteredConvs = allConversations.filter((c) => {
-    const effectiveMsg = getEffectiveLastMessage(c);
+    const effectiveMsg = getEffectiveLastMessage(c, currentUserId);
     const unreadCount = getUnreadCountForConv(c);
+    const cleanTitle = getCleanConvTitle(c);
 
     const matchesSearch =
-      c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      cleanTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (c.case_number && c.case_number.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (effectiveMsg && effectiveMsg.content.toLowerCase().includes(searchQuery.toLowerCase()));
 
@@ -1142,7 +1200,7 @@ export function ChatInterface({
             </div>
           )}
 
-          {/* TAB: CONVERSATIONS (WhatsApp Style Layout) */}
+          {/* TAB: CONVERSATIONS (WhatsApp Style 2-Row Layout, No Duplicate Case Numbers) */}
           {activeTab !== "team" && (
             <>
               {filteredConvs.length === 0 && (
@@ -1174,11 +1232,12 @@ export function ChatInterface({
               {filteredConvs.map((conv) => {
                 const isSelected = conv.id === selectedConvId;
                 const isCaseGroup = conv.type === "case_group";
-                const effectiveMsg = getEffectiveLastMessage(conv);
+                const effectiveMsg = getEffectiveLastMessage(conv, currentUserId);
                 const unreadCount = getUnreadCountForConv(conv);
                 const hasUnread = unreadCount > 0;
                 const isMeLastSender =
                   effectiveMsg?.sender_id === currentUserId || effectiveMsg?.sender_id === "me";
+                const cleanTitle = getCleanConvTitle(conv);
 
                 return (
                   <button
@@ -1207,13 +1266,12 @@ export function ChatInterface({
                           <UserIcon className="h-5 w-5" />
                         </div>
                       )}
-                      {/* Online dot for case/direct */}
                       <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-card" />
                     </div>
 
-                    {/* Conversation text info (WhatsApp style 2-row layout) */}
+                    {/* Conversation text info (WhatsApp style 2-row layout without duplicate case number) */}
                     <div className="min-w-0 flex-1">
-                      {/* Row 1: Title on left, Timestamp on right */}
+                      {/* Row 1: Case Number Pill + Clean Title on left, Timestamp on right */}
                       <div className="flex items-center justify-between gap-1.5">
                         <div className="flex items-center gap-1.5 min-w-0">
                           {conv.case_number && (
@@ -1226,7 +1284,7 @@ export function ChatInterface({
                               hasUnread ? "font-bold text-foreground" : "font-semibold text-foreground/90"
                             }`}
                           >
-                            {conv.title}
+                            {cleanTitle}
                           </p>
                         </div>
 
@@ -1241,7 +1299,7 @@ export function ChatInterface({
                         )}
                       </div>
 
-                      {/* Row 2: Message preview on left, WhatsApp-style unread badge on right */}
+                      {/* Row 2: Message preview with checkmarks on left, WhatsApp-style unread badge on right */}
                       <div className="mt-1 flex items-center justify-between gap-2">
                         <p className="min-w-0 flex-1 truncate text-[11px] text-muted-foreground">
                           {effectiveMsg ? (
@@ -1293,7 +1351,7 @@ export function ChatInterface({
       <div className="flex flex-1 flex-col bg-background">
         {selectedConv ? (
           <>
-            {/* Active Header */}
+            {/* Active Header without duplicate case number */}
             <div className="border-b border-border bg-card/70 backdrop-blur-sm">
               <div className="flex items-center justify-between p-3.5">
                 <div className="flex items-center gap-3 min-w-0">
@@ -1314,7 +1372,7 @@ export function ChatInterface({
                         </span>
                       )}
                       <h3 className="truncate text-sm font-bold text-foreground">
-                        {selectedConv.title}
+                        {getCleanConvTitle(selectedConv)}
                       </h3>
                     </div>
                     <div className="flex items-center gap-2 text-[11px] text-muted-foreground truncate">
@@ -1539,7 +1597,7 @@ export function ChatInterface({
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder={`Message ${selectedConv.title}... (Enter to send, Shift+Enter for newline)`}
+                  placeholder={`Message ${getCleanConvTitle(selectedConv)}... (Enter to send, Shift+Enter for newline)`}
                   rows={2}
                   className="flex-1 resize-none rounded-xl border border-border bg-background p-2.5 text-xs sm:text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none"
                 />
