@@ -196,7 +196,95 @@ function InvestigatorDashboard() {
           </div>
         </ChartCard>
       </div>
+
+      {/* Active Assigned Cases Roster */}
+      <div className="rounded-2xl border border-border bg-card p-5 shadow-xs space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+              <Briefcase className="h-5 w-5 text-primary" />
+              Active Cases Assigned to You
+            </h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Investigation files where you are assigned as Lead or Team Member
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => void navigate({ to: "/investigator/cases" })}
+            className="text-xs font-semibold text-primary hover:underline"
+          >
+            View All Cases ({caseItems.length}) →
+          </button>
+        </div>
+
+        {caseItems.length === 0 ? (
+          <p className="text-xs text-muted-foreground py-6 text-center">No active cases assigned yet.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs text-foreground">
+              <thead>
+                <tr className="border-b border-border text-muted-foreground uppercase text-[10px] tracking-wider">
+                  <th className="pb-2.5 font-semibold">Case</th>
+                  <th className="pb-2.5 font-semibold">Title</th>
+                  <th className="pb-2.5 font-semibold">Priority</th>
+                  <th className="pb-2.5 font-semibold">Status</th>
+                  <th className="pb-2.5 font-semibold">Updated</th>
+                  <th className="pb-2.5 font-semibold text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/40">
+                {caseItems.slice(0, 6).map((c) => (
+                  <tr key={c.id} className="hover:bg-muted/30 transition-colors">
+                    <td className="py-2.5 font-bold text-primary">
+                      <button
+                        type="button"
+                        onClick={() => void navigate({ to: "/dashboard/cases/$caseId", params: { caseId: c.id } })}
+                        className="hover:underline text-left"
+                      >
+                        {c.case_number}
+                      </button>
+                    </td>
+                    <td className="py-2.5 font-medium max-w-xs truncate">{c.title}</td>
+                    <td className="py-2.5">
+                      <span
+                        className={`inline-block rounded px-2 py-0.5 text-[10px] font-bold uppercase ${
+                          c.priority === "critical"
+                            ? "bg-rose-500/15 text-rose-500"
+                            : c.priority === "high"
+                              ? "bg-amber-500/15 text-amber-500"
+                              : "bg-blue-500/15 text-blue-500"
+                        }`}
+                      >
+                        {c.priority}
+                      </span>
+                    </td>
+                    <td className="py-2.5">
+                      <span className="inline-block rounded bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground uppercase">
+                        {c.status.replace("_", " ")}
+                      </span>
+                    </td>
+                    <td className="py-2.5 text-muted-foreground text-[11px]">
+                      {new Date(c.updated_at).toLocaleDateString()}
+                    </td>
+                    <td className="py-2.5 text-right">
+                      <button
+                        type="button"
+                        onClick={() => void navigate({ to: "/dashboard/cases/$caseId", params: { caseId: c.id } })}
+                        className="rounded-lg bg-primary/10 hover:bg-primary/20 text-primary px-2.5 py-1 text-xs font-semibold transition"
+                      >
+                        Open Case →
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
+
 

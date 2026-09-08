@@ -66,10 +66,8 @@ function Page() {
     // Backend API sync if valid UUID
     if (selectedId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(c.id)) {
       try {
-        await investigationApi.reassignCaseLead(c.id, {
-          new_investigator_lead_id: selectedId,
-          keep_previous_as_investigator: true,
-        });
+        await investigationApi.reassignCaseLead(c.id, selectedId, true);
+        await investigationApi.assignCase(c.id, selectedId, true);
       } catch (err) {
         console.warn("Backend reassignCaseLead error:", err);
       }
