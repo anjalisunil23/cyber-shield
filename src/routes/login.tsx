@@ -69,12 +69,15 @@ function LoginPage() {
     }
   }, []);
 
-  // Autofocus password if email is already remembered
+  // Autofocus password if email was already remembered on initial load
   useEffect(() => {
-    if (email && passwordInputRef.current) {
-      passwordInputRef.current.focus();
+    if (typeof window !== "undefined") {
+      const remembered = localStorage.getItem(REMEMBERED_EMAIL_KEY);
+      if (remembered && passwordInputRef.current) {
+        passwordInputRef.current.focus();
+      }
     }
-  }, [email]);
+  }, []);
 
   function handleClearRemembered() {
     setEmail("");
