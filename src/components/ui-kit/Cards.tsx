@@ -1,5 +1,13 @@
 import { motion } from "framer-motion";
-import { FileAudio, FileImage, FileText, FileVideo, Paperclip, Trash2, UserCheck } from "lucide-react";
+import {
+  FileAudio,
+  FileImage,
+  FileText,
+  FileVideo,
+  Paperclip,
+  Trash2,
+  UserCheck,
+} from "lucide-react";
 import type { MockCase, MockEvidence, MockNotification, MockTask } from "@/data/mock/platform";
 import { StatusPill } from "@/components/ui-kit/PageKit";
 
@@ -99,9 +107,7 @@ export function NotificationCard({ item }: { item: MockNotification }) {
   return (
     <div
       className={`rounded-2xl border px-4 py-3 shadow-xs ${
-        item.read
-          ? "border-border bg-card/60"
-          : "border-cyan/30 bg-cyan-500/10 text-foreground"
+        item.read ? "border-border bg-card/60" : "border-cyan/30 bg-cyan-500/10 text-foreground"
       }`}
     >
       <p className="text-sm font-medium text-foreground">{item.title}</p>

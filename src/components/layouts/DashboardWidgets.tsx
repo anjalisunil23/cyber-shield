@@ -111,7 +111,10 @@ export function SkeletonGrid({ count = 4 }: { count?: number }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="h-28 animate-pulse rounded-2xl border border-border/50 bg-muted/60" />
+        <div
+          key={i}
+          className="h-28 animate-pulse rounded-2xl border border-border/50 bg-muted/60"
+        />
       ))}
     </div>
   );

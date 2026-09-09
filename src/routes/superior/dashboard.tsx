@@ -200,7 +200,11 @@ function SuperiorDashboard() {
               <BarChart data={d?.monthly_cases || []}>
                 <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#1f2937" : "#e2e8f0"} />
                 <XAxis dataKey="month" stroke={isDark ? "#64748b" : "#94a3b8"} fontSize={11} />
-                <YAxis stroke={isDark ? "#64748b" : "#94a3b8"} fontSize={11} allowDecimals={false} />
+                <YAxis
+                  stroke={isDark ? "#64748b" : "#94a3b8"}
+                  fontSize={11}
+                  allowDecimals={false}
+                />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: isDark ? "#0f172a" : "#ffffff",

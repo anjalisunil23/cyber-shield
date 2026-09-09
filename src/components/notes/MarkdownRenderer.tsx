@@ -34,19 +34,25 @@ export function MarkdownRenderer({
     if (listItems.length > 0 && currentListType) {
       if (currentListType === "ol") {
         renderedElements.push(
-          <ol key={`ol-${renderedElements.length}`} className="my-2 ml-6 list-decimal space-y-1 text-sm text-foreground/90">
+          <ol
+            key={`ol-${renderedElements.length}`}
+            className="my-2 ml-6 list-decimal space-y-1 text-sm text-foreground/90"
+          >
             {listItems.map((item, idx) => (
               <li key={idx}>{renderInlineMarkdown(item.text, onEvidenceClick)}</li>
             ))}
-          </ol>
+          </ol>,
         );
       } else {
         renderedElements.push(
-          <ul key={`ul-${renderedElements.length}`} className="my-2 ml-6 list-disc space-y-1 text-sm text-foreground/90">
+          <ul
+            key={`ul-${renderedElements.length}`}
+            className="my-2 ml-6 list-disc space-y-1 text-sm text-foreground/90"
+          >
             {listItems.map((item, idx) => (
               <li key={idx}>{renderInlineMarkdown(item.text, onEvidenceClick)}</li>
             ))}
-          </ul>
+          </ul>,
         );
       }
       listItems = [];
@@ -64,7 +70,7 @@ export function MarkdownRenderer({
         // Close code block
         const fullCode = codeBlockLines.join("\n");
         renderedElements.push(
-          <CodeBlockItem key={`code-${i}`} code={fullCode} language={codeBlockLang} />
+          <CodeBlockItem key={`code-${i}`} code={fullCode} language={codeBlockLang} />,
         );
         codeBlockLines = [];
         codeBlockLang = "";
@@ -85,9 +91,7 @@ export function MarkdownRenderer({
     // Check for Horizontal Rule
     if (/^(---|___|\*\*\*)$/.test(line.trim())) {
       flushList();
-      renderedElements.push(
-        <hr key={`hr-${i}`} className="my-5 border-t border-border" />
-      );
+      renderedElements.push(<hr key={`hr-${i}`} className="my-5 border-t border-border" />);
       continue;
     }
 
@@ -109,7 +113,7 @@ export function MarkdownRenderer({
               {alt}
             </figcaption>
           )}
-        </figure>
+        </figure>,
       );
       continue;
     }
@@ -123,7 +127,7 @@ export function MarkdownRenderer({
           className="mt-6 mb-3 text-2xl font-bold tracking-tight text-foreground border-b border-border/60 pb-1.5"
         >
           {renderInlineMarkdown(line.slice(2), onEvidenceClick)}
-        </h1>
+        </h1>,
       );
       continue;
     }
@@ -135,7 +139,7 @@ export function MarkdownRenderer({
           className="mt-5 mb-2.5 text-xl font-semibold tracking-tight text-foreground"
         >
           {renderInlineMarkdown(line.slice(3), onEvidenceClick)}
-        </h2>
+        </h2>,
       );
       continue;
     }
@@ -147,7 +151,7 @@ export function MarkdownRenderer({
           className="mt-4 mb-2 text-base font-semibold tracking-tight text-foreground"
         >
           {renderInlineMarkdown(line.slice(4), onEvidenceClick)}
-        </h3>
+        </h3>,
       );
       continue;
     }
@@ -159,7 +163,7 @@ export function MarkdownRenderer({
           className="mt-3 mb-1.5 text-sm font-semibold tracking-tight text-foreground"
         >
           {renderInlineMarkdown(line.slice(5), onEvidenceClick)}
-        </h4>
+        </h4>,
       );
       continue;
     }
@@ -188,7 +192,7 @@ export function MarkdownRenderer({
           >
             {renderInlineMarkdown(text, onEvidenceClick)}
           </span>
-        </div>
+        </div>,
       );
       continue;
     }
@@ -207,7 +211,11 @@ export function MarkdownRenderer({
     if (orderedMatch) {
       if (currentListType !== "ol") flushList();
       currentListType = "ol";
-      listItems.push({ text: orderedMatch[2], isOrdered: true, order: parseInt(orderedMatch[1], 10) });
+      listItems.push({
+        text: orderedMatch[2],
+        isOrdered: true,
+        order: parseInt(orderedMatch[1], 10),
+      });
       continue;
     }
 
@@ -238,17 +246,14 @@ export function MarkdownRenderer({
                 {renderInlineMarkdown(cleanText, onEvidenceClick)}
               </div>
             </div>
-          </div>
+          </div>,
         );
         continue;
       }
 
       // FINDING Callout
       if (quoteContent.includes("**FINDING:**") || quoteContent.startsWith("[!FINDING]")) {
-        const cleanText = quoteContent
-          .replace("[!FINDING]", "")
-          .replace("**FINDING:**", "")
-          .trim();
+        const cleanText = quoteContent.replace("[!FINDING]", "").replace("**FINDING:**", "").trim();
         renderedElements.push(
           <div
             key={`callout-find-${i}`}
@@ -263,17 +268,14 @@ export function MarkdownRenderer({
                 {renderInlineMarkdown(cleanText, onEvidenceClick)}
               </div>
             </div>
-          </div>
+          </div>,
         );
         continue;
       }
 
       // WARNING / CAUTION Callout
       if (quoteContent.includes("**WARNING:**") || quoteContent.startsWith("[!WARNING]")) {
-        const cleanText = quoteContent
-          .replace("[!WARNING]", "")
-          .replace("**WARNING:**", "")
-          .trim();
+        const cleanText = quoteContent.replace("[!WARNING]", "").replace("**WARNING:**", "").trim();
         renderedElements.push(
           <div
             key={`callout-warn-${i}`}
@@ -288,7 +290,7 @@ export function MarkdownRenderer({
                 {renderInlineMarkdown(cleanText, onEvidenceClick)}
               </div>
             </div>
-          </div>
+          </div>,
         );
         continue;
       }
@@ -300,7 +302,7 @@ export function MarkdownRenderer({
           className="my-3 border-l-3 border-primary/60 bg-muted/30 px-4 py-2 text-sm italic text-muted-foreground rounded-r-lg"
         >
           {renderInlineMarkdown(quoteContent, onEvidenceClick)}
-        </blockquote>
+        </blockquote>,
       );
       continue;
     }
@@ -315,7 +317,7 @@ export function MarkdownRenderer({
     renderedElements.push(
       <p key={`p-${i}`} className="my-1.5 text-sm leading-relaxed text-foreground/90">
         {renderInlineMarkdown(line, onEvidenceClick)}
-      </p>
+      </p>,
     );
   }
 
@@ -340,15 +342,17 @@ function CodeBlockItem({ code, language }: { code: string; language: string }) {
   return (
     <div className="my-4 overflow-hidden rounded-xl border border-border bg-[#0b1220] text-slate-100 shadow-xs dark:bg-black/50">
       <div className="flex items-center justify-between border-b border-border/50 bg-muted/40 px-3.5 py-1.5 text-xs text-muted-foreground">
-        <span className="font-mono text-[11px] uppercase tracking-wider">
-          {language || "code"}
-        </span>
+        <span className="font-mono text-[11px] uppercase tracking-wider">{language || "code"}</span>
         <button
           type="button"
           onClick={handleCopy}
           className="flex items-center gap-1 rounded px-2 py-0.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition cursor-pointer"
         >
-          {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+          {copied ? (
+            <Check className="h-3.5 w-3.5 text-emerald-400" />
+          ) : (
+            <Copy className="h-3.5 w-3.5" />
+          )}
           {copied ? "Copied" : "Copy"}
         </button>
       </div>
@@ -361,7 +365,7 @@ function CodeBlockItem({ code, language }: { code: string; language: string }) {
 
 function renderInlineMarkdown(
   text: string,
-  onEvidenceClick?: (ref: string) => void
+  onEvidenceClick?: (ref: string) => void,
 ): React.ReactNode[] {
   if (!text) return [];
 
@@ -391,11 +395,9 @@ function renderInlineMarkdown(
           <span className="text-primary">📎</span>
           <span>{attName}</span>
           {attSize && (
-            <span className="font-mono text-[10px] text-muted-foreground">
-              ({attSize})
-            </span>
+            <span className="font-mono text-[10px] text-muted-foreground">({attSize})</span>
           )}
-        </span>
+        </span>,
       );
     }
     // [Evidence: filename]
@@ -410,7 +412,7 @@ function renderInlineMarkdown(
         >
           <FileSearch className="h-3.5 w-3.5" />
           {evidenceName}
-        </button>
+        </button>,
       );
     }
     // #EV-2026-0041
@@ -424,7 +426,7 @@ function renderInlineMarkdown(
         >
           <FileSearch className="h-3 w-3" />
           {fullMatch}
-        </button>
+        </button>,
       );
     }
     // Inline code: `code`
@@ -435,7 +437,7 @@ function renderInlineMarkdown(
           className="rounded border border-border bg-muted/60 px-1.5 py-0.5 font-mono text-xs text-primary font-medium"
         >
           {match[3]}
-        </code>
+        </code>,
       );
     }
     // Bold: **text**
@@ -443,7 +445,7 @@ function renderInlineMarkdown(
       parts.push(
         <strong key={`bold-${match.index}`} className="font-semibold text-foreground">
           {match[4]}
-        </strong>
+        </strong>,
       );
     }
     // Italic: *text*
@@ -451,7 +453,7 @@ function renderInlineMarkdown(
       parts.push(
         <em key={`italic-${match.index}`} className="italic text-foreground/90">
           {match[5]}
-        </em>
+        </em>,
       );
     }
     // Underline: <u>text</u>
@@ -459,7 +461,7 @@ function renderInlineMarkdown(
       parts.push(
         <span key={`u-${match.index}`} className="underline underline-offset-2">
           {match[6]}
-        </span>
+        </span>,
       );
     }
     // Strikethrough: ~~text~~
@@ -467,7 +469,7 @@ function renderInlineMarkdown(
       parts.push(
         <span key={`del-${match.index}`} className="line-through text-muted-foreground">
           {match[7]}
-        </span>
+        </span>,
       );
     }
     // Link: [title](url)
@@ -482,7 +484,7 @@ function renderInlineMarkdown(
         >
           {match[8]}
           <ExternalLink className="h-3 w-3" />
-        </a>
+        </a>,
       );
     }
 

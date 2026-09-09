@@ -68,7 +68,9 @@ function NotificationsPage() {
             </button>
           </li>
         ))}
-        {!isLoading && !data?.length && <p className="text-sm text-muted-foreground">No notifications</p>}
+        {!isLoading && !data?.length && (
+          <p className="text-sm text-muted-foreground">No notifications</p>
+        )}
       </ul>
     </div>
   );

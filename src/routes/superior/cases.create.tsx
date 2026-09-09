@@ -37,8 +37,8 @@ function Page() {
             .filter((u) => u.is_active !== false && u.role === "investigator")
             .map((u) => ({ id: u.id, name: u.full_name, email: u.email, role: u.role }));
           setAvailableInvestigators(invs);
-          if (invs.length > 0 && !selectedLeadId) {
-            setSelectedLeadId(invs[0].id);
+          if (invs.length > 0) {
+            setSelectedLeadId((prev) => prev || invs[0].id);
           }
         }
       })
@@ -50,8 +50,8 @@ function Page() {
           email: u.email,
         }));
         setAvailableInvestigators(fallback);
-        if (fallback.length > 0 && !selectedLeadId) {
-          setSelectedLeadId(fallback[0].id);
+        if (fallback.length > 0) {
+          setSelectedLeadId((prev) => prev || fallback[0].id);
         }
       });
   }, []);
@@ -133,8 +133,8 @@ function Page() {
             </div>
             <p className="text-xs text-muted-foreground">
               The assigned investigator automatically becomes the{" "}
-              <strong className="text-foreground">Investigator Lead</strong> who will manage the case
-              investigation team and communication group.
+              <strong className="text-foreground">Investigator Lead</strong> who will manage the
+              case investigation team and communication group.
             </p>
             <select
               value={selectedLeadId}
@@ -199,4 +199,3 @@ function Page() {
     </PageScaffold>
   );
 }
-

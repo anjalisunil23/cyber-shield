@@ -102,7 +102,9 @@ export function CaseDetailPage() {
   const [keepPrevLead, setKeepPrevLead] = useState(true);
 
   const [showChatModal, setShowChatModal] = useState(false);
-  const [activeDirectChatUserId, setActiveDirectChatUserId] = useState<string | undefined>(undefined);
+  const [activeDirectChatUserId, setActiveDirectChatUserId] = useState<string | undefined>(
+    undefined,
+  );
 
   const meQ = useQuery({ queryKey: ["me"], queryFn: () => investigationApi.me() });
   const userRole = meQ.data?.role || "";
@@ -348,7 +350,18 @@ export function CaseDetailPage() {
   });
 
   const allUsersList: AdminUser[] = (() => {
-    const list: AdminUser[] = [...(usersQ.data || [])];
+    const list: AdminUser[] = (usersQ.data || []).map(
+      (u) =>
+        ({
+          id: u.id,
+          email: u.email,
+          full_name: u.full_name,
+          role: u.role,
+          is_active: u.is_active !== false,
+          department: u.department || null,
+          created_at: new Date().toISOString(),
+        }) as AdminUser,
+    );
     MOCK_USERS.forEach((mu) => {
       if (!list.some((u) => u.id === mu.id || u.email.toLowerCase() === mu.email.toLowerCase())) {
         list.push({
@@ -431,7 +444,10 @@ export function CaseDetailPage() {
   });
 
   const reassignLeadMutation = useMutation({
-    mutationFn: async (payload: { new_investigator_lead_id: string; keep_previous_as_investigator: boolean }) => {
+    mutationFn: async (payload: {
+      new_investigator_lead_id: string;
+      keep_previous_as_investigator: boolean;
+    }) => {
       if (validUUID) {
         try {
           return await investigationApi.reassignCaseLead(resolvedCaseId, payload);
@@ -719,11 +735,13 @@ export function CaseDetailPage() {
     !rawLead && c?.assignments?.length
       ? c.assignments.find((a) => {
           const role = (a.user?.role || "").toLowerCase();
-          const isNotSupervisor = !["supervisor", "superior_officer", "major_admin", "admin"].includes(
-            role,
-          );
-          const isNotSupervisorId =
-            a.user_id !== c.supervisor_id && a.user_id !== c.created_by_id;
+          const isNotSupervisor = ![
+            "supervisor",
+            "superior_officer",
+            "major_admin",
+            "admin",
+          ].includes(role);
+          const isNotSupervisorId = a.user_id !== c.supervisor_id && a.user_id !== c.created_by_id;
           return isNotSupervisor && isNotSupervisorId;
         })
       : null;
@@ -1062,7 +1080,9 @@ export function CaseDetailPage() {
                   Priority
                   <select
                     value={c.priority}
-                    onChange={(e) => updateCase.mutate({ priority: e.target.value as CasePriority })}
+                    onChange={(e) =>
+                      updateCase.mutate({ priority: e.target.value as CasePriority })
+                    }
                     className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground"
                   >
                     {(["low", "medium", "high", "critical"] as CasePriority[]).map((p) => (
@@ -1151,8 +1171,7 @@ export function CaseDetailPage() {
                     }}
                     className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground hover:bg-primary/90 transition-all shadow-md"
                   >
-                    <UserPlus className="h-4 w-4" />
-                    + Add Investigator
+                    <UserPlus className="h-4 w-4" />+ Add Investigator
                   </button>
                 )}
               </div>
@@ -1186,12 +1205,19 @@ export function CaseDetailPage() {
                         <h4 className="text-sm font-bold text-foreground truncate">
                           {leadInvestigator.user.full_name}
                           {leadInvestigator.user_id === currentUserId && (
-                            <span className="ml-2 text-[10px] font-normal text-muted-foreground">(You)</span>
+                            <span className="ml-2 text-[10px] font-normal text-muted-foreground">
+                              (You)
+                            </span>
                           )}
                         </h4>
-                        <p className="text-xs text-muted-foreground truncate">{leadInvestigator.user.email}</p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {leadInvestigator.user.email}
+                        </p>
                         <p className="text-[10px] text-muted-foreground mt-0.5">
-                          Assigned: {leadInvestigator.assigned_at ? new Date(leadInvestigator.assigned_at).toLocaleDateString() : "Case creation"}
+                          Assigned:{" "}
+                          {leadInvestigator.assigned_at
+                            ? new Date(leadInvestigator.assigned_at).toLocaleDateString()
+                            : "Case creation"}
                         </p>
                       </div>
                     </div>
@@ -1201,7 +1227,9 @@ export function CaseDetailPage() {
                         ?
                       </div>
                       <div className="min-w-0 flex-1">
-                        <h4 className="text-sm font-semibold text-foreground">No Investigator Lead Assigned</h4>
+                        <h4 className="text-sm font-semibold text-foreground">
+                          No Investigator Lead Assigned
+                        </h4>
                         <p className="text-xs text-muted-foreground">
                           {isSupervisor
                             ? "Assign an investigator to lead this case and direct the investigation team."
@@ -1252,13 +1280,19 @@ export function CaseDetailPage() {
                     Team Investigators ({teamInvestigators.length})
                   </h4>
                   <span className="text-[10px] text-muted-foreground">
-                    {isCaseLead ? "Managed by you" : isSupervisor ? "Managed by Lead & Superior" : "Managed by Investigator Lead"}
+                    {isCaseLead
+                      ? "Managed by you"
+                      : isSupervisor
+                        ? "Managed by Lead & Superior"
+                        : "Managed by Investigator Lead"}
                   </span>
                 </div>
 
                 {teamInvestigators.length === 0 ? (
                   <div className="rounded-lg border border-dashed border-border p-6 text-center space-y-1.5">
-                    <p className="text-xs font-medium text-foreground">No additional investigators assigned</p>
+                    <p className="text-xs font-medium text-foreground">
+                      No additional investigators assigned
+                    </p>
                     <p className="text-[11px] text-muted-foreground max-w-sm mx-auto">
                       {canManageTeam
                         ? "Use '+ Add Investigator' above to assign investigators under the Lead to collaborate on this case."
@@ -1280,10 +1314,14 @@ export function CaseDetailPage() {
                             <p className="text-xs font-semibold text-foreground truncate">
                               {inv.user?.full_name || inv.user_id}
                               {inv.user_id === currentUserId && (
-                                <span className="ml-1.5 text-[10px] font-normal text-muted-foreground">(You)</span>
+                                <span className="ml-1.5 text-[10px] font-normal text-muted-foreground">
+                                  (You)
+                                </span>
                               )}
                             </p>
-                            <p className="text-[10px] text-muted-foreground truncate">{inv.user?.email}</p>
+                            <p className="text-[10px] text-muted-foreground truncate">
+                              {inv.user?.email}
+                            </p>
                           </div>
                         </div>
 
@@ -1308,7 +1346,11 @@ export function CaseDetailPage() {
                               type="button"
                               disabled={removeTeamMutation.isPending}
                               onClick={() => {
-                                if (window.confirm(`Remove ${inv.user?.full_name || "investigator"} from this case team?`)) {
+                                if (
+                                  window.confirm(
+                                    `Remove ${inv.user?.full_name || "investigator"} from this case team?`,
+                                  )
+                                ) {
                                   removeTeamMutation.mutate(inv.user_id);
                                 }
                               }}
@@ -1541,7 +1583,9 @@ export function CaseDetailPage() {
                   <h3 className="text-base font-bold text-foreground">Add Team Investigators</h3>
                   <p className="text-xs text-muted-foreground">
                     Assign additional investigators under the Lead to collaborate on Case{" "}
-                    <span className="font-mono text-primary font-semibold">{resolvedCaseNumber}</span>
+                    <span className="font-mono text-primary font-semibold">
+                      {resolvedCaseNumber}
+                    </span>
                   </p>
                 </div>
               </div>
@@ -1598,7 +1642,9 @@ export function CaseDetailPage() {
                           {user.full_name.charAt(0).toUpperCase()}
                         </div>
                         <div className="min-w-0">
-                          <p className="text-xs font-semibold text-foreground truncate">{user.full_name}</p>
+                          <p className="text-xs font-semibold text-foreground truncate">
+                            {user.full_name}
+                          </p>
                           <p className="text-[11px] text-muted-foreground truncate">{user.email}</p>
                         </div>
                       </div>
@@ -1613,7 +1659,8 @@ export function CaseDetailPage() {
 
             <div className="flex items-center justify-between border-t border-border pt-3">
               <span className="text-xs font-medium text-muted-foreground">
-                Selected: <strong className="text-primary">{selectedInvIds.length}</strong> investigator(s)
+                Selected: <strong className="text-primary">{selectedInvIds.length}</strong>{" "}
+                investigator(s)
               </span>
               <div className="flex items-center gap-2">
                 <button
@@ -1629,7 +1676,9 @@ export function CaseDetailPage() {
                   onClick={() => addTeamMutation.mutate(selectedInvIds)}
                   className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors shadow-md"
                 >
-                  {addTeamMutation.isPending ? "Assigning..." : `Assign Selected (${selectedInvIds.length})`}
+                  {addTeamMutation.isPending
+                    ? "Assigning..."
+                    : `Assign Selected (${selectedInvIds.length})`}
                 </button>
               </div>
             </div>
@@ -1684,7 +1733,10 @@ export function CaseDetailPage() {
                     onChange={(e) => setKeepPrevLead(e.target.checked)}
                     className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
                   />
-                  <span>Keep previous lead ({leadInvestigator.user?.full_name}) as active team investigator</span>
+                  <span>
+                    Keep previous lead ({leadInvestigator.user?.full_name}) as active team
+                    investigator
+                  </span>
                 </label>
               )}
             </div>
@@ -1767,10 +1819,14 @@ function ActivitySection({ activities, caseId }: { activities: ActivityItem[]; c
     <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
       <div>
         <h3 className="text-sm font-semibold text-foreground">Audit Activity History</h3>
-        <p className="text-xs text-muted-foreground mt-1">Role-stamped actions recorded for this case.</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Role-stamped actions recorded for this case.
+        </p>
       </div>
       {scoped.length === 0 ? (
-        <p className="text-sm text-muted-foreground py-4">No audit activity recorded for this case yet.</p>
+        <p className="text-sm text-muted-foreground py-4">
+          No audit activity recorded for this case yet.
+        </p>
       ) : (
         <ol className="space-y-3">
           {scoped.map((a) => (
@@ -2028,7 +2084,9 @@ function EvidenceSection({
               )}
 
               <div>
-                <label className="block text-xs text-muted-foreground mb-1">Description (optional)</label>
+                <label className="block text-xs text-muted-foreground mb-1">
+                  Description (optional)
+                </label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
@@ -2039,7 +2097,9 @@ function EvidenceSection({
               </div>
 
               <div>
-                <label className="block text-xs text-muted-foreground mb-1">Tags (comma-separated)</label>
+                <label className="block text-xs text-muted-foreground mb-1">
+                  Tags (comma-separated)
+                </label>
                 <input
                   type="text"
                   value={tagsStr}
@@ -2284,7 +2344,9 @@ function RelationshipSection({
 
             {/* Entity B */}
             <div className="space-y-2 rounded-xl border border-border bg-background p-3">
-              <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Entity B (Target)</p>
+              <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                Entity B (Target)
+              </p>
               <input
                 type="text"
                 required
@@ -2323,7 +2385,9 @@ function RelationshipSection({
               </select>
             </div>
             <div>
-              <label className="block text-xs text-muted-foreground mb-1">Free-text Connection Note</label>
+              <label className="block text-xs text-muted-foreground mb-1">
+                Free-text Connection Note
+              </label>
               <input
                 type="text"
                 value={note}
@@ -2368,7 +2432,9 @@ function RelationshipSection({
                     <span className="text-muted-foreground font-mono">
                       -[ {r.relationship_type.replace(/_/g, " ")} ]-➔
                     </span>
-                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">{r.target_label}</span>
+                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                      {r.target_label}
+                    </span>
                     <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 text-[10px] text-emerald-600 dark:text-emerald-400">
                       {r.target_kind}
                     </span>
@@ -2523,7 +2589,9 @@ function LeadsSection({
                       className="rounded border-border bg-card"
                     />
                     <span>{item.original_name}</span>
-                    <span className="text-[10px] text-muted-foreground font-mono">({item.file_type})</span>
+                    <span className="text-[10px] text-muted-foreground font-mono">
+                      ({item.file_type})
+                    </span>
                   </label>
                 ))
               )}
@@ -2548,10 +2616,7 @@ function LeadsSection({
         </h3>
         <div className="space-y-3">
           {leads.map((l) => (
-            <div
-              key={l.id}
-              className="rounded-xl border border-border bg-background p-4 space-y-3"
-            >
+            <div key={l.id} className="rounded-xl border border-border bg-background p-4 space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <h4 className="text-sm font-bold text-foreground">{l.title}</h4>
@@ -2699,7 +2764,9 @@ function TimelineSection({
               />
             </div>
             <div>
-              <label className="block text-xs text-muted-foreground mb-1">Event Time (event_at)</label>
+              <label className="block text-xs text-muted-foreground mb-1">
+                Event Time (event_at)
+              </label>
               <input
                 type="datetime-local"
                 value={eventAt}

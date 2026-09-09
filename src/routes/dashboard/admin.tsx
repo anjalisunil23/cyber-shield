@@ -64,7 +64,9 @@ function AdminPage() {
                     <p className="text-xs text-muted-foreground">{u.email}</p>
                   </td>
                   <td className="px-4 py-3 text-primary font-mono">{u.role}</td>
-                  <td className="px-4 py-3 text-foreground">{u.is_active === false ? "No" : "Yes"}</td>
+                  <td className="px-4 py-3 text-foreground">
+                    {u.is_active === false ? "No" : "Yes"}
+                  </td>
                   <td className="px-4 py-3">
                     <button
                       type="button"

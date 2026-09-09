@@ -39,7 +39,9 @@ function DashboardHome() {
 
   if (isLoading) return <p className="text-sm text-muted-foreground">Loading dashboard…</p>;
   if (error || !data)
-    return <p className="text-sm text-destructive">{apiMessage(error, "Failed to load dashboard")}</p>;
+    return (
+      <p className="text-sm text-destructive">{apiMessage(error, "Failed to load dashboard")}</p>
+    );
 
   return (
     <div className="space-y-6">
@@ -66,7 +68,11 @@ function DashboardHome() {
               <BarChart data={data.monthly_cases}>
                 <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#1f2937" : "#e2e8f0"} />
                 <XAxis dataKey="month" stroke={isDark ? "#64748b" : "#94a3b8"} fontSize={11} />
-                <YAxis stroke={isDark ? "#64748b" : "#94a3b8"} fontSize={11} allowDecimals={false} />
+                <YAxis
+                  stroke={isDark ? "#64748b" : "#94a3b8"}
+                  fontSize={11}
+                  allowDecimals={false}
+                />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: isDark ? "#0f172a" : "#ffffff",
@@ -141,7 +147,9 @@ function DashboardHome() {
                 </Link>
               </li>
             ))}
-            {!data.recent_cases.length && <p className="text-sm text-muted-foreground">No cases yet</p>}
+            {!data.recent_cases.length && (
+              <p className="text-sm text-muted-foreground">No cases yet</p>
+            )}
           </ul>
         </div>
         <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
@@ -173,7 +181,9 @@ function DashboardHome() {
               </span>
             </li>
           ))}
-          {!data.latest_uploads.length && <p className="text-sm text-muted-foreground">No uploads yet</p>}
+          {!data.latest_uploads.length && (
+            <p className="text-sm text-muted-foreground">No uploads yet</p>
+          )}
         </ul>
       </div>
     </div>

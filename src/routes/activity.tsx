@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { DataTable, PageScaffold, Pagination, Toolbar } from "@/components/ui-kit/PageKit";
 import { investigationApi } from "@/services/investigationApi";
 import type { ActivityItem } from "@/services/types";
@@ -14,7 +14,7 @@ function Page() {
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const loadActivities = async () => {
+  const loadActivities = useCallback(async () => {
     setLoading(true);
     try {
       const data = await investigationApi.activity(page);
@@ -25,11 +25,11 @@ function Page() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page]);
 
   useEffect(() => {
     loadActivities();
-  }, [page]);
+  }, [loadActivities]);
 
   const filteredActivities = searchQuery
     ? activities.filter(

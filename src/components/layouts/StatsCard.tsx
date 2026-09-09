@@ -20,10 +20,13 @@ export function StatsCard({
 }) {
   const { ref, value: n } = useCountUp(value, 1100);
   const tones = {
-    primary: "border-primary/20 bg-primary/10 text-primary dark:border-primary/30 dark:bg-primary/10 dark:text-primary",
+    primary:
+      "border-primary/20 bg-primary/10 text-primary dark:border-primary/30 dark:bg-primary/10 dark:text-primary",
     cyan: "border-cyan/30 bg-cyan/10 text-cyan dark:border-cyan/30 dark:bg-cyan/10 dark:text-cyan",
-    emerald: "border-emerald-500/25 bg-emerald-500/10 text-emerald-600 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-400",
-    amber: "border-amber-500/25 bg-amber-500/10 text-amber-600 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-400",
+    emerald:
+      "border-emerald-500/25 bg-emerald-500/10 text-emerald-600 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-400",
+    amber:
+      "border-amber-500/25 bg-amber-500/10 text-amber-600 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-400",
     rose: "border-rose-500/25 bg-rose-500/10 text-rose-600 dark:border-rose-400/30 dark:bg-rose-400/10 dark:text-rose-400",
   };
 

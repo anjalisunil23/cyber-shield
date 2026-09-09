@@ -21,7 +21,9 @@ export function ProfileCard() {
         </div>
         <div className="rounded-xl border border-border bg-muted/40 p-3">
           <p className="text-[11px] text-muted-foreground font-medium">Performance</p>
-          <p className="mt-1 text-xl font-bold text-emerald-600 dark:text-emerald-400">{PROFILE.performance}</p>
+          <p className="mt-1 text-xl font-bold text-emerald-600 dark:text-emerald-400">
+            {PROFILE.performance}
+          </p>
         </div>
       </div>
     </div>

@@ -74,7 +74,7 @@ function LoginPage() {
     if (email && passwordInputRef.current) {
       passwordInputRef.current.focus();
     }
-  }, []);
+  }, [email]);
 
   function handleClearRemembered() {
     setEmail("");
@@ -252,4 +252,3 @@ function LoginPage() {
     </HudShell>
   );
 }
-

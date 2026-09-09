@@ -133,11 +133,7 @@ export function NoteEditor({
   const updateToolbarStates = useCallback(() => {
     if (typeof window === "undefined") return;
     const selection = window.getSelection();
-    if (
-      !selection ||
-      !editorRef.current ||
-      !editorRef.current.contains(selection.anchorNode)
-    ) {
+    if (!selection || !editorRef.current || !editorRef.current.contains(selection.anchorNode)) {
       return;
     }
 
@@ -230,7 +226,7 @@ export function NoteEditor({
         setTimeout(() => setSaveStatus("saved"), 400);
       }, 800);
     },
-    [note, onSave]
+    [note, onSave],
   );
 
   // Handle Visual Editor Input
@@ -395,8 +391,7 @@ export function NoteEditor({
   const insertCodeBlock = () => {
     if (mode !== "visual" || !editorRef.current) return;
     editorRef.current.focus();
-    const preHtml =
-      `<pre class="notepad-code-block my-3 p-3.5 rounded-xl bg-slate-900 text-slate-100 font-mono text-xs overflow-x-auto border border-border/80"><code class="language-bash">// Insert forensic commands, network logs, or code here...</code></pre><p><br></p>`;
+    const preHtml = `<pre class="notepad-code-block my-3 p-3.5 rounded-xl bg-slate-900 text-slate-100 font-mono text-xs overflow-x-auto border border-border/80"><code class="language-bash">// Insert forensic commands, network logs, or code here...</code></pre><p><br></p>`;
     document.execCommand("insertHTML", false, preHtml);
     handleEditorInput();
   };
@@ -637,7 +632,7 @@ export function NoteEditor({
     if (evidenceChip) {
       const ref = evidenceChip.getAttribute("data-evidence") || evidenceChip.textContent || "";
       if (ref && onEvidenceClick) {
-        onEvidenceClick(ref.replace(/^[🔍📎\s]+/, ""));
+        onEvidenceClick(ref.replace(/^[🔍📎\s]+/u, ""));
       }
     }
   };
@@ -665,7 +660,7 @@ export function NoteEditor({
   };
 
   // Keyboard Shortcuts
-  const handleCanvasKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  const handleCanvasKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
     const modifier = isMac ? e.metaKey : e.ctrlKey;
 
@@ -732,7 +727,8 @@ export function NoteEditor({
         </div>
         <h3 className="text-base font-bold text-foreground">No Document Open</h3>
         <p className="mt-1 text-xs text-muted-foreground max-w-sm">
-          Select an investigation record from the Notes navigation panel to open it in the document editor.
+          Select an investigation record from the Notes navigation panel to open it in the document
+          editor.
         </p>
         {onOpenNotesDrawer && (
           <button
@@ -822,9 +818,7 @@ export function NoteEditor({
             {saveStatus === "saving" && (
               <>
                 <span className="h-2 w-2 rounded-full bg-cyan animate-ping" />
-                <span className="font-mono text-[11px] text-cyan hidden md:inline">
-                  Saving…
-                </span>
+                <span className="font-mono text-[11px] text-cyan hidden md:inline">Saving…</span>
               </>
             )}
             {saveStatus === "unsaved" && (
@@ -919,7 +913,7 @@ export function NoteEditor({
                     exportAsWordDoc(
                       title,
                       editorRef.current?.innerHTML || markdownToHtml(bodyMarkdown),
-                      { author: note.author, caseNumber: note.caseNumber, date: note.updatedAt }
+                      { author: note.author, caseNumber: note.caseNumber, date: note.updatedAt },
                     );
                     setShowMoreMenu(false);
                     toast.success("Exported Word Document (.doc)");
@@ -1031,11 +1025,26 @@ export function NoteEditor({
                 {title || "Untitled Document"}
               </h1>
               <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400 font-medium">
-                <span>Case: <strong className="text-slate-700 dark:text-slate-200 font-mono">{note.caseNumber || "CS-2026-0142"}</strong></span>
+                <span>
+                  Case:{" "}
+                  <strong className="text-slate-700 dark:text-slate-200 font-mono">
+                    {note.caseNumber || "CS-2026-0142"}
+                  </strong>
+                </span>
                 <span>·</span>
-                <span>Investigator: <strong className="text-slate-700 dark:text-slate-200">{note.author || "Alex Mercer"}</strong></span>
+                <span>
+                  Investigator:{" "}
+                  <strong className="text-slate-700 dark:text-slate-200">
+                    {note.author || "Alex Mercer"}
+                  </strong>
+                </span>
                 <span>·</span>
-                <span>Date: <strong className="text-slate-700 dark:text-slate-200">{note.updatedAt || "September 8, 2026"}</strong></span>
+                <span>
+                  Date:{" "}
+                  <strong className="text-slate-700 dark:text-slate-200">
+                    {note.updatedAt || "September 8, 2026"}
+                  </strong>
+                </span>
               </div>
             </div>
 
@@ -1074,10 +1083,7 @@ export function NoteEditor({
 
               {mode === "preview" && (
                 <div className="w-full">
-                  <MarkdownRenderer
-                    content={bodyMarkdown}
-                    onEvidenceClick={onEvidenceClick}
-                  />
+                  <MarkdownRenderer content={bodyMarkdown} onEvidenceClick={onEvidenceClick} />
                 </div>
               )}
             </div>
@@ -1179,7 +1185,9 @@ export function NoteEditor({
                 type="button"
                 onClick={() => setImageTab("upload")}
                 className={`flex-1 rounded-lg py-1 font-semibold transition cursor-pointer ${
-                  imageTab === "upload" ? "bg-card text-foreground shadow-xs" : "text-muted-foreground"
+                  imageTab === "upload"
+                    ? "bg-card text-foreground shadow-xs"
+                    : "text-muted-foreground"
                 }`}
               >
                 Upload File
@@ -1197,7 +1205,9 @@ export function NoteEditor({
                 type="button"
                 onClick={() => setImageTab("presets")}
                 className={`flex-1 rounded-lg py-1 font-semibold transition cursor-pointer ${
-                  imageTab === "presets" ? "bg-card text-foreground shadow-xs" : "text-muted-foreground"
+                  imageTab === "presets"
+                    ? "bg-card text-foreground shadow-xs"
+                    : "text-muted-foreground"
                 }`}
               >
                 Forensic Samples
@@ -1227,7 +1237,9 @@ export function NoteEditor({
                   ) : (
                     <>
                       <Upload className="h-8 w-8 text-muted-foreground/60 mb-2" />
-                      <p className="text-xs font-semibold text-foreground">Click to select image file</p>
+                      <p className="text-xs font-semibold text-foreground">
+                        Click to select image file
+                      </p>
                       <p className="text-[11px] text-muted-foreground">PNG, JPG, WEBP, GIF</p>
                     </>
                   )}

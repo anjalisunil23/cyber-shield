@@ -58,7 +58,9 @@ export function useUnreadChatCount(): number {
         bc = new BroadcastChannel(CHAT_SYNC_CHANNEL);
         bc.onmessage = () => setLocalPing((p) => p + 1);
       }
-    } catch {}
+    } catch (e) {
+      void e;
+    }
 
     const handleStorage = (e: StorageEvent) => {
       if (
@@ -83,6 +85,7 @@ export function useUnreadChatCount(): number {
   }, []);
 
   const totalUnread = useMemo(() => {
+    void localPing;
     const convs: ChatConversation[] = convsQ.data || [];
     let count = 0;
 
@@ -93,7 +96,7 @@ export function useUnreadChatCount(): number {
         lastRead = Math.max(
           lastRead,
           getLastReadTimestamp(conv.case_id, currentUserId),
-          getLastReadTimestamp(`case-group-${conv.case_id}`, currentUserId)
+          getLastReadTimestamp(`case-group-${conv.case_id}`, currentUserId),
         );
       }
 
@@ -132,7 +135,12 @@ export function useUnreadChatCount(): number {
           const key = localStorage.key(i);
           if (key && key.startsWith(LOCAL_STORAGE_MSGS_PREFIX)) {
             const convId = key.replace(LOCAL_STORAGE_MSGS_PREFIX, "");
-            if (!convs.some((c) => c.id === convId || c.case_id === convId || `case-group-${c.case_id}` === convId)) {
+            if (
+              !convs.some(
+                (c) =>
+                  c.id === convId || c.case_id === convId || `case-group-${c.case_id}` === convId,
+              )
+            ) {
               const lastRead = getLastReadTimestamp(convId, currentUserId);
               if (lastRead > 0) {
                 const msgs = getLocalMessages(convId);
@@ -142,7 +150,10 @@ export function useUnreadChatCount(): number {
                     m.id &&
                     !seen.has(m.id) &&
                     !m.is_system &&
-                    !isCurrentUser(m.sender || { id: m.sender_id, user_id: m.sender_id }, meQ.data) &&
+                    !isCurrentUser(
+                      m.sender || { id: m.sender_id, user_id: m.sender_id },
+                      meQ.data,
+                    ) &&
                     m.sender_id !== "me" &&
                     new Date(m.created_at).getTime() > lastRead
                   ) {
@@ -154,7 +165,9 @@ export function useUnreadChatCount(): number {
             }
           }
         }
-      } catch {}
+      } catch (e) {
+        void e;
+      }
     }
 
     return count;

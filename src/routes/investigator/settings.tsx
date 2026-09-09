@@ -34,7 +34,10 @@ function Page() {
           <ThemeSwitch label="Dark mode appearance" />
         </Panel>
         <Panel title="Security">
-          <Link to={"/profile/security" as "/"} className="text-sm font-medium text-primary hover:underline">
+          <Link
+            to={"/profile/security" as "/"}
+            className="text-sm font-medium text-primary hover:underline"
+          >
             Change password →
           </Link>
         </Panel>

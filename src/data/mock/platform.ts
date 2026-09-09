@@ -252,7 +252,8 @@ export const MOCK_CASES: MockCase[] = [
     department: "CCU",
     updated: "2026-08-04",
     created: "2026-08-01",
-    description: "Urgent missing child investigation involving digital tracking, CCTV cell tower triangulation, and cross-district forensics.",
+    description:
+      "Urgent missing child investigation involving digital tracking, CCTV cell tower triangulation, and cross-district forensics.",
   },
   {
     id: "c5",

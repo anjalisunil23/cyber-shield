@@ -67,7 +67,7 @@ export function NoteSidebar({
           n.title.toLowerCase().includes(q) ||
           n.body.toLowerCase().includes(q) ||
           n.caseNumber.toLowerCase().includes(q) ||
-          (n.tags && n.tags.some((t) => t.toLowerCase().includes(q)))
+          (n.tags && n.tags.some((t) => t.toLowerCase().includes(q))),
       );
     }
 
@@ -225,10 +225,7 @@ export function NoteSidebar({
                 <div className="flex items-start justify-between gap-1.5">
                   <div className="flex-1 min-w-0">
                     {renamingId === note.id ? (
-                      <div
-                        className="flex items-center gap-1"
-                        onClick={(e) => e.stopPropagation()}
-                      >
+                      <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                         <input
                           autoFocus
                           value={renameValue}
@@ -264,15 +261,10 @@ export function NoteSidebar({
                   </div>
 
                   {/* 3-dot dropdown menu */}
-                  <div
-                    className="relative shrink-0"
-                    onClick={(e) => e.stopPropagation()}
-                  >
+                  <div className="relative shrink-0" onClick={(e) => e.stopPropagation()}>
                     <button
                       type="button"
-                      onClick={() =>
-                        setActiveMenuId(activeMenuId === note.id ? null : note.id)
-                      }
+                      onClick={() => setActiveMenuId(activeMenuId === note.id ? null : note.id)}
                       className="opacity-0 group-hover:opacity-100 focus:opacity-100 rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition cursor-pointer"
                       aria-label="Note options"
                     >

@@ -61,7 +61,9 @@ export function RoleTopNavbar({ onMenu, role }: { onMenu: () => void; role: AppR
         />
         {debounced.length >= 2 && (
           <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-50 max-h-80 overflow-y-auto rounded-2xl border border-border bg-card p-3 shadow-2xl">
-            {search.isLoading && <p className="px-2 py-3 text-xs text-muted-foreground">Searching…</p>}
+            {search.isLoading && (
+              <p className="px-2 py-3 text-xs text-muted-foreground">Searching…</p>
+            )}
             {search.data && <SearchGroups result={search.data} onClose={() => setQ("")} />}
           </div>
         )}

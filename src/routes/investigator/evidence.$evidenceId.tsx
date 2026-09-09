@@ -67,7 +67,9 @@ function Page() {
             <span className="font-bold text-sm uppercase text-primary tracking-wider mb-2">
               {e.file_type} File
             </span>
-            <p className="text-xs text-muted-foreground mb-4">{e.mime_type || "Unknown MIME Type"}</p>
+            <p className="text-xs text-muted-foreground mb-4">
+              {e.mime_type || "Unknown MIME Type"}
+            </p>
             <a
               href={downloadUrl}
               download={e.original_name}

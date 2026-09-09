@@ -37,7 +37,8 @@ function SettingsPage() {
       </div>
       <div className="max-w-lg space-y-4 rounded-2xl border border-border bg-card p-6 shadow-xs">
         <p className="text-sm text-foreground">
-          Signed in as <span className="font-semibold text-primary">{data?.email}</span> ({data?.role})
+          Signed in as <span className="font-semibold text-primary">{data?.email}</span> (
+          {data?.role})
         </p>
         <label className="block text-xs font-medium text-muted-foreground">
           Full name

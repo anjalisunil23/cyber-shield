@@ -69,18 +69,41 @@ export const investigationApi = {
       .post<CaseTeamResponse>(`/api/cases/${caseId}/team`, { investigator_ids: investigatorIds })
       .then((r) => r.data),
 
+  addTeamInvestigators: (caseId: string, body: { investigator_ids: string[] }) =>
+    apiClient.post<CaseTeamResponse>(`/api/cases/${caseId}/team`, body).then((r) => r.data),
+
   removeCaseTeamInvestigator: (caseId: string, investigatorUserId: string) =>
     apiClient
       .delete<CaseTeamResponse>(`/api/cases/${caseId}/team/${investigatorUserId}`)
       .then((r) => r.data),
 
-  reassignCaseLead: (caseId: string, newLeadId: string, keepPreviousLead = true) =>
-    apiClient
-      .post<CaseTeamResponse>(`/api/cases/${caseId}/reassign-lead`, {
-        new_lead_id: newLeadId,
-        keep_previous_lead: keepPreviousLead,
-      })
-      .then((r) => r.data),
+  removeTeamInvestigator: (caseId: string, userId: string) =>
+    apiClient.delete<CaseTeamResponse>(`/api/cases/${caseId}/team/${userId}`).then((r) => r.data),
+
+  reassignCaseLead: (
+    caseId: string,
+    leadIdOrBody:
+      | string
+      | {
+          new_investigator_lead_id?: string;
+          new_lead_id?: string;
+          keep_previous_lead?: boolean;
+          keep_previous_as_investigator?: boolean;
+        },
+    keepPreviousLead = true,
+  ) => {
+    const payload =
+      typeof leadIdOrBody === "string"
+        ? {
+            new_lead_id: leadIdOrBody,
+            new_investigator_lead_id: leadIdOrBody,
+            keep_previous_lead: keepPreviousLead,
+          }
+        : leadIdOrBody;
+    return apiClient
+      .post<CaseTeamResponse>(`/api/cases/${caseId}/reassign-lead`, payload)
+      .then((r) => r.data);
+  },
 
   submitCaseForReview: (caseId: string) =>
     apiClient.post<InvestigationCase>(`/api/cases/${caseId}/submit-review`).then((r) => r.data),
@@ -98,11 +121,15 @@ export const investigationApi = {
     apiClient.get<ChatConversation[]>("/api/chat/conversations").then((r) => r.data),
 
   getChatConversation: (conversationId: string) =>
-    apiClient.get<ChatConversation>(`/api/chat/conversations/${conversationId}`).then((r) => r.data),
-
-  listChatMessages: (conversationId: string, limit = 100) =>
     apiClient
-      .get<ChatMessage[]>(`/api/chat/conversations/${conversationId}/messages`, { params: { limit } })
+      .get<ChatConversation>(`/api/chat/conversations/${conversationId}`)
+      .then((r) => r.data),
+
+  listChatMessages: (conversationId: string, limit = 100, before?: string) =>
+    apiClient
+      .get<ChatMessage[]>(`/api/chat/conversations/${conversationId}/messages`, {
+        params: { limit, before },
+      })
       .then((r) => r.data),
 
   sendChatMessage: (conversationId: string, content: string) =>
@@ -115,11 +142,18 @@ export const investigationApi = {
       .post<ChatConversation>("/api/chat/direct", { target_user_id: targetUserId, case_id: caseId })
       .then((r) => r.data),
 
-  markChatConversationRead: (conversationId: string) =>
-    apiClient.post<{ success: boolean }>(`/api/chat/conversations/${conversationId}/read`).then((r) => r.data),
-
   getCaseGroupChat: (caseId: string) =>
     apiClient.get<ChatConversation>(`/api/chat/case/${caseId}/group`).then((r) => r.data),
+
+  listChatContacts: () => apiClient.get<UserBrief[]>("/api/chat/contacts").then((r) => r.data),
+
+  markChatConversationRead: (conversationId: string) =>
+    apiClient
+      .post<{ success: boolean }>(`/api/chat/conversations/${conversationId}/read`)
+      .then((r) => r.data),
+
+  getChatUnreadCount: () =>
+    apiClient.get<{ unread_total: number }>("/api/chat/unread-count").then((r) => r.data),
 
   // Evidence
   listEvidence: (caseId: string, params?: Record<string, string | number | undefined>) =>
@@ -259,12 +293,6 @@ export const investigationApi = {
       })
       .then((r) => r.data);
   },
-  adminListUsers: (params?: { q?: string; page?: number; page_size?: number }) =>
-    apiClient
-      .get<Page<UserBrief & { department?: string | null; is_active?: boolean }>>("/api/users", {
-        params,
-      })
-      .then((r) => r.data),
   createUser: (body: {
     full_name: string;
     email: string;
@@ -422,55 +450,4 @@ export const investigationApi = {
     apiClient
       .get<Page<ActivityItem>>("/api/admin/activity", { params: { page } })
       .then((r) => r.data),
-
-  // Case Investigation Team Management
-  getCaseTeam: (caseId: string) =>
-    apiClient.get<CaseTeamResponse>(`/api/cases/${caseId}/team`).then((r) => r.data),
-
-  addTeamInvestigators: (caseId: string, body: { investigator_ids: string[] }) =>
-    apiClient.post<CaseTeamResponse>(`/api/cases/${caseId}/team`, body).then((r) => r.data),
-
-  removeTeamInvestigator: (caseId: string, userId: string) =>
-    apiClient.delete<CaseTeamResponse>(`/api/cases/${caseId}/team/${userId}`).then((r) => r.data),
-
-  reassignCaseLead: (
-    caseId: string,
-    body: { new_investigator_lead_id: string; keep_previous_as_investigator?: boolean },
-  ) =>
-    apiClient.post<CaseTeamResponse>(`/api/cases/${caseId}/reassign-lead`, body).then((r) => r.data),
-
-  // Investigator Communication & Chat
-  listChatConversations: () =>
-    apiClient.get<ChatConversation[]>("/api/chat/conversations").then((r) => r.data),
-
-  listChatMessages: (conversationId: string, limit = 50, before?: string) =>
-    apiClient
-      .get<ChatMessage[]>(`/api/chat/conversations/${conversationId}/messages`, {
-        params: { limit, before },
-      })
-      .then((r) => r.data),
-
-  sendChatMessage: (conversationId: string, content: string) =>
-    apiClient
-      .post<ChatMessage>(`/api/chat/conversations/${conversationId}/messages`, { content })
-      .then((r) => r.data),
-
-  getOrCreateDirectChat: (targetUserId: string, caseId?: string) =>
-    apiClient
-      .post<ChatConversation>("/api/chat/direct", { target_user_id: targetUserId, case_id: caseId })
-      .then((r) => r.data),
-
-  getCaseGroupChat: (caseId: string) =>
-    apiClient.get<ChatConversation>(`/api/chat/case/${caseId}/group`).then((r) => r.data),
-
-  listChatContacts: () =>
-    apiClient.get<UserBrief[]>("/api/chat/contacts").then((r) => r.data),
-
-  markChatConversationRead: (conversationId: string) =>
-    apiClient.post<{ success: boolean }>(`/api/chat/conversations/${conversationId}/read`).then((r) => r.data),
-
-  getChatUnreadCount: () =>
-    apiClient.get<{ unread_total: number }>("/api/chat/unread-count").then((r) => r.data),
 };
-
-

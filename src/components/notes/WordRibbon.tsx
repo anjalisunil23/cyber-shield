@@ -273,7 +273,11 @@ export function WordRibbon({
                 : "text-muted-foreground hover:text-foreground hover:bg-muted"
             }`}
           >
-            {isFocusMode ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
+            {isFocusMode ? (
+              <Minimize2 className="h-3.5 w-3.5" />
+            ) : (
+              <Maximize2 className="h-3.5 w-3.5" />
+            )}
             <span className="hidden md:inline">Focus</span>
           </button>
         </div>
@@ -794,7 +798,9 @@ export function WordRibbon({
             <div className="flex items-center gap-2 px-3 py-1 rounded-md border border-border bg-muted/40 font-mono text-[11px] text-muted-foreground">
               <span>{stats.chars.toLocaleString()} chars</span>
               <span>·</span>
-              <span className="font-semibold text-foreground">{stats.words.toLocaleString()} words</span>
+              <span className="font-semibold text-foreground">
+                {stats.words.toLocaleString()} words
+              </span>
               <span>·</span>
               <span>{stats.lines} lines</span>
             </div>
@@ -874,7 +880,9 @@ export function WordRibbon({
                           setShowZoomMenu(false);
                         }}
                         className={`w-full text-left px-2 py-1 rounded text-[11px] font-mono transition cursor-pointer ${
-                          zoom === z ? "bg-primary text-white font-bold" : "hover:bg-muted text-foreground"
+                          zoom === z
+                            ? "bg-primary text-white font-bold"
+                            : "hover:bg-muted text-foreground"
                         }`}
                       >
                         {z}%
@@ -906,7 +914,11 @@ export function WordRibbon({
                   : "bg-card border-border text-foreground hover:bg-muted font-medium"
               }`}
             >
-              {isFocusMode ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
+              {isFocusMode ? (
+                <Minimize2 className="h-3.5 w-3.5" />
+              ) : (
+                <Maximize2 className="h-3.5 w-3.5" />
+              )}
               <span>{isFocusMode ? "Exit Focus Mode" : "Focus Mode"}</span>
             </button>
 

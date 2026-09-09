@@ -62,7 +62,9 @@ export function broadcastChatMessage(convId: string, msg: ChatMessage) {
     try {
       window.dispatchEvent(new CustomEvent("cybershield_chat_event", { detail: { convId, msg } }));
       localStorage.setItem("cybershield_chat_ping", `${convId}_${Date.now()}`);
-    } catch {}
+    } catch (e) {
+      void e;
+    }
   }
 }
 
@@ -80,7 +82,11 @@ export function saveLocalMessage(convId: string, msg: ChatMessage) {
   if (typeof window === "undefined" || !convId) return;
   try {
     const existing = getLocalMessages(convId);
-    if (!existing.some((m) => m.id === msg.id || (m.created_at === msg.created_at && m.content === msg.content))) {
+    if (
+      !existing.some(
+        (m) => m.id === msg.id || (m.created_at === msg.created_at && m.content === msg.content),
+      )
+    ) {
       const updated = [...existing, msg];
       localStorage.setItem(`${LOCAL_STORAGE_MSGS_PREFIX}${convId}`, JSON.stringify(updated));
     }
@@ -103,16 +109,21 @@ export function getLastReadTimestamp(convId: string, userId?: string): number {
 export function markConversationAsReadLocal(convId: string, userId?: string) {
   if (typeof window === "undefined" || !convId) return;
   try {
-    localStorage.setItem(`${LOCAL_STORAGE_READ_PREFIX}${userId || "user"}_${convId}`, String(Date.now()));
-  } catch {}
+    localStorage.setItem(
+      `${LOCAL_STORAGE_READ_PREFIX}${userId || "user"}_${convId}`,
+      String(Date.now()),
+    );
+  } catch (e) {
+    void e;
+  }
 }
 
 /**
  * Returns true if the target identifier / user / participant belongs to the currently logged in user.
  */
 export function isCurrentUser(
-  target: any,
-  me?: { id?: string; email?: string; full_name?: string; name?: string; role?: string } | null
+  target: unknown,
+  me?: { id?: string; email?: string; full_name?: string; name?: string; role?: string } | null,
 ): boolean {
   if (!target) return false;
 
@@ -120,8 +131,16 @@ export function isCurrentUser(
   if (typeof target === "string") {
     const s = target.toLowerCase().trim();
     if (s === "me" || s === "you" || s === "self") return true;
-    if (me?.id && (s === me.id.toLowerCase() || s === `direct-${me.id.toLowerCase()}` || s === `part-${me.id.toLowerCase()}` || s === `team-${me.id.toLowerCase()}`)) return true;
-    if (me?.email && (s === me.email.toLowerCase() || s === me.email.split("@")[0].toLowerCase())) return true;
+    if (
+      me?.id &&
+      (s === me.id.toLowerCase() ||
+        s === `direct-${me.id.toLowerCase()}` ||
+        s === `part-${me.id.toLowerCase()}` ||
+        s === `team-${me.id.toLowerCase()}`)
+    )
+      return true;
+    if (me?.email && (s === me.email.toLowerCase() || s === me.email.split("@")[0].toLowerCase()))
+      return true;
     if (me?.full_name && s === me.full_name.toLowerCase()) return true;
     if (me?.name && s === me.name.toLowerCase()) return true;
 
@@ -131,22 +150,37 @@ export function isCurrentUser(
         (me?.email && u.email.toLowerCase() === me.email.toLowerCase()) ||
         (me?.full_name && u.name.toLowerCase() === me.full_name.toLowerCase()) ||
         (me?.name && u.name.toLowerCase() === me.name.toLowerCase()) ||
-        (me?.id && u.id.toLowerCase() === me.id.toLowerCase())
+        (me?.id && u.id.toLowerCase() === me.id.toLowerCase()),
     );
-    if (matchingMock && (s === matchingMock.id.toLowerCase() || s === `direct-${matchingMock.id.toLowerCase()}` || s === `part-${matchingMock.id.toLowerCase()}`)) {
+    if (
+      matchingMock &&
+      (s === matchingMock.id.toLowerCase() ||
+        s === `direct-${matchingMock.id.toLowerCase()}` ||
+        s === `part-${matchingMock.id.toLowerCase()}`)
+    ) {
       return true;
     }
     return false;
   }
 
   // Object comparison
-  const targetId = target.user_id || target.user?.id || target.id;
-  const targetEmail = target.email || target.user?.email;
-  const targetName = target.full_name || target.name || target.user?.full_name || target.user?.name;
+  if (typeof target === "object" && target !== null) {
+    const t = target as {
+      id?: string;
+      user_id?: string;
+      email?: string;
+      full_name?: string;
+      name?: string;
+      user?: { id?: string; email?: string; full_name?: string; name?: string };
+    };
+    const targetId = t.user_id || t.user?.id || t.id;
+    const targetEmail = t.email || t.user?.email;
+    const targetName = t.full_name || t.name || t.user?.full_name || t.user?.name;
 
-  if (targetId && isCurrentUser(targetId, me)) return true;
-  if (targetEmail && isCurrentUser(targetEmail, me)) return true;
-  if (targetName && isCurrentUser(targetName, me)) return true;
+    if (targetId && isCurrentUser(targetId, me)) return true;
+    if (targetEmail && isCurrentUser(targetEmail, me)) return true;
+    if (targetName && isCurrentUser(targetName, me)) return true;
+  }
 
   return false;
 }
@@ -161,7 +195,9 @@ export function getCleanConvTitle(conv: ChatConversation): string {
     const regex = new RegExp(`^${escaped}\\s*([·\\-:]\\s*)?`, "i");
     title = title.replace(regex, "").trim();
   }
-  return title || conv.title || (conv.case_number ? `Case ${conv.case_number}` : "Investigation Team");
+  return (
+    title || conv.title || (conv.case_number ? `Case ${conv.case_number}` : "Investigation Team")
+  );
 }
 
 /**
@@ -171,7 +207,7 @@ export function getCleanConvTitle(conv: ChatConversation): string {
 export function getDirectChatOtherParticipant(
   conv: ChatConversation,
   me?: { id?: string; email?: string; full_name?: string; name?: string; role?: string } | null,
-  unifiedTeamMembers: CaseInvestigator[] = []
+  unifiedTeamMembers: CaseInvestigator[] = [],
 ): { id: string; name: string; email?: string; role?: string; avatarLetter: string } {
   // 1. Check conv.participants for a participant who is NOT the current user
   if (conv.participants && conv.participants.length > 0) {
@@ -180,11 +216,11 @@ export function getDirectChatOtherParticipant(
       const name =
         otherPart.user?.full_name ||
         otherPart.user?.name ||
-        (otherPart as any).full_name ||
-        (otherPart as any).name ||
+        otherPart.full_name ||
+        otherPart.name ||
         otherPart.user?.email?.split("@")[0] ||
         "Investigator";
-      const email = otherPart.user?.email || (otherPart as any).email;
+      const email = otherPart.user?.email || otherPart.email;
       const role = otherPart.role_in_case || otherPart.user?.role || "investigator";
       return {
         id: otherPart.user_id || otherPart.user?.id || otherPart.id,
@@ -200,31 +236,35 @@ export function getDirectChatOtherParticipant(
   const allMsgs = [...(conv.messages || []), ...getLocalMessages(conv.id)];
   for (let i = allMsgs.length - 1; i >= 0; i--) {
     const m = allMsgs[i];
-    if (!m.is_system && !isCurrentUser(m.sender || { id: m.sender_id, user_id: m.sender_id }, me) && m.sender_id !== "me") {
+    if (
+      !m.is_system &&
+      !isCurrentUser(m.sender || { id: m.sender_id, user_id: m.sender_id }, me) &&
+      m.sender_id !== "me"
+    ) {
       const senderName = m.sender?.full_name || m.sender?.name;
       const member = unifiedTeamMembers.find(
         (tm) =>
           (m.sender_id && (tm.user_id === m.sender_id || tm.id === m.sender_id)) ||
           (m.sender?.id && (tm.user_id === m.sender?.id || tm.id === m.sender?.id)) ||
           (m.sender?.email && tm.user?.email?.toLowerCase() === m.sender?.email?.toLowerCase()) ||
-          (senderName && tm.user?.full_name?.toLowerCase() === senderName?.toLowerCase())
+          (senderName && tm.user?.full_name?.toLowerCase() === senderName?.toLowerCase()),
       );
       if (member) {
         const name = member.user?.full_name || member.name || senderName || "Investigator";
         return {
-          id: member.user_id || m.sender_id || member.id,
+          id: member.user_id || member.user?.id || member.id,
           name,
-          email: member.user?.email || m.sender?.email,
-          role: member.role || member.user?.role || "investigator",
+          email: member.user?.email || member.email,
+          role: member.role || "Investigator",
           avatarLetter: name.charAt(0).toUpperCase() || "I",
         };
       }
       if (senderName) {
         return {
-          id: m.sender_id || m.sender?.id || "other-user",
+          id: m.sender_id || m.sender?.id || "other",
           name: senderName,
           email: m.sender?.email,
-          role: m.sender?.role || "investigator",
+          role: m.sender?.role || "Investigator",
           avatarLetter: senderName.charAt(0).toUpperCase() || "I",
         };
       }
@@ -236,7 +276,7 @@ export function getDirectChatOtherParticipant(
     const targetId = conv.id.replace("direct-", "");
     if (!isCurrentUser(targetId, me)) {
       const member = unifiedTeamMembers.find(
-        (m) => m.user_id === targetId || m.user?.id === targetId || m.id === targetId
+        (m) => m.user_id === targetId || m.user?.id === targetId || m.id === targetId,
       );
       if (member) {
         const name = member.user?.full_name || member.name || "Investigator";
@@ -258,7 +298,7 @@ export function getDirectChatOtherParticipant(
       const otherName = parts.find((p) => p && !isCurrentUser(p, me));
       if (otherName) {
         const member = unifiedTeamMembers.find(
-          (m) => m.user?.full_name?.toLowerCase() === otherName.toLowerCase()
+          (m) => m.user?.full_name?.toLowerCase() === otherName.toLowerCase(),
         );
         return {
           id: member?.user_id || "direct-partner",
@@ -270,7 +310,7 @@ export function getDirectChatOtherParticipant(
       }
     } else if (!isCurrentUser(conv.title, me)) {
       const member = unifiedTeamMembers.find(
-        (m) => m.user?.full_name?.toLowerCase() === conv.title.toLowerCase()
+        (m) => m.user?.full_name?.toLowerCase() === conv.title.toLowerCase(),
       );
       return {
         id: member?.user_id || conv.id,
@@ -306,7 +346,7 @@ export function getDirectChatOtherParticipant(
 function getEffectiveLastMessage(
   conv: ChatConversation,
   me?: { id?: string; email?: string; full_name?: string } | null,
-  unifiedTeamMembers: CaseInvestigator[] = []
+  unifiedTeamMembers: CaseInvestigator[] = [],
 ): ChatMessage | null {
   const candidates: ChatMessage[] = [];
   if (conv.last_message && conv.last_message.content) {
@@ -347,7 +387,9 @@ function getEffectiveLastMessage(
     }
   });
 
-  uniqueCandidates.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  uniqueCandidates.sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+  );
   return uniqueCandidates[0];
 }
 
@@ -398,7 +440,9 @@ export function ChatInterface({
   isEmbedded = false,
 }: ChatInterfaceProps) {
   const qc = useQueryClient();
-  const [selectedConvId, setSelectedConvId] = useState<string | null>(initialConversationId || null);
+  const [selectedConvId, setSelectedConvId] = useState<string | null>(
+    initialConversationId || null,
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"all" | "unread" | "cases" | "direct" | "team">("all");
   const [messageInput, setMessageInput] = useState("");
@@ -530,7 +574,8 @@ export function ChatInterface({
         const roleLower = (u.role || "").toLowerCase();
         let assignedRole = "INVESTIGATOR";
         if (roleLower.includes("lead") || i === 0) assignedRole = "INVESTIGATOR_LEAD";
-        else if (roleLower.includes("supervisor") || roleLower.includes("superior")) assignedRole = "SUPERVISOR";
+        else if (roleLower.includes("supervisor") || roleLower.includes("superior"))
+          assignedRole = "SUPERVISOR";
 
         map.set(u.id, {
           id: `team-${u.id}`,
@@ -559,7 +604,8 @@ export function ChatInterface({
 
     // A. Active initialCaseId if provided
     if (initialCaseId) {
-      const initNum = initialCaseNumber || (initialCaseId.startsWith("CS-") ? initialCaseId : "CS-2026-0001");
+      const initNum =
+        initialCaseNumber || (initialCaseId.startsWith("CS-") ? initialCaseId : "CS-2026-0001");
       const initTitle = initialCaseTitle || "Investigation Team";
       list.push({
         id: `case-group-${initialCaseId}`,
@@ -668,7 +714,8 @@ export function ChatInterface({
               joined_at: sc.created || new Date().toISOString(),
               user: {
                 id: "u3",
-                full_name: sc.assignee && sc.assignee !== "Unassigned" ? sc.assignee : "Alex Mercer",
+                full_name:
+                  sc.assignee && sc.assignee !== "Unassigned" ? sc.assignee : "Alex Mercer",
                 email: "alex.mercer@cybershield.gov",
                 role: "investigator_lead",
               },
@@ -694,7 +741,14 @@ export function ChatInterface({
     });
 
     return list;
-  }, [initialCaseId, initialCaseNumber, initialCaseTitle, unifiedTeamMembers, currentUserId, casesQ.data]);
+  }, [
+    initialCaseId,
+    initialCaseNumber,
+    initialCaseTitle,
+    unifiedTeamMembers,
+    currentUserId,
+    casesQ.data,
+  ]);
 
   // 8. Combine backend conversations, case groups, and direct chats into Unified List (Newest Activity on Top)
   const allConversations = useMemo(() => {
@@ -801,7 +855,7 @@ export function ChatInterface({
         lastRead = Math.max(
           lastRead,
           getLastReadTimestamp(conv.case_id, currentUserId),
-          getLastReadTimestamp(`case-group-${conv.case_id}`, currentUserId)
+          getLastReadTimestamp(`case-group-${conv.case_id}`, currentUserId),
         );
       }
       if (conv.type === "direct") {
@@ -810,7 +864,7 @@ export function ChatInterface({
           lastRead = Math.max(
             lastRead,
             getLastReadTimestamp(`direct-${other.id}`, currentUserId),
-            getLastReadTimestamp(other.id, currentUserId)
+            getLastReadTimestamp(other.id, currentUserId),
           );
         }
       }
@@ -854,7 +908,7 @@ export function ChatInterface({
             !m.is_system &&
             !isCurrentUser(m.sender || { id: m.sender_id, user_id: m.sender_id }, meQ.data) &&
             m.sender_id !== "me" &&
-            new Date(m.created_at).getTime() > lastRead
+            new Date(m.created_at).getTime() > lastRead,
         );
         return unreadMsgs.length;
       }
@@ -862,7 +916,7 @@ export function ChatInterface({
       // Fallback to backend unread_count if available
       return conv.unread_count || 0;
     },
-    [selectedConvId, currentUserId, meQ.data, unifiedTeamMembers]
+    [selectedConvId, currentUserId, meQ.data, unifiedTeamMembers],
   );
 
   // 10. Mark conversation as read (local + API)
@@ -889,10 +943,12 @@ export function ChatInterface({
         void investigationApi.markChatConversationRead(convId).catch(() => {});
       }
       if (typeof window !== "undefined") {
-        window.dispatchEvent(new CustomEvent("cybershield_chat_event", { detail: { convId, action: "read" } }));
+        window.dispatchEvent(
+          new CustomEvent("cybershield_chat_event", { detail: { convId, action: "read" } }),
+        );
       }
     },
-    [currentUserId, allConversations, meQ.data, unifiedTeamMembers]
+    [currentUserId, allConversations, meQ.data, unifiedTeamMembers],
   );
 
   // 11. Auto-mark active conversation as read
@@ -914,17 +970,21 @@ export function ChatInterface({
           try {
             const conv = await investigationApi.getCaseGroupChat(rawCaseId);
             return conv.id;
-          } catch {}
+          } catch (e) {
+            void e;
+          }
         }
 
         const match = (casesQ.data || []).find(
-          (c) => c.id === rawCaseId || c.case_number === rawCaseId
+          (c) => c.id === rawCaseId || c.case_number === rawCaseId,
         );
         if (match && isUUID(match.id)) {
           try {
             const conv = await investigationApi.getCaseGroupChat(match.id);
             return conv.id;
-          } catch {}
+          } catch (e) {
+            void e;
+          }
         }
       }
 
@@ -935,16 +995,18 @@ export function ChatInterface({
           try {
             const conv = await investigationApi.getOrCreateDirectChat(
               targetUserId,
-              initialCaseId && isUUID(initialCaseId) ? initialCaseId : undefined
+              initialCaseId && isUUID(initialCaseId) ? initialCaseId : undefined,
             );
             return conv.id;
-          } catch {}
+          } catch (e) {
+            void e;
+          }
         }
       }
 
       return null;
     },
-    [casesQ.data, initialCaseId]
+    [casesQ.data, initialCaseId],
   );
 
   // 13. Auto-select initial conversation on mount
@@ -952,7 +1014,10 @@ export function ChatInterface({
     if (initialTargetUserId && currentUserId) {
       if (isUUID(initialTargetUserId)) {
         investigationApi
-          .getOrCreateDirectChat(initialTargetUserId, initialCaseId && isUUID(initialCaseId) ? initialCaseId : undefined)
+          .getOrCreateDirectChat(
+            initialTargetUserId,
+            initialCaseId && isUUID(initialCaseId) ? initialCaseId : undefined,
+          )
           .then((conv) => {
             setSelectedConvId(conv.id);
             markAsRead(conv.id);
@@ -980,7 +1045,7 @@ export function ChatInterface({
           });
       } else {
         const match = (casesQ.data || []).find(
-          (c) => c.id === initialCaseId || c.case_number === initialCaseId
+          (c) => c.id === initialCaseId || c.case_number === initialCaseId,
         );
         if (match && isUUID(match.id)) {
           investigationApi
@@ -1001,7 +1066,16 @@ export function ChatInterface({
       setSelectedConvId(allConversations[0].id);
       markAsRead(allConversations[0].id);
     }
-  }, [initialTargetUserId, initialCaseId, currentUserId, allConversations, selectedConvId, casesQ.data, qc, markAsRead]);
+  }, [
+    initialTargetUserId,
+    initialCaseId,
+    currentUserId,
+    allConversations,
+    selectedConvId,
+    casesQ.data,
+    qc,
+    markAsRead,
+  ]);
 
   // 14. Messages query for selected conversation (API + localStorage cache)
   const messagesQ = useQuery({
@@ -1023,7 +1097,12 @@ export function ChatInterface({
       if (activeConv?.case_id && activeConv.case_id !== selectedConvId) {
         const groupMsgs = getLocalMessages(`case-group-${activeConv.case_id}`);
         groupMsgs.forEach((gm) => {
-          if (!localMsgs.some((lm) => lm.id === gm.id || (lm.created_at === gm.created_at && lm.content === gm.content))) {
+          if (
+            !localMsgs.some(
+              (lm) =>
+                lm.id === gm.id || (lm.created_at === gm.created_at && lm.content === gm.content),
+            )
+          ) {
             localMsgs.push(gm);
           }
         });
@@ -1035,14 +1114,24 @@ export function ChatInterface({
           : null;
         if (other?.id) {
           getLocalMessages(`direct-${other.id}`).forEach((dm) => {
-            if (!localMsgs.some((lm) => lm.id === dm.id || (lm.created_at === dm.created_at && lm.content === dm.content))) {
+            if (
+              !localMsgs.some(
+                (lm) =>
+                  lm.id === dm.id || (lm.created_at === dm.created_at && lm.content === dm.content),
+              )
+            ) {
               localMsgs.push(dm);
             }
           });
         }
         if (currentUserId) {
           getLocalMessages(`direct-${currentUserId}`).forEach((dm) => {
-            if (!localMsgs.some((lm) => lm.id === dm.id || (lm.created_at === dm.created_at && lm.content === dm.content))) {
+            if (
+              !localMsgs.some(
+                (lm) =>
+                  lm.id === dm.id || (lm.created_at === dm.created_at && lm.content === dm.content),
+              )
+            ) {
               localMsgs.push(dm);
             }
           });
@@ -1051,12 +1140,18 @@ export function ChatInterface({
 
       const combined: ChatMessage[] = [...apiMsgs];
       localMsgs.forEach((lm) => {
-        if (!combined.some((m) => m.id === lm.id || (m.created_at === lm.created_at && m.content === lm.content))) {
+        if (
+          !combined.some(
+            (m) => m.id === lm.id || (m.created_at === lm.created_at && m.content === lm.content),
+          )
+        ) {
           combined.push(lm);
         }
       });
 
-      return combined.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      return combined.sort(
+        (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+      );
     },
     enabled: !!selectedConvId,
     refetchInterval: 1200,
@@ -1079,8 +1174,8 @@ export function ChatInterface({
           id: selectedConvId,
           type: "direct" as const,
           title:
-            unifiedTeamMembers.find((m) => `direct-${m.user_id}` === selectedConvId)?.user?.full_name ||
-            "Direct Investigation Channel",
+            unifiedTeamMembers.find((m) => `direct-${m.user_id}` === selectedConvId)?.user
+              ?.full_name || "Direct Investigation Channel",
           case_id: initialCaseId,
           case_number: initialCaseNumber,
           created_by_id: currentUserId || "me",
@@ -1168,7 +1263,10 @@ export function ChatInterface({
       // Mark as read immediately on sending
       markAsRead(activeId);
 
-      qc.setQueryData<ChatMessage[]>(["chat-messages", activeId], [...previousMessages, optimisticMsg]);
+      qc.setQueryData<ChatMessage[]>(
+        ["chat-messages", activeId],
+        [...previousMessages, optimisticMsg],
+      );
       return { previousMessages, activeId, optimisticMsg };
     },
     onSuccess: (data, _, context) => {
@@ -1214,13 +1312,21 @@ export function ChatInterface({
   };
 
   // Open direct chat with a team member
-  const handleOpenDirectChat = (member: CaseInvestigator | UserBrief | { id: string; full_name?: string; name?: string; role?: string; email?: string }) => {
+  const handleOpenDirectChat = (
+    member:
+      | CaseInvestigator
+      | UserBrief
+      | { id: string; full_name?: string; name?: string; role?: string; email?: string },
+  ) => {
     const targetId = "user_id" in member ? member.user_id : member.id;
     if (!targetId) return;
 
     if (currentUserId && isUUID(targetId)) {
       investigationApi
-        .getOrCreateDirectChat(targetId, initialCaseId && isUUID(initialCaseId) ? initialCaseId : undefined)
+        .getOrCreateDirectChat(
+          targetId,
+          initialCaseId && isUUID(initialCaseId) ? initialCaseId : undefined,
+        )
         .then((conv) => {
           setSelectedConvId(conv.id);
           markAsRead(conv.id);
@@ -1290,7 +1396,9 @@ export function ChatInterface({
             <div>
               <h2 className="text-sm font-bold tracking-tight text-foreground">Messages & Chats</h2>
               <p className="text-[10px] text-muted-foreground">
-                {initialCaseNumber ? `Case ${initialCaseNumber} Team` : "Real-Time Investigation Comms"}
+                {initialCaseNumber
+                  ? `Case ${initialCaseNumber} Team`
+                  : "Real-Time Investigation Comms"}
               </p>
             </div>
           </div>
@@ -1424,7 +1532,8 @@ export function ChatInterface({
                 const isMe = isCurrentUser(member, meQ.data);
                 const roleLower = (member.role || member.user?.role || "").toLowerCase();
                 const isLead = roleLower.includes("lead");
-                const isSupervisor = roleLower.includes("supervisor") || roleLower.includes("superior");
+                const isSupervisor =
+                  roleLower.includes("supervisor") || roleLower.includes("superior");
 
                 return (
                   <div
@@ -1466,7 +1575,11 @@ export function ChatInterface({
                           >
                             {isLead && <Crown className="h-2.5 w-2.5" />}
                             {isSupervisor && <Shield className="h-2.5 w-2.5" />}
-                            {isLead ? "Investigator Lead" : isSupervisor ? "Supervisor" : "Investigator"}
+                            {isLead
+                              ? "Investigator Lead"
+                              : isSupervisor
+                                ? "Supervisor"
+                                : "Investigator"}
                           </span>
                         </div>
                       </div>
@@ -1524,8 +1637,13 @@ export function ChatInterface({
                 const unreadCount = getUnreadCountForConv(conv);
                 const hasUnread = unreadCount > 0;
                 const isMeLastSender =
-                  isCurrentUser(effectiveMsg?.sender || { id: effectiveMsg?.sender_id, user_id: effectiveMsg?.sender_id }, meQ.data) ||
-                  effectiveMsg?.sender_id === "me";
+                  isCurrentUser(
+                    effectiveMsg?.sender || {
+                      id: effectiveMsg?.sender_id,
+                      user_id: effectiveMsg?.sender_id,
+                    },
+                    meQ.data,
+                  ) || effectiveMsg?.sender_id === "me";
 
                 // Correct Participant Name Resolution (strictly excluding current user)
                 const otherParticipant = !isCaseGroup
@@ -1589,7 +1707,9 @@ export function ChatInterface({
                           )}
                           <p
                             className={`truncate text-xs ${
-                              hasUnread ? "font-bold text-foreground" : "font-semibold text-foreground/90"
+                              hasUnread
+                                ? "font-bold text-foreground"
+                                : "font-semibold text-foreground/90"
                             }`}
                           >
                             {displayName}
@@ -1622,7 +1742,9 @@ export function ChatInterface({
                                 )}
                                 <strong
                                   className={`shrink-0 ${
-                                    hasUnread ? "text-foreground font-semibold" : "text-foreground/75"
+                                    hasUnread
+                                      ? "text-foreground font-semibold"
+                                      : "text-foreground/75"
                                   }`}
                                 >
                                   {isMeLastSender
@@ -1696,7 +1818,10 @@ export function ChatInterface({
                     <div className="flex items-center gap-2 text-[11px] text-muted-foreground truncate">
                       {selectedConv.type === "case_group" ? (
                         <span>
-                          Team Members: {unifiedTeamMembers.map((p) => p.user?.full_name || "Investigator").join(", ")}
+                          Team Members:{" "}
+                          {unifiedTeamMembers
+                            .map((p) => p.user?.full_name || "Investigator")
+                            .join(", ")}
                         </span>
                       ) : (
                         <span>
@@ -1704,7 +1829,9 @@ export function ChatInterface({
                           {selectedDirectParticipant?.role
                             ? selectedDirectParticipant.role.toUpperCase()
                             : "INVESTIGATOR"}
-                          {selectedDirectParticipant?.email ? ` (${selectedDirectParticipant.email})` : ""}
+                          {selectedDirectParticipant?.email
+                            ? ` (${selectedDirectParticipant.email})`
+                            : ""}
                         </span>
                       )}
                     </div>
@@ -1720,7 +1847,11 @@ export function ChatInterface({
                     >
                       <Users className="h-3.5 w-3.5 text-primary" />
                       Team ({unifiedTeamMembers.length})
-                      {showTeamDrawer ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                      {showTeamDrawer ? (
+                        <ChevronUp className="h-3.5 w-3.5" />
+                      ) : (
+                        <ChevronDown className="h-3.5 w-3.5" />
+                      )}
                     </button>
                   )}
 
@@ -1739,7 +1870,9 @@ export function ChatInterface({
                       <Shield className="h-3.5 w-3.5 text-primary" />
                       Case Investigation Team Members
                     </h4>
-                    <span className="text-[10px] text-muted-foreground">Click 'Chat' to message 1-on-1</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      Click 'Chat' to message 1-on-1
+                    </span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 max-h-48 overflow-y-auto pr-1">
@@ -1747,7 +1880,8 @@ export function ChatInterface({
                       const isMe = isCurrentUser(member, meQ.data);
                       const roleLower = (member.role || member.user?.role || "").toLowerCase();
                       const isLead = roleLower.includes("lead");
-                      const isSupervisor = roleLower.includes("supervisor") || roleLower.includes("superior");
+                      const isSupervisor =
+                        roleLower.includes("supervisor") || roleLower.includes("superior");
 
                       return (
                         <div
@@ -1769,7 +1903,11 @@ export function ChatInterface({
                             <div className="min-w-0">
                               <p className="text-xs font-semibold text-foreground truncate">
                                 {member.user?.full_name || "Investigator"}
-                                {isMe && <span className="ml-1 text-[10px] text-muted-foreground">(You)</span>}
+                                {isMe && (
+                                  <span className="ml-1 text-[10px] text-muted-foreground">
+                                    (You)
+                                  </span>
+                                )}
                               </p>
                               <span
                                 className={`inline-block rounded px-1.5 py-0.2 text-[8px] font-bold uppercase ${
@@ -1821,7 +1959,8 @@ export function ChatInterface({
                   </div>
                   <p className="text-xs font-semibold text-foreground">No messages yet</p>
                   <p className="text-[11px] text-muted-foreground mt-0.5 max-w-xs">
-                    Send a message below to start collaborating with the investigation team in real time.
+                    Send a message below to start collaborating with the investigation team in real
+                    time.
                   </p>
                 </div>
               )}
@@ -1838,10 +1977,15 @@ export function ChatInterface({
                   );
                 }
 
-                const isMe = isCurrentUser(msg.sender || { id: msg.sender_id, user_id: msg.sender_id }, meQ.data) || msg.sender_id === "me";
+                const isMe =
+                  isCurrentUser(
+                    msg.sender || { id: msg.sender_id, user_id: msg.sender_id },
+                    meQ.data,
+                  ) || msg.sender_id === "me";
                 const senderRole = (msg.sender?.role || "").toLowerCase();
                 const isLeadSender = senderRole.includes("lead");
-                const isSupervisorSender = senderRole.includes("supervisor") || senderRole.includes("superior");
+                const isSupervisorSender =
+                  senderRole.includes("supervisor") || senderRole.includes("superior");
 
                 return (
                   <div
@@ -1884,7 +2028,11 @@ export function ChatInterface({
                                   : "bg-primary/20 text-primary"
                             }`}
                           >
-                            {isLeadSender ? "Lead" : isSupervisorSender ? "Supervisor" : "Investigator"}
+                            {isLeadSender
+                              ? "Lead"
+                              : isSupervisorSender
+                                ? "Supervisor"
+                                : "Investigator"}
                           </span>
                         </div>
                       )}
@@ -1950,9 +2098,12 @@ export function ChatInterface({
             <div className="grid h-16 w-16 place-items-center rounded-3xl bg-muted/60 text-muted-foreground/60 mb-3">
               <MessageSquare className="h-8 w-8" />
             </div>
-            <h3 className="text-base font-bold text-foreground">Investigation Team Communications</h3>
+            <h3 className="text-base font-bold text-foreground">
+              Investigation Team Communications
+            </h3>
             <p className="mt-1 text-xs text-muted-foreground max-w-sm">
-              Select a case group chat or a team investigator from the left sidebar to start collaborating.
+              Select a case group chat or a team investigator from the left sidebar to start
+              collaborating.
             </p>
           </div>
         )}
@@ -1986,7 +2137,8 @@ export function ChatInterface({
               {unifiedTeamMembers.map((member) => {
                 const roleLower = (member.role || member.user?.role || "").toLowerCase();
                 const isLead = roleLower.includes("lead");
-                const isSupervisor = roleLower.includes("supervisor") || roleLower.includes("superior");
+                const isSupervisor =
+                  roleLower.includes("supervisor") || roleLower.includes("superior");
                 const isMe = isCurrentUser(member, meQ.data);
 
                 if (isMe) return null;

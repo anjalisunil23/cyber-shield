@@ -5,6 +5,7 @@ export type Theme = "light" | "dark" | "system";
 interface ThemeContextType {
   theme: Theme;
   resolvedTheme: "light" | "dark";
+  isDark: boolean;
   setTheme: (theme: Theme) => void;
   toggleTheme: () => void;
 }
@@ -95,8 +96,10 @@ export function ThemeProvider({
     applyThemeClass(nextResolved);
   }, [theme]);
 
+  const isDark = resolvedTheme === "dark";
+
   return (
-    <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, resolvedTheme, isDark, setTheme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );

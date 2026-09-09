@@ -80,7 +80,10 @@ export function NoteDetailsPanel({
   }
 
   const handleAddTag = (tagToAdd: string) => {
-    const clean = tagToAdd.trim().toLowerCase().replace(/[^a-z0-9-_]/g, "");
+    const clean = tagToAdd
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9-_]/g, "");
     if (!clean) return;
     const currentTags = note.tags || [];
     if (!currentTags.includes(clean)) {
@@ -157,9 +160,12 @@ export function NoteDetailsPanel({
       a.download = att.name;
       a.click();
     } else {
-      const blob = new Blob([`Forensic Attachment: ${att.name}\nSize: ${att.size}\nCase: ${note.caseNumber}`], {
-        type: "text/plain",
-      });
+      const blob = new Blob(
+        [`Forensic Attachment: ${att.name}\nSize: ${att.size}\nCase: ${note.caseNumber}`],
+        {
+          type: "text/plain",
+        },
+      );
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -272,7 +278,9 @@ export function NoteDetailsPanel({
           <span className="flex items-center gap-1.5 text-muted-foreground">
             <Calendar className="h-3.5 w-3.5 text-muted-foreground" /> Created
           </span>
-          <span className="font-mono text-[11px] text-foreground">{note.created || "Aug 1, 2026"}</span>
+          <span className="font-mono text-[11px] text-foreground">
+            {note.created || "Aug 1, 2026"}
+          </span>
         </div>
         <div className="flex items-center justify-between">
           <span className="flex items-center gap-1.5 text-muted-foreground">
@@ -286,7 +294,8 @@ export function NoteDetailsPanel({
       <div className="space-y-2.5 border-t border-border pt-4">
         <div className="flex items-center justify-between">
           <label className="flex items-center gap-1.5 font-semibold text-muted-foreground uppercase text-[10px] tracking-wider">
-            <Paperclip className="h-3.5 w-3.5 text-primary" /> Attached Documents ({note.attachments?.length || 0})
+            <Paperclip className="h-3.5 w-3.5 text-primary" /> Attached Documents (
+            {note.attachments?.length || 0})
           </label>
           <button
             type="button"
@@ -366,7 +375,9 @@ export function NoteDetailsPanel({
             >
               <Upload className="h-5 w-5 text-muted-foreground/60 mb-1" />
               <p className="text-xs font-medium text-foreground">Click to attach documents</p>
-              <p className="text-[10px] text-muted-foreground">PDFs, PCAP, Word docs, logs, images</p>
+              <p className="text-[10px] text-muted-foreground">
+                PDFs, PCAP, Word docs, logs, images
+              </p>
             </div>
           )}
         </div>
@@ -435,16 +446,18 @@ export function NoteDetailsPanel({
             </div>
             {/* Quick Presets */}
             <div className="flex flex-wrap gap-1 pt-1">
-              {PRESET_TAGS.filter((t) => !(note.tags || []).includes(t)).slice(0, 5).map((pt) => (
-                <button
-                  key={pt}
-                  type="button"
-                  onClick={() => handleAddTag(pt)}
-                  className="rounded-md border border-border bg-muted/50 px-1.5 py-0.5 text-[10px] text-muted-foreground hover:bg-muted hover:text-foreground transition cursor-pointer"
-                >
-                  +{pt}
-                </button>
-              ))}
+              {PRESET_TAGS.filter((t) => !(note.tags || []).includes(t))
+                .slice(0, 5)
+                .map((pt) => (
+                  <button
+                    key={pt}
+                    type="button"
+                    onClick={() => handleAddTag(pt)}
+                    className="rounded-md border border-border bg-muted/50 px-1.5 py-0.5 text-[10px] text-muted-foreground hover:bg-muted hover:text-foreground transition cursor-pointer"
+                  >
+                    +{pt}
+                  </button>
+                ))}
             </div>
           </div>
         )}
@@ -468,7 +481,9 @@ export function NoteDetailsPanel({
         {/* Evidence picker dropdown */}
         {isInsertingEvidence && (
           <div className="rounded-xl border border-border bg-card p-2 shadow-md space-y-1.5">
-            <p className="text-[11px] font-medium text-muted-foreground">Select evidence to insert:</p>
+            <p className="text-[11px] font-medium text-muted-foreground">
+              Select evidence to insert:
+            </p>
             <div className="max-h-36 overflow-y-auto space-y-1 pr-1">
               {evidenceList.map((ev) => (
                 <button
@@ -502,7 +517,8 @@ export function NoteDetailsPanel({
             ))
           ) : (
             <p className="text-[11px] text-muted-foreground italic">
-              No evidence referenced in note body yet. Use "+ Insert" above or type [Evidence: name].
+              No evidence referenced in note body yet. Use "+ Insert" above or type [Evidence:
+              name].
             </p>
           )}
         </div>

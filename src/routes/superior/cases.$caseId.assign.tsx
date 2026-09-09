@@ -54,7 +54,7 @@ function Page() {
     } else if (investigatorOptions.length > 0 && !selectedInvestigator) {
       setSelectedInvestigator(investigatorOptions[0].name);
     }
-  }, [c.assignee, investigatorOptions]);
+  }, [c.assignee, investigatorOptions, selectedInvestigator]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,7 +64,10 @@ function Page() {
     const selectedId = selectedObj?.id;
 
     // Backend API sync if valid UUID
-    if (selectedId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(c.id)) {
+    if (
+      selectedId &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(c.id)
+    ) {
       try {
         await investigationApi.reassignCaseLead(c.id, selectedId, true);
         await investigationApi.assignCase(c.id, selectedId, true);

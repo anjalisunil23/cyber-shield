@@ -47,9 +47,7 @@ function AdminDashboard() {
     borderColor: isDark ? "#334155" : "#e2e8f0",
     color: isDark ? "#f8fafc" : "#0f172a",
     borderRadius: "8px",
-    boxShadow: isDark
-      ? "0 4px 6px -1px rgba(0, 0, 0, 0.5)"
-      : "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+    boxShadow: isDark ? "0 4px 6px -1px rgba(0, 0, 0, 0.5)" : "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
   };
 
   return (
@@ -160,7 +158,9 @@ function AdminDashboard() {
                 {c.case_number} — {c.title}
               </li>
             ))}
-            {!d?.recent_cases?.length && <li className="text-xs text-muted-foreground">No cases yet</li>}
+            {!d?.recent_cases?.length && (
+              <li className="text-xs text-muted-foreground">No cases yet</li>
+            )}
           </ul>
         </Panel>
       </div>

@@ -93,7 +93,9 @@ function Page() {
         crumbs={[{ label: "Users", to: "/admin/users" }, { label: "Edit" }]}
         title="Edit User"
       >
-        <p className="text-sm text-rose-500 dark:text-rose-300">{apiMessage(user.error, "User not found")}</p>
+        <p className="text-sm text-rose-500 dark:text-rose-300">
+          {apiMessage(user.error, "User not found")}
+        </p>
       </PageScaffold>
     );
   }

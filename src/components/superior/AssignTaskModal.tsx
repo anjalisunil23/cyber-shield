@@ -99,7 +99,7 @@ export function AssignTaskModal({
     } else if (investigatorOptions.length > 0 && !assignee) {
       setAssignee(investigatorOptions[0].name);
     }
-  }, [defaultInvestigator, investigatorOptions]);
+  }, [defaultInvestigator, investigatorOptions, assignee]);
 
   if (!isOpen) return null;
 
@@ -129,14 +129,20 @@ export function AssignTaskModal({
             </div>
             <h3 className="text-base font-semibold text-foreground">Assign Task to Investigator</h3>
           </div>
-          <button type="button" onClick={onClose} className="text-muted-foreground hover:text-foreground">
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-muted-foreground hover:text-foreground"
+          >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <div>
-            <label className="block text-xs font-medium text-muted-foreground">Target Investigator</label>
+            <label className="block text-xs font-medium text-muted-foreground">
+              Target Investigator
+            </label>
             <select
               value={assignee}
               onChange={(e) => setAssignee(e.target.value)}

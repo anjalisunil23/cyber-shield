@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   DataTable,
   PageScaffold,
@@ -23,7 +23,7 @@ function Page() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
-  const loadCases = async () => {
+  const loadCases = useCallback(async () => {
     setLoading(true);
     try {
       const me = await investigationApi.me().catch(() => null);
@@ -43,10 +43,10 @@ function Page() {
 
       const map = new Map<string, InvestigationCase>();
 
-      // 1. Seed fallback and stored cases (including Missing Child CS-2026-0003)
+      // 1. Seed with local / mock cases so nothing is ever lost
       const stored = getStoredCases();
-      const fallback = stored.length > 0 ? stored : MOCK_CASES;
-      fallback.forEach((sc) => {
+      const initialSeed = stored.length > 0 ? stored : MOCK_CASES;
+      initialSeed.forEach((sc) => {
         map.set(sc.caseNumber, {
           id: sc.id,
           case_number: sc.caseNumber,
@@ -76,7 +76,7 @@ function Page() {
           (c) =>
             c.case_number.toLowerCase().includes(qLower) ||
             c.title.toLowerCase().includes(qLower) ||
-            (c.description && c.description.toLowerCase().includes(qLower))
+            (c.description && c.description.toLowerCase().includes(qLower)),
         );
       }
 
@@ -116,11 +116,11 @@ function Page() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, searchQuery]);
 
   useEffect(() => {
     loadCases();
-  }, [page, searchQuery]);
+  }, [loadCases]);
 
   return (
     <PageScaffold

@@ -25,10 +25,7 @@ function Page() {
     onSuccess: () => {
       toast.success("Settings saved");
       void qc.invalidateQueries({ queryKey: ["me"] });
-      localStorage.setItem(
-        "cs_admin_prefs",
-        JSON.stringify({ emailDigests, caseAlerts }),
-      );
+      localStorage.setItem("cs_admin_prefs", JSON.stringify({ emailDigests, caseAlerts }));
     },
     onError: (e) => toast.error(apiMessage(e)),
   });
@@ -68,7 +65,9 @@ function Page() {
               />
             </label>
             <p className="mt-2 text-xs text-muted-foreground">{me.data?.email}</p>
-            <p className="text-xs text-muted-foreground">Department: {me.data?.department || "—"}</p>
+            <p className="text-xs text-muted-foreground">
+              Department: {me.data?.department || "—"}
+            </p>
             <PrimaryButton className="mt-4" onClick={() => save.mutate()}>
               {save.isPending ? "Saving…" : "Save"}
             </PrimaryButton>

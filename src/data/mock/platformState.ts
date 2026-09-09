@@ -224,7 +224,7 @@ export function addNoteItem(
   const list = getStoredNotes();
   const now = new Date();
   const formattedDate = `${now.toLocaleDateString("en-US", { month: "short", day: "numeric" })}, ${now.getFullYear()}`;
-  
+
   const newNote: MockNote = {
     id: note?.id || `n_${Date.now()}`,
     title: note?.title || "Untitled Note",
@@ -245,7 +245,7 @@ export function updateNoteItem(id: string, updates: Partial<MockNote>): MockNote
   const list = getStoredNotes();
   const now = new Date();
   const formattedDate = `${now.toLocaleDateString("en-US", { month: "short", day: "numeric" })}, ${now.getFullYear()}`;
-  
+
   let updatedNote: MockNote | null = null;
   const next = list.map((n) => {
     if (n.id === id) {

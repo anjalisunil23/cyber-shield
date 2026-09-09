@@ -195,7 +195,11 @@ export function Modal({
       >
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-semibold text-foreground">{title}</h3>
-          <button type="button" onClick={onClose} className="text-muted-foreground hover:text-foreground">
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-muted-foreground hover:text-foreground"
+          >
             ✕
           </button>
         </div>
@@ -335,7 +339,10 @@ export function StatusPill({ value }: { value: string }) {
           : "border-slate-200 bg-slate-100 text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-300";
   return (
     <span
-      className={cn("inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-semibold", tone)}
+      className={cn(
+        "inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-semibold",
+        tone,
+      )}
     >
       {value}
     </span>

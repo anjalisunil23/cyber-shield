@@ -32,6 +32,7 @@ export type LeadPriority = "low" | "medium" | "high" | "critical";
 export type UserBrief = {
   id: string;
   full_name: string;
+  name?: string;
   email: string;
   role: string;
 };
@@ -54,6 +55,8 @@ export type CaseInvestigator = {
   status: "active" | "removed" | string;
   assigned_by_id?: string | null;
   assigned_at: string;
+  name?: string;
+  email?: string;
   user?: UserBrief | null;
 };
 
@@ -69,11 +72,14 @@ export type ChatParticipant = {
   id: string;
   conversation_id: string;
   user_id: string;
-  role_in_case: string;
-  is_active: boolean;
+  role_in_case?: string;
+  is_active?: boolean;
   joined_at: string;
   left_at?: string | null;
-  last_read_at: string;
+  last_read_at?: string;
+  name?: string;
+  full_name?: string;
+  email?: string;
   user?: UserBrief | null;
 };
 
@@ -98,6 +104,7 @@ export type ChatConversation = {
   case_number?: string | null;
   participants: ChatParticipant[];
   last_message?: ChatMessage | null;
+  messages?: ChatMessage[];
   unread_count: number;
 };
 
@@ -125,6 +132,27 @@ export type InvestigationCase = {
   investigator_assignments?: CaseInvestigator[];
 };
 
+export type ExifMetadata = {
+  Make?: string | null;
+  Model?: string | null;
+  DateTimeOriginal?: string | null;
+  width?: number | string | null;
+  height?: number | string | null;
+  GPSInfo?: string | Record<string, unknown> | null;
+  [key: string]: string | number | boolean | Record<string, unknown> | unknown[] | null | undefined;
+};
+
+export type EvidenceMetadata = {
+  exif?: ExifMetadata | null;
+  Make?: string | null;
+  Model?: string | null;
+  DateTimeOriginal?: string | null;
+  width?: number | string | null;
+  height?: number | string | null;
+  GPSInfo?: string | Record<string, unknown> | null;
+  [key: string]: string | number | boolean | Record<string, unknown> | unknown[] | null | undefined;
+};
+
 export type EvidenceItem = {
   id: string;
   case_id: string;
@@ -138,7 +166,7 @@ export type EvidenceItem = {
   warning?: string | null;
   description: string | null;
   tags: string[] | null;
-  metadata_json?: Record<string, unknown> | null;
+  metadata_json?: EvidenceMetadata | null;
   upload_date: string;
   is_duplicate: boolean;
   duplicate_of_id?: string | null;

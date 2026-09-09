@@ -20,11 +20,7 @@ import {
   Bar,
   BarChart,
 } from "recharts";
-import {
-  ChartCard,
-  PageHeader,
-  SkeletonGrid,
-} from "@/components/layouts/DashboardWidgets";
+import { ChartCard, PageHeader, SkeletonGrid } from "@/components/layouts/DashboardWidgets";
 import { StatsCard } from "@/components/layouts/StatsCard";
 import { investigationApi } from "@/services/investigationApi";
 import { useTheme } from "@/lib/theme";
@@ -146,7 +142,9 @@ function InvestigatorDashboard() {
           <div className="flex items-center gap-3">
             <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0 animate-pulse" />
             <div>
-              <p className="text-sm font-bold text-amber-700 dark:text-amber-300">Supervisor Review Action Required</p>
+              <p className="text-sm font-bold text-amber-700 dark:text-amber-300">
+                Supervisor Review Action Required
+              </p>
               <p className="text-xs text-amber-800/80 dark:text-amber-200/80">
                 You have {changesRequestedCount} case{changesRequestedCount > 1 ? "s" : ""} where
                 supervisor revisions have been requested.
@@ -171,7 +169,10 @@ function InvestigatorDashboard() {
                 <CartesianGrid strokeDasharray="3 3" stroke={chartGridStroke} />
                 <XAxis dataKey="type" stroke={chartAxisStroke} fontSize={11} />
                 <YAxis stroke={chartAxisStroke} fontSize={11} allowDecimals={false} />
-                <Tooltip contentStyle={chartTooltipStyle} itemStyle={{ color: "var(--foreground)" }} />
+                <Tooltip
+                  contentStyle={chartTooltipStyle}
+                  itemStyle={{ color: "var(--foreground)" }}
+                />
                 <Bar dataKey="count" fill={isDark ? "#06B6D4" : "#0284c7"} radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -184,7 +185,10 @@ function InvestigatorDashboard() {
                 <CartesianGrid strokeDasharray="3 3" stroke={chartGridStroke} />
                 <XAxis dataKey="month" stroke={chartAxisStroke} fontSize={11} />
                 <YAxis stroke={chartAxisStroke} fontSize={11} allowDecimals={false} />
-                <Tooltip contentStyle={chartTooltipStyle} itemStyle={{ color: "var(--foreground)" }} />
+                <Tooltip
+                  contentStyle={chartTooltipStyle}
+                  itemStyle={{ color: "var(--foreground)" }}
+                />
                 <Area
                   type="monotone"
                   dataKey="count"
@@ -219,7 +223,9 @@ function InvestigatorDashboard() {
         </div>
 
         {caseItems.length === 0 ? (
-          <p className="text-xs text-muted-foreground py-6 text-center">No active cases assigned yet.</p>
+          <p className="text-xs text-muted-foreground py-6 text-center">
+            No active cases assigned yet.
+          </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs text-foreground">
@@ -239,7 +245,12 @@ function InvestigatorDashboard() {
                     <td className="py-2.5 font-bold text-primary">
                       <button
                         type="button"
-                        onClick={() => void navigate({ to: "/dashboard/cases/$caseId", params: { caseId: c.id } })}
+                        onClick={() =>
+                          void navigate({
+                            to: "/dashboard/cases/$caseId",
+                            params: { caseId: c.id },
+                          })
+                        }
                         className="hover:underline text-left"
                       >
                         {c.case_number}
@@ -270,7 +281,12 @@ function InvestigatorDashboard() {
                     <td className="py-2.5 text-right">
                       <button
                         type="button"
-                        onClick={() => void navigate({ to: "/dashboard/cases/$caseId", params: { caseId: c.id } })}
+                        onClick={() =>
+                          void navigate({
+                            to: "/dashboard/cases/$caseId",
+                            params: { caseId: c.id },
+                          })
+                        }
                         className="rounded-lg bg-primary/10 hover:bg-primary/20 text-primary px-2.5 py-1 text-xs font-semibold transition"
                       >
                         Open Case →
@@ -286,5 +302,3 @@ function InvestigatorDashboard() {
     </div>
   );
 }
-
-

@@ -22,9 +22,7 @@ export function markdownToHtml(markdown: string): string {
         .map((item) => `<li class="my-0.5">${formatInline(item)}</li>`)
         .join("");
       const listClass =
-        tag === "ol"
-          ? "list-decimal ml-6 my-2 space-y-0.5"
-          : "list-disc ml-6 my-2 space-y-0.5";
+        tag === "ol" ? "list-decimal ml-6 my-2 space-y-0.5" : "list-disc ml-6 my-2 space-y-0.5";
       htmlParts.push(`<${tag} class="${listClass}">${itemsHtml}</${tag}>`);
       listBuffer = [];
       currentListType = null;
@@ -38,12 +36,9 @@ export function markdownToHtml(markdown: string): string {
     if (line.trim().startsWith("```")) {
       flushList();
       if (inCodeBlock) {
-        const fullCode = codeBlockLines
-          .join("\n")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;");
+        const fullCode = codeBlockLines.join("\n").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         htmlParts.push(
-          `<pre class="notepad-code-block my-3 p-3.5 rounded-xl bg-slate-900 text-slate-100 font-mono text-xs overflow-x-auto border border-border/80"><code class="language-${codeBlockLang || "text"}">${fullCode}</code></pre>`
+          `<pre class="notepad-code-block my-3 p-3.5 rounded-xl bg-slate-900 text-slate-100 font-mono text-xs overflow-x-auto border border-border/80"><code class="language-${codeBlockLang || "text"}">${fullCode}</code></pre>`,
         );
         codeBlockLines = [];
         codeBlockLang = "";
@@ -79,7 +74,7 @@ export function markdownToHtml(markdown: string): string {
           (alt
             ? `<figcaption class="mt-1 text-center text-xs text-muted-foreground italic">${alt}</figcaption>`
             : "") +
-          `</figure>`
+          `</figure>`,
       );
       continue;
     }
@@ -89,8 +84,8 @@ export function markdownToHtml(markdown: string): string {
       flushList();
       htmlParts.push(
         `<h1 class="text-2xl font-bold tracking-tight text-foreground mt-4 mb-2 pb-1 border-b border-border/50">${formatInline(
-          line.slice(2)
-        )}</h1>`
+          line.slice(2),
+        )}</h1>`,
       );
       continue;
     }
@@ -98,8 +93,8 @@ export function markdownToHtml(markdown: string): string {
       flushList();
       htmlParts.push(
         `<h2 class="text-xl font-bold tracking-tight text-foreground mt-3.5 mb-1.5">${formatInline(
-          line.slice(3)
-        )}</h2>`
+          line.slice(3),
+        )}</h2>`,
       );
       continue;
     }
@@ -107,8 +102,8 @@ export function markdownToHtml(markdown: string): string {
       flushList();
       htmlParts.push(
         `<h3 class="text-base font-semibold tracking-tight text-foreground mt-3 mb-1">${formatInline(
-          line.slice(4)
-        )}</h3>`
+          line.slice(4),
+        )}</h3>`,
       );
       continue;
     }
@@ -116,8 +111,8 @@ export function markdownToHtml(markdown: string): string {
       flushList();
       htmlParts.push(
         `<h4 class="text-sm font-semibold tracking-tight text-foreground mt-2.5 mb-1">${formatInline(
-          line.slice(5)
-        )}</h4>`
+          line.slice(5),
+        )}</h4>`,
       );
       continue;
     }
@@ -134,7 +129,7 @@ export function markdownToHtml(markdown: string): string {
           `<span class="checklist-text flex-1 outline-none text-foreground/90 ${
             isChecked ? "line-through text-muted-foreground opacity-70" : ""
           }">${formatInline(text)}</span>` +
-          `</div>`
+          `</div>`,
       );
       continue;
     }
@@ -164,10 +159,7 @@ export function markdownToHtml(markdown: string): string {
       const quoteText = line.replace(/^>\s?/, "");
 
       // OBSERVATION Callout
-      if (
-        quoteText.includes("**OBSERVATION:**") ||
-        quoteText.startsWith("[!OBSERVATION]")
-      ) {
+      if (quoteText.includes("**OBSERVATION:**") || quoteText.startsWith("[!OBSERVATION]")) {
         const clean = quoteText
           .replace("[!OBSERVATION]", "")
           .replace("**OBSERVATION:**", "")
@@ -176,49 +168,37 @@ export function markdownToHtml(markdown: string): string {
           `<div class="notepad-callout-observation my-3 flex items-start gap-2.5 rounded-xl border border-cyan-500/30 bg-cyan-500/10 dark:bg-cyan-950/20 p-3.5 shadow-xs text-foreground">` +
             `<span contenteditable="false" class="select-none rounded bg-cyan-500/20 px-1.5 py-0.5 font-mono text-[10px] font-bold uppercase text-cyan shrink-0">OBSERVATION</span>` +
             `<div class="callout-body flex-1 outline-none leading-relaxed text-sm text-foreground/95">${formatInline(
-              clean
+              clean,
             )}</div>` +
-            `</div>`
+            `</div>`,
         );
         continue;
       }
 
       // FINDING Callout
-      if (
-        quoteText.includes("**FINDING:**") ||
-        quoteText.startsWith("[!FINDING]")
-      ) {
-        const clean = quoteText
-          .replace("[!FINDING]", "")
-          .replace("**FINDING:**", "")
-          .trim();
+      if (quoteText.includes("**FINDING:**") || quoteText.startsWith("[!FINDING]")) {
+        const clean = quoteText.replace("[!FINDING]", "").replace("**FINDING:**", "").trim();
         htmlParts.push(
           `<div class="notepad-callout-finding my-3 flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 dark:bg-amber-950/20 p-3.5 shadow-xs text-foreground">` +
             `<span contenteditable="false" class="select-none rounded bg-amber-500/20 px-1.5 py-0.5 font-mono text-[10px] font-bold uppercase text-amber-600 dark:text-amber-400 shrink-0">FINDING</span>` +
             `<div class="callout-body flex-1 outline-none leading-relaxed text-sm text-foreground/95">${formatInline(
-              clean
+              clean,
             )}</div>` +
-            `</div>`
+            `</div>`,
         );
         continue;
       }
 
       // WARNING Callout
-      if (
-        quoteText.includes("**WARNING:**") ||
-        quoteText.startsWith("[!WARNING]")
-      ) {
-        const clean = quoteText
-          .replace("[!WARNING]", "")
-          .replace("**WARNING:**", "")
-          .trim();
+      if (quoteText.includes("**WARNING:**") || quoteText.startsWith("[!WARNING]")) {
+        const clean = quoteText.replace("[!WARNING]", "").replace("**WARNING:**", "").trim();
         htmlParts.push(
           `<div class="notepad-callout-warning my-3 flex items-start gap-2.5 rounded-xl border border-rose-500/30 bg-rose-500/10 dark:bg-rose-950/20 p-3.5 shadow-xs text-foreground">` +
             `<span contenteditable="false" class="select-none rounded bg-rose-500/20 px-1.5 py-0.5 font-mono text-[10px] font-bold uppercase text-rose-500 shrink-0">WARNING</span>` +
             `<div class="callout-body flex-1 outline-none leading-relaxed text-sm text-foreground/95">${formatInline(
-              clean
+              clean,
             )}</div>` +
-            `</div>`
+            `</div>`,
         );
         continue;
       }
@@ -226,8 +206,8 @@ export function markdownToHtml(markdown: string): string {
       // Standard Blockquote
       htmlParts.push(
         `<blockquote class="my-2.5 border-l-3 border-primary/60 bg-muted/30 px-3.5 py-1.5 text-sm italic text-muted-foreground rounded-r-lg">${formatInline(
-          quoteText
-        )}</blockquote>`
+          quoteText,
+        )}</blockquote>`,
       );
       continue;
     }
@@ -240,9 +220,7 @@ export function markdownToHtml(markdown: string): string {
 
     // Regular Paragraph
     htmlParts.push(
-      `<p class="my-1.5 text-sm leading-relaxed text-foreground/90">${formatInline(
-        line
-      )}</p>`
+      `<p class="my-1.5 text-sm leading-relaxed text-foreground/90">${formatInline(line)}</p>`,
     );
   }
 
@@ -370,10 +348,7 @@ function parseNodeToMarkdown(node: Node): string {
     }
 
     // Check for Evidence chip
-    if (
-      el.classList.contains("evidence-chip") ||
-      el.getAttribute("data-evidence")
-    ) {
+    if (el.classList.contains("evidence-chip") || el.getAttribute("data-evidence")) {
       const evName = el.getAttribute("data-evidence") || el.textContent?.trim();
       if (evName?.startsWith("#EV-")) {
         result += `${evName} `;
@@ -423,7 +398,7 @@ function parseNodeToMarkdown(node: Node): string {
       case "h4":
         result += `#### ${parseNodeToMarkdown(el).trim()}\n\n`;
         break;
-      case "p":
+      case "p": {
         const pContent = parseNodeToMarkdown(el).trim();
         if (pContent) {
           result += `${pContent}\n\n`;
@@ -431,6 +406,7 @@ function parseNodeToMarkdown(node: Node): string {
           result += "\n";
         }
         break;
+      }
       case "b":
       case "strong":
         result += `**${parseNodeToMarkdown(el)}**`;
@@ -454,13 +430,13 @@ function parseNodeToMarkdown(node: Node): string {
           result += `\`${parseNodeToMarkdown(el)}\``;
         }
         break;
-      case "pre":
+      case "pre": {
         const codeEl = el.querySelector("code");
-        const codeLang =
-          codeEl?.className.match(/language-(\w+)/)?.[1] || "";
+        const codeLang = codeEl?.className.match(/language-(\w+)/)?.[1] || "";
         const codeText = codeEl ? codeEl.textContent : el.textContent;
         result += `\`\`\`${codeLang}\n${codeText || ""}\n\`\`\`\n\n`;
         break;
+      }
       case "blockquote":
         result += `> ${parseNodeToMarkdown(el).trim()}\n\n`;
         break;
@@ -482,22 +458,24 @@ function parseNodeToMarkdown(node: Node): string {
         }
         result += "\n";
         break;
-      case "a":
+      case "a": {
         const href = el.getAttribute("href") || "";
         result += `[${parseNodeToMarkdown(el)}](${href})`;
         break;
+      }
       case "hr":
         result += `---\n\n`;
         break;
       case "br":
         result += "\n";
         break;
-      case "div":
+      case "div": {
         const divContent = parseNodeToMarkdown(el).trim();
         if (divContent) {
           result += `${divContent}\n\n`;
         }
         break;
+      }
       default:
         result += parseNodeToMarkdown(el);
     }
@@ -512,7 +490,7 @@ function parseNodeToMarkdown(node: Node): string {
 export function exportAsWordDoc(
   title: string,
   bodyHtml: string,
-  metadata?: { author?: string; caseNumber?: string; date?: string }
+  metadata?: { author?: string; caseNumber?: string; date?: string },
 ) {
   const cleanTitle = title || "Untitled Note";
   const docHtml = `
@@ -587,7 +565,7 @@ export function exportAsMarkdownFile(title: string, markdown: string) {
 export function exportAsPdfDocument(
   title: string,
   bodyHtml: string,
-  metadata?: { author?: string; caseNumber?: string; date?: string; tags?: string[] }
+  metadata?: { author?: string; caseNumber?: string; date?: string; tags?: string[] },
 ) {
   const cleanTitle = title || "Untitled Note";
   const printWindow = window.open("", "_blank", "width=850,height=1100");

@@ -66,7 +66,7 @@ function InvestigatorNotesPage() {
         setSelectedNoteId(null);
       }
     },
-    [notes]
+    [notes],
   );
 
   const handleDuplicateNote = useCallback((noteId: string) => {
@@ -96,18 +96,20 @@ function InvestigatorNotesPage() {
       });
       toast.success(`Inserted evidence reference: ${evidenceRef}`);
     },
-    [selectedNote]
+    [selectedNote],
   );
 
   const handleInsertAttachment = useCallback(
     (attachmentMarkdown: string) => {
       if (!selectedNote) return;
       updateNoteItem(selectedNote.id, {
-        body: selectedNote.body ? `${selectedNote.body}\n${attachmentMarkdown}` : attachmentMarkdown,
+        body: selectedNote.body
+          ? `${selectedNote.body}\n${attachmentMarkdown}`
+          : attachmentMarkdown,
       });
       toast.success("Attachment linked in document");
     },
-    [selectedNote]
+    [selectedNote],
   );
 
   // Global keyboard shortcuts (Ctrl+Alt+N for new note)

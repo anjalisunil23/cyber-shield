@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   DataTable,
   PageScaffold,
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui-kit/PageKit";
 import { CaseCard } from "@/components/ui-kit/Cards";
 import { investigationApi } from "@/services/investigationApi";
-import type { InvestigationCase } from "@/services/types";
+import type { InvestigationCase, CaseStatus } from "@/services/types";
 import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/superior/cases/")({ component: Page });
@@ -26,7 +26,7 @@ function Page() {
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const loadCases = async () => {
+  const loadCases = useCallback(async () => {
     setLoading(true);
     try {
       const data = await investigationApi.listCases({
@@ -44,11 +44,11 @@ function Page() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, status, searchQuery]);
 
   useEffect(() => {
     loadCases();
-  }, [page, status, searchQuery]);
+  }, [loadCases]);
 
   return (
     <PageScaffold

@@ -46,7 +46,10 @@ function Page() {
             Print-friendly mock report body. Export PDF / Print are UI-only.
           </p>
           <div className="mt-4 flex gap-2">
-            <button type="button" className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 transition-colors">
+            <button
+              type="button"
+              className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 transition-colors"
+            >
               Export PDF
             </button>
             <button

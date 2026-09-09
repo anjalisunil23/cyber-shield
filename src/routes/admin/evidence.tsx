@@ -127,12 +127,18 @@ function Page() {
       >
         {selected && (
           <div className="space-y-2 text-sm text-muted-foreground">
-            <p className="text-foreground"><span className="text-muted-foreground">Case:</span> {selected.case_number || selected.case_id}</p>
+            <p className="text-foreground">
+              <span className="text-muted-foreground">Case:</span>{" "}
+              {selected.case_number || selected.case_id}
+            </p>
             <p>
-              Type: <span className="text-foreground font-medium">{selected.file_type}</span> · Size: {formatBytes(selected.file_size)}
+              Type: <span className="text-foreground font-medium">{selected.file_type}</span> ·
+              Size: {formatBytes(selected.file_size)}
             </p>
             <p>Uploaded: {new Date(selected.upload_date).toLocaleString()}</p>
-            <p className="break-all font-mono text-xs text-muted-foreground">SHA-256: {selected.sha256_hash}</p>
+            <p className="break-all font-mono text-xs text-muted-foreground">
+              SHA-256: {selected.sha256_hash}
+            </p>
             <p>Duplicate: {selected.is_duplicate ? "Yes (placeholder detection)" : "No"}</p>
             <p className="text-xs text-muted-foreground">
               AI fields reserved: ocr_text, speech_text, entities, embeddings…

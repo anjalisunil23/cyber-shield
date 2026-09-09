@@ -94,7 +94,11 @@ export function UploadEvidenceModal({
             </div>
             <h3 className="text-base font-semibold text-foreground">Upload Evidence</h3>
           </div>
-          <button type="button" onClick={onClose} className="text-muted-foreground hover:text-foreground">
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-muted-foreground hover:text-foreground"
+          >
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -192,7 +196,9 @@ export function UploadEvidenceModal({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-muted-foreground">Evidence Type</label>
+              <label className="block text-xs font-medium text-muted-foreground">
+                Evidence Type
+              </label>
               <select
                 value={type}
                 onChange={(e) => setType(e.target.value as MockEvidence["type"])}
@@ -208,7 +214,9 @@ export function UploadEvidenceModal({
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-muted-foreground">Associated Case</label>
+              <label className="block text-xs font-medium text-muted-foreground">
+                Associated Case
+              </label>
               <select
                 value={caseNumber}
                 onChange={(e) => setCaseNumber(e.target.value)}

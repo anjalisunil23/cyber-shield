@@ -57,7 +57,8 @@ function RegisterPage() {
       let message = "Could not create account.";
       if (err instanceof ApiError) {
         if (err.status === 502 || err.message.toLowerCase().includes("bad gateway")) {
-          message = "Cannot reach the backend server (502 Bad Gateway). Please ensure the Python API is running on port 8001.";
+          message =
+            "Cannot reach the backend server (502 Bad Gateway). Please ensure the Python API is running on port 8001.";
         } else {
           message = err.message;
         }
