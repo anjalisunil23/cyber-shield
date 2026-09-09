@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState, useMemo } from "react";
 import { investigationApi } from "@/services/investigationApi";
 import type { ChatConversation, ChatMessage } from "@/services/types";
+import { isCurrentUser } from "@/components/chat/ChatInterface";
 
 const LOCAL_STORAGE_MSGS_PREFIX = "cybershield_chat_msgs_";
 const LOCAL_STORAGE_READ_PREFIX = "cybershield_chat_last_read_";
@@ -111,7 +112,7 @@ export function useUnreadChatCount(): number {
             m.id &&
             !seen.has(m.id) &&
             !m.is_system &&
-            m.sender_id !== currentUserId &&
+            !isCurrentUser(m.sender || { id: m.sender_id, user_id: m.sender_id }, meQ.data) &&
             m.sender_id !== "me" &&
             new Date(m.created_at).getTime() > lastRead
           ) {
@@ -141,7 +142,7 @@ export function useUnreadChatCount(): number {
                     m.id &&
                     !seen.has(m.id) &&
                     !m.is_system &&
-                    m.sender_id !== currentUserId &&
+                    !isCurrentUser(m.sender || { id: m.sender_id, user_id: m.sender_id }, meQ.data) &&
                     m.sender_id !== "me" &&
                     new Date(m.created_at).getTime() > lastRead
                   ) {
@@ -157,7 +158,7 @@ export function useUnreadChatCount(): number {
     }
 
     return count;
-  }, [convsQ.data, currentUserId, localPing]);
+  }, [convsQ.data, currentUserId, meQ.data, localPing]);
 
   return totalUnread;
 }
