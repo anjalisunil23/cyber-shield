@@ -11,7 +11,8 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { ThemeProvider } from "../lib/theme";
+import { Toaster } from "sonner";
+import { ThemeProvider, useTheme } from "../lib/theme";
 
 const themeInitScript = `
 (function() {
@@ -139,6 +140,11 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function GlobalToaster() {
+  const { resolvedTheme } = useTheme();
+  return <Toaster theme={resolvedTheme} position="top-right" richColors closeButton />;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
@@ -147,6 +153,7 @@ function RootComponent() {
       <QueryClientProvider client={queryClient}>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
+        <GlobalToaster />
       </QueryClientProvider>
     </ThemeProvider>
   );

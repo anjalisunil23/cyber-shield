@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect, useRef, type FormEvent } from "react";
 import { Eye, EyeOff, Lock, Shield, User, X } from "lucide-react";
+import { toast } from "sonner";
 import { ApiError, loginUser } from "@/lib/api";
 import { clearToken, isAuthenticated, setTokens } from "@/lib/auth";
 import { homeForRole } from "@/lib/roles";
@@ -87,6 +88,7 @@ function LoginPage() {
       localStorage.removeItem(REMEMBERED_EMAIL_KEY);
       localStorage.removeItem(REMEMBER_ME_KEY);
     }
+    toast.info("Remembered credentials cleared.");
   }
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -96,8 +98,32 @@ function LoginPage() {
     const cleanEmail = email.trim().toLowerCase();
     const cleanPassword = password;
 
-    if (!cleanEmail || !cleanPassword) {
-      setError("Email and password are required.");
+    if (!cleanEmail) {
+      const msg = "Email address is required.";
+      setError(msg);
+      toast.error(msg);
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) {
+      const msg = "Please enter a valid email address (e.g. officer@agency.gov).";
+      setError(msg);
+      toast.error(msg);
+      return;
+    }
+
+    if (!cleanPassword) {
+      const msg = "Password is required.";
+      setError(msg);
+      toast.error(msg);
+      return;
+    }
+
+    if (cleanPassword.length < 6) {
+      const msg = "Password must be at least 6 characters long.";
+      setError(msg);
+      toast.error(msg);
       return;
     }
 
@@ -116,12 +142,21 @@ function LoginPage() {
         }
       }
 
+      toast.success("Login successful! Redirecting to dashboard…");
       setTokens(token.access_token, token.refresh_token);
-      window.location.assign(homeForRole(token.role));
+      setTimeout(() => {
+        window.location.assign(homeForRole(token.role));
+      }, 500);
     } catch (err) {
       let message = "Could not sign in.";
       if (err instanceof ApiError) {
-        if (err.status === 502 || err.message.toLowerCase().includes("bad gateway")) {
+        if (
+          err.status === 401 ||
+          err.message.toLowerCase().includes("invalid credentials") ||
+          err.message.toLowerCase().includes("unauthorized")
+        ) {
+          message = "Invalid email or password. Please verify your credentials.";
+        } else if (err.status === 502 || err.message.toLowerCase().includes("bad gateway")) {
           message =
             "Cannot reach the backend server (502 Bad Gateway). Please ensure the Python API is running on port 8001.";
         } else {
@@ -133,6 +168,7 @@ function LoginPage() {
         message = err.message;
       }
       setError(message);
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }

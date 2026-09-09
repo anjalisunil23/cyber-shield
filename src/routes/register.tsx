@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { toast } from "sonner";
 import { ApiError, registerUser, toApiRole } from "@/lib/api";
 import { BackgroundAnimation } from "@/components/register/BackgroundAnimation";
 import { RegisterCard } from "@/components/register/RegisterCard";
@@ -49,14 +50,22 @@ function RegisterPage() {
         role: toApiRole(payload.role),
         department: payload.department,
       });
-      setSuccess("Account created. Redirecting to login…");
+      const successMsg = "Account created successfully! Redirecting to login…";
+      setSuccess(successMsg);
+      toast.success(successMsg);
       setTimeout(() => {
         void navigate({ to: "/login" });
-      }, 1000);
+      }, 1200);
     } catch (err) {
       let message = "Could not create account.";
       if (err instanceof ApiError) {
-        if (err.status === 502 || err.message.toLowerCase().includes("bad gateway")) {
+        if (
+          err.status === 409 ||
+          err.message.toLowerCase().includes("already registered") ||
+          err.message.toLowerCase().includes("exists")
+        ) {
+          message = "An account with this email address already exists. Please log in instead.";
+        } else if (err.status === 502 || err.message.toLowerCase().includes("bad gateway")) {
           message =
             "Cannot reach the backend server (502 Bad Gateway). Please ensure the Python API is running on port 8001.";
         } else {
@@ -68,6 +77,7 @@ function RegisterPage() {
         message = err.message;
       }
       setError(message);
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }

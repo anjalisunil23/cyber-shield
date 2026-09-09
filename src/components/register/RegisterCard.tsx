@@ -12,6 +12,7 @@ import {
   User,
 } from "lucide-react";
 import { useState, type FormEvent } from "react";
+import { toast } from "sonner";
 import { InputField } from "./InputField";
 import { PasswordInput, getPasswordChecks, passwordStrong } from "./PasswordInput";
 import { REGISTER_ROLES, RoleSelect } from "./RoleSelect";
@@ -54,26 +55,110 @@ export function RegisterCard({ onSubmit, submitting, error, success }: Props) {
     e.preventDefault();
     setLocalError(null);
 
-    if (!terms) {
-      setLocalError("Please agree to the Privacy Policy and Terms.");
+    const cleanName = fullName.trim();
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPhone = phone.trim();
+
+    if (!cleanName) {
+      const msg = "Full name is required.";
+      setLocalError(msg);
+      toast.error(msg);
       return;
     }
+
+    if (cleanName.length < 2) {
+      const msg = "Full name must be at least 2 characters long.";
+      setLocalError(msg);
+      toast.error(msg);
+      return;
+    }
+
+    if (!cleanEmail) {
+      const msg = "Email address is required.";
+      setLocalError(msg);
+      toast.error(msg);
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) {
+      const msg = "Please enter a valid email address (e.g. officer@agency.gov).";
+      setLocalError(msg);
+      toast.error(msg);
+      return;
+    }
+
+    if (cleanPhone && !/^[+0-9\s\-()]{7,20}$/.test(cleanPhone)) {
+      const msg = "Please enter a valid phone number (e.g. +1 555 0100).";
+      setLocalError(msg);
+      toast.error(msg);
+      return;
+    }
+
+    if (!password) {
+      const msg = "Password is required.";
+      setLocalError(msg);
+      toast.error(msg);
+      return;
+    }
+
+    const checks = getPasswordChecks(password);
+    if (!checks.length) {
+      const msg = "Password must be at least 8 characters long.";
+      setLocalError(msg);
+      toast.error(msg);
+      return;
+    }
+
+    if (!checks.upper) {
+      const msg = "Password must contain at least one uppercase letter (A-Z).";
+      setLocalError(msg);
+      toast.error(msg);
+      return;
+    }
+
+    if (!checks.number) {
+      const msg = "Password must contain at least one number (0-9).";
+      setLocalError(msg);
+      toast.error(msg);
+      return;
+    }
+
+    if (!checks.special) {
+      const msg = "Password must contain at least one special character (!@#$%^&*).";
+      setLocalError(msg);
+      toast.error(msg);
+      return;
+    }
+
+    if (!confirm) {
+      const msg = "Please confirm your password.";
+      setLocalError(msg);
+      toast.error(msg);
+      return;
+    }
+
     if (password !== confirm) {
-      setLocalError("Passwords do not match.");
+      const msg = "Passwords do not match.";
+      setLocalError(msg);
+      toast.error(msg);
       return;
     }
-    if (!passwordStrong(getPasswordChecks(password))) {
-      setLocalError("Password does not meet strength requirements.");
+
+    if (!terms) {
+      const msg = "Please agree to the Privacy Policy and Terms of Service.";
+      setLocalError(msg);
+      toast.error(msg);
       return;
     }
 
     const deptParts = [department];
-    if (phone.trim()) deptParts.push(`Phone: ${phone.trim()}`);
+    if (cleanPhone) deptParts.push(`Phone: ${cleanPhone}`);
     if (badge.trim()) deptParts.push(`Badge: ${badge.trim()}`);
 
     await onSubmit({
-      full_name: fullName.trim(),
-      email: email.trim().toLowerCase(),
+      full_name: cleanName,
+      email: cleanEmail,
       password,
       confirm_password: confirm,
       role,
