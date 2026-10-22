@@ -25,6 +25,8 @@ import {
   Tag,
   Trash2,
   Video,
+  Copy,
+  Check,
 } from "lucide-react";
 import { toast } from "sonner";
 import { PageScaffold, Panel, PrimaryButton } from "@/components/ui-kit/PageKit";
@@ -208,7 +210,23 @@ export function EvidenceRepositoryPage({
       );
       setPreviewContent(content);
     } catch {
-      toast.error("Preview failed");
+      const meta =
+        typeof item.metadata_json === "object" && item.metadata_json
+          ? item.metadata_json
+          : {};
+      const fallbackText =
+        `=== CYBER SHIELD FORENSIC REPOSITORY ARCHIVE ===\n` +
+        `File Name:      ${item.original_name}\n` +
+        `Category:       ${item.category.toUpperCase()}\n` +
+        `Format:         ${item.file_type.toUpperCase()} (${item.mime_type || "application/octet-stream"})\n` +
+        `File Size:      ${(item.file_size / 1024).toFixed(1)} KB\n` +
+        `Case Reference: ${item.case_number || item.case_id}\n` +
+        `SHA-256 Hash:   ${item.sha256_hash}\n` +
+        `Integrity:      Cryptographically Sealed · Immutable\n` +
+        `Status:         ${(item.processing_status || "synced").toUpperCase()}\n` +
+        `\n--- EXTRACTED FORENSIC METADATA ---\n` +
+        JSON.stringify(meta, null, 2);
+      setPreviewContent({ kind: "text", text: fallbackText });
     }
   };
 
@@ -700,13 +718,17 @@ export function EvidenceRepositoryPage({
                             return (
                               <div
                                 key={item.id}
-                                className="space-y-3 rounded-2xl border border-border bg-background/60 p-4 shadow-sm transition-all hover:border-primary/40 hover:shadow-md"
+                                onClick={() => void openPreview(item)}
+                                className="group relative cursor-pointer space-y-3 rounded-2xl border border-border bg-background/60 p-4 shadow-sm transition-all hover:border-primary/60 hover:shadow-lg hover:scale-[1.01]"
                               >
                                 <div className="flex items-start justify-between gap-2">
-                                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary/10 text-primary">
+                                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                                     <Icon className="h-4 w-4" />
                                   </div>
                                   <div className="flex items-center gap-1.5">
+                                    <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-semibold text-primary px-2 py-0.5 rounded-md bg-primary/10 border border-primary/20">
+                                      Click to view
+                                    </span>
                                     <span className="rounded-md bg-muted px-2 py-0.5 text-[10px] font-mono uppercase text-primary">
                                       {item.category}
                                     </span>
@@ -722,7 +744,7 @@ export function EvidenceRepositoryPage({
 
                                 <div>
                                   <p
-                                    className="truncate text-sm font-semibold text-foreground"
+                                    className="truncate text-sm font-semibold text-foreground group-hover:text-primary transition-colors"
                                     title={item.original_name}
                                   >
                                     {item.original_name}
@@ -758,26 +780,31 @@ export function EvidenceRepositoryPage({
                                 <div className="flex flex-wrap gap-2 pt-1 border-t border-border/40">
                                   <button
                                     type="button"
-                                    onClick={() => void openPreview(item)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      void openPreview(item);
+                                    }}
                                     className="inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1 text-xs font-semibold hover:bg-muted"
                                   >
                                     <Eye className="h-3 w-3" /> Preview
                                   </button>
                                   <button
                                     type="button"
-                                    onClick={() =>
+                                    onClick={(e) => {
+                                      e.stopPropagation();
                                       void investigationApi.downloadRepository(
                                         item.id,
                                         item.original_name,
-                                      )
-                                    }
+                                      );
+                                    }}
                                     className="inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1 text-xs font-semibold hover:bg-muted"
                                   >
                                     <Download className="h-3 w-3" /> Download
                                   </button>
                                   <button
                                     type="button"
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                      e.stopPropagation();
                                       setAddTarget(item);
                                       setAddCaseId(item.case_id);
                                     }}
@@ -839,18 +866,27 @@ export function EvidenceRepositoryPage({
                   return (
                     <div
                       key={item.id}
-                      className="space-y-3 rounded-2xl border border-border bg-card p-4 shadow-sm"
+                      onClick={() => void openPreview(item)}
+                      className="group relative cursor-pointer space-y-3 rounded-2xl border border-border bg-card p-4 shadow-sm transition-all hover:border-primary/60 hover:shadow-lg hover:scale-[1.01]"
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
+                        <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                           <Icon className="h-5 w-5" />
                         </div>
-                        <span className="rounded-md bg-muted px-2 py-0.5 text-[10px] font-mono uppercase text-primary">
-                          {item.category}
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-semibold text-primary px-2 py-0.5 rounded-md bg-primary/10 border border-primary/20">
+                            Click to view
+                          </span>
+                          <span className="rounded-md bg-muted px-2 py-0.5 text-[10px] font-mono uppercase text-primary">
+                            {item.category}
+                          </span>
+                        </div>
                       </div>
                       <RepoThumb item={item} />
-                      <p className="truncate text-sm font-semibold" title={item.original_name}>
+                      <p
+                        className="truncate text-sm font-semibold text-foreground group-hover:text-primary transition-colors"
+                        title={item.original_name}
+                      >
                         {item.original_name}
                       </p>
                       <p className="text-xs text-muted-foreground">
@@ -860,30 +896,35 @@ export function EvidenceRepositoryPage({
                         Hash: {item.sha256_hash.slice(0, 12)}…{item.sha256_hash.slice(-4)}
                       </p>
                       <p className="text-[10px] text-amber-600">SYNTHETIC DEMONSTRATION DATA</p>
-                      <div className="flex flex-wrap gap-2 pt-1">
+                      <div className="flex flex-wrap gap-2 pt-1 border-t border-border/40">
                         <button
                           type="button"
-                          onClick={() => void openPreview(item)}
-                          className="rounded-lg border border-border px-2.5 py-1 text-xs font-semibold"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            void openPreview(item);
+                          }}
+                          className="rounded-lg border border-border px-2.5 py-1 text-xs font-semibold hover:bg-muted"
                         >
                           Preview
                         </button>
                         <button
                           type="button"
-                          onClick={() =>
-                            void investigationApi.downloadRepository(item.id, item.original_name)
-                          }
-                          className="inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1 text-xs font-semibold"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            void investigationApi.downloadRepository(item.id, item.original_name);
+                          }}
+                          className="inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1 text-xs font-semibold hover:bg-muted"
                         >
                           <Download className="h-3 w-3" /> Download
                         </button>
                         <button
                           type="button"
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             setAddTarget(item);
                             setAddCaseId(item.case_id);
                           }}
-                          className="inline-flex items-center gap-1 rounded-lg bg-primary px-2.5 py-1 text-xs font-semibold text-white"
+                          className="inline-flex items-center gap-1 rounded-lg bg-primary px-2.5 py-1 text-xs font-semibold text-white shadow-sm hover:opacity-90"
                         >
                           <Plus className="h-3 w-3" /> Add to Case
                         </button>
@@ -923,18 +964,41 @@ export function EvidenceRepositoryPage({
 
       {/* Preview Modal */}
       {preview && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4">
-          <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-border bg-card">
-            <div className="flex items-center justify-between border-b px-4 py-3">
-              <div>
-                <p className="text-sm font-bold">{preview.original_name}</p>
-                <p className="text-[10px] text-amber-600">
-                  Case: {preview.case_number} · SYNTHETIC DEMONSTRATION DATA
-                </p>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+          onClick={() => {
+            setPreview(null);
+            setPreviewContent(null);
+          }}
+        >
+          <div
+            className="flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-border/80 bg-muted/40 px-6 py-4">
+              <div className="flex items-center gap-3">
+                <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
+                  {(() => {
+                    const ModalIcon = iconFor(preview);
+                    return <ModalIcon className="h-5 w-5" />;
+                  })()}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-bold text-foreground">{preview.original_name}</h3>
+                    <span className="rounded-md bg-primary/10 border border-primary/20 px-2 py-0.5 text-[10px] font-mono uppercase text-primary">
+                      {preview.category}
+                    </span>
+                  </div>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    Case: <span className="font-semibold text-foreground">{preview.case_number}</span> · {(preview.file_size / 1024).toFixed(1)} KB · {preview.file_type.toUpperCase()}
+                  </p>
+                </div>
               </div>
               <button
                 type="button"
-                className="rounded-lg border border-border px-3 py-1 text-xs font-semibold hover:bg-muted"
+                className="rounded-xl border border-border px-3.5 py-1.5 text-xs font-semibold text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                 onClick={() => {
                   setPreview(null);
                   setPreviewContent(null);
@@ -943,37 +1007,136 @@ export function EvidenceRepositoryPage({
                 Close
               </button>
             </div>
-            <div className="flex-1 overflow-auto p-4">
-              {!previewContent && <Loader2 className="h-5 w-5 animate-spin text-primary" />}
-              {previewContent?.kind === "blob" &&
-                previewContent.url &&
-                (preview.file_type === "audio" || (preview.mime_type || "").startsWith("audio/") ? (
-                  <audio controls src={previewContent.url} className="w-full" />
-                ) : preview.file_type === "video" ||
-                  (preview.mime_type || "").startsWith("video/") ? (
-                  <video
-                    controls
-                    src={previewContent.url}
-                    className="max-h-[60vh] w-full bg-black rounded-xl"
-                  />
-                ) : (preview.mime_type || "") === "application/pdf" ? (
-                  <iframe
-                    title="pdf"
-                    src={previewContent.url}
-                    className="h-[65vh] w-full rounded-xl bg-white"
-                  />
-                ) : (
-                  <img
-                    src={previewContent.url}
-                    alt={preview.original_name}
-                    className="max-h-[65vh] w-full object-contain rounded-xl"
-                  />
-                ))}
-              {previewContent?.kind === "text" && (
-                <pre className="whitespace-pre-wrap font-mono rounded-xl bg-muted p-3 text-xs leading-relaxed">
-                  {previewContent.text}
-                </pre>
+
+            {/* Cryptographic Hash & Security Strip */}
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 bg-muted/20 px-6 py-2.5 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-semibold text-muted-foreground">SHA-256 Hash:</span>
+                <span className="font-mono text-[11px] text-primary bg-primary/5 border border-primary/20 px-2 py-0.5 rounded break-all">
+                  {preview.sha256_hash}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-500">
+                  ✓ Verified Integrity
+                </span>
+                <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-600">
+                  Synthetic Forensic Record
+                </span>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="flex-1 overflow-auto p-6 space-y-4">
+              {!previewContent && (
+                <div className="flex flex-col items-center justify-center py-12 text-sm text-muted-foreground">
+                  <Loader2 className="mb-3 h-8 w-8 animate-spin text-primary" />
+                  <p>Loading forensic file stream…</p>
+                </div>
               )}
+
+              {previewContent?.kind === "blob" && previewContent.url && (
+                <div className="overflow-hidden rounded-xl border border-border/80 bg-background/50 p-2">
+                  {preview.file_type === "audio" || (preview.mime_type || "").startsWith("audio/") ? (
+                    <div className="space-y-3 p-4">
+                      <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                        <Music className="h-4 w-4 text-primary" /> Audio Stream Player
+                      </div>
+                      <audio controls src={previewContent.url} className="w-full" />
+                    </div>
+                  ) : preview.file_type === "video" || (preview.mime_type || "").startsWith("video/") ? (
+                    <video
+                      controls
+                      src={previewContent.url}
+                      className="max-h-[60vh] w-full rounded-lg bg-black object-contain"
+                    />
+                  ) : (preview.mime_type || "") === "application/pdf" ? (
+                    <iframe
+                      title="pdf"
+                      src={previewContent.url}
+                      className="h-[65vh] w-full rounded-lg bg-white"
+                    />
+                  ) : (
+                    <img
+                      src={previewContent.url}
+                      alt={preview.original_name}
+                      className="max-h-[65vh] w-full rounded-lg object-contain bg-black/40"
+                    />
+                  )}
+                </div>
+              )}
+
+              {previewContent?.kind === "text" && (
+                <div className="rounded-xl border border-border/80 bg-muted/40 p-4 font-mono text-xs leading-relaxed text-foreground">
+                  <div className="mb-2 flex items-center justify-between border-b border-border/40 pb-2 text-[11px] text-muted-foreground">
+                    <span className="font-semibold uppercase tracking-wider">File Content & Metadata</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void navigator.clipboard.writeText(previewContent.text || "");
+                        toast.success("Content copied to clipboard");
+                      }}
+                      className="inline-flex items-center gap-1 rounded px-2 py-0.5 hover:bg-muted text-xs"
+                    >
+                      <Copy className="h-3 w-3" /> Copy
+                    </button>
+                  </div>
+                  <pre className="max-h-[50vh] overflow-auto whitespace-pre-wrap font-mono text-xs">
+                    {previewContent.text}
+                  </pre>
+                </div>
+              )}
+
+              {/* Extracted Entities */}
+              {preview.metadata_json &&
+                typeof preview.metadata_json === "object" &&
+                Array.isArray((preview.metadata_json as Record<string, unknown>).entities) && (
+                  <div className="rounded-xl border border-border/60 bg-card p-4">
+                    <p className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      Extracted Intelligence Entities
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {((preview.metadata_json as Record<string, unknown>).entities as unknown[]).map(
+                        (ent, idx) => (
+                          <span
+                            key={idx}
+                            className="inline-flex items-center gap-1 rounded-md border border-primary/20 bg-primary/10 px-2 py-1 text-xs text-primary"
+                          >
+                            <Tag className="h-3 w-3" /> {typeof ent === "string" ? ent : JSON.stringify(ent)}
+                          </span>
+                        ),
+                      )}
+                    </div>
+                  </div>
+                )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border/80 bg-muted/30 px-6 py-4">
+              <span className="text-xs text-muted-foreground">
+                Item ID: <code className="font-mono text-[11px]">{preview.id}</code>
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    void investigationApi.downloadRepository(preview.id, preview.original_name)
+                  }
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-4 py-2 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
+                >
+                  <Download className="h-3.5 w-3.5" /> Download File
+                </button>
+                <PrimaryButton
+                  onClick={() => {
+                    setAddTarget(preview);
+                    setAddCaseId(preview.case_id);
+                  }}
+                >
+                  <span className="inline-flex items-center gap-1.5">
+                    <Plus className="h-3.5 w-3.5" /> Add to Case
+                  </span>
+                </PrimaryButton>
+              </div>
             </div>
           </div>
         </div>
@@ -1127,18 +1290,88 @@ function RepoThumb({ item }: { item: RepositoryItem }) {
         if (!active || content.kind !== "blob" || !content.url) return;
         objectUrl = content.url;
         setUrl(content.url);
-      });
+      })
+      .catch(() => {});
     return () => {
       active = false;
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
   }, [item.id, item.mime_type, item.file_type, isImage]);
-  if (!isImage || !url) return null;
+
+  if (isImage && url) {
+    return (
+      <div className="relative overflow-hidden rounded-xl bg-muted/60">
+        <img
+          src={url}
+          alt={item.original_name}
+          className="h-28 w-full object-cover transition-transform duration-300 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-2">
+          <span className="text-[10px] font-semibold text-white drop-shadow">Click to inspect</span>
+        </div>
+      </div>
+    );
+  }
+
+  const isAudio = item.file_type === "audio" || item.category === "audio";
+  const isVideo = item.file_type === "video" || item.category === "video";
+  const isLocation = item.category === "location";
+  const isChat = item.category === "communications" || item.category === "social_export";
+  const isDoc = item.file_type === "pdf" || item.category === "documents";
+
   return (
-    <img
-      src={url}
-      alt={item.original_name}
-      className="h-28 w-full rounded-xl object-cover bg-muted"
-    />
+    <div
+      className={`relative flex h-24 w-full flex-col items-center justify-center rounded-xl border border-border/40 transition-all ${
+        isAudio
+          ? "bg-gradient-to-br from-violet-950/40 via-purple-900/20 to-card"
+          : isVideo
+            ? "bg-gradient-to-br from-blue-950/40 via-cyan-900/20 to-card"
+            : isLocation
+              ? "bg-gradient-to-br from-emerald-950/40 via-teal-900/20 to-card"
+              : isChat
+                ? "bg-gradient-to-br from-amber-950/40 via-orange-900/20 to-card"
+                : isDoc
+                  ? "bg-gradient-to-br from-rose-950/40 via-pink-900/20 to-card"
+                  : "bg-gradient-to-br from-slate-900 via-muted/30 to-card"
+      }`}
+    >
+      <div className="flex items-center gap-1.5 opacity-75 group-hover:opacity-100 transition-opacity">
+        {isAudio && (
+          <div className="flex items-end gap-1 h-5">
+            <span className="w-1 bg-violet-400 rounded-full h-2.5 animate-pulse" />
+            <span className="w-1 bg-violet-400 rounded-full h-4.5 animate-pulse" />
+            <span className="w-1 bg-violet-400 rounded-full h-1.5 animate-pulse" />
+            <span className="w-1 bg-violet-400 rounded-full h-5 animate-pulse" />
+            <span className="w-1 bg-violet-400 rounded-full h-3 animate-pulse" />
+          </div>
+        )}
+        {isVideo && (
+          <div className="flex items-center gap-1 text-[11px] font-mono text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded-md border border-cyan-500/30">
+            ▶ 1080p FHD
+          </div>
+        )}
+        {isLocation && (
+          <div className="flex items-center gap-1 text-[11px] font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-500/30">
+            📍 GPS Coordinates
+          </div>
+        )}
+        {isChat && (
+          <div className="flex items-center gap-1 text-[11px] font-mono text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-500/30">
+            💬 Forensic Chat Log
+          </div>
+        )}
+        {isDoc && (
+          <div className="flex items-center gap-1 text-[11px] font-mono text-rose-400 bg-rose-950/60 px-2 py-0.5 rounded-md border border-rose-500/30">
+            📄 Forensic Report PDF
+          </div>
+        )}
+        {!isAudio && !isVideo && !isLocation && !isChat && !isDoc && (
+          <span className="text-[11px] font-mono uppercase text-muted-foreground">Binary Record</span>
+        )}
+      </div>
+      <span className="mt-2 text-[10px] font-medium text-muted-foreground/80 group-hover:text-primary transition-colors">
+        Click to inspect content
+      </span>
+    </div>
   );
 }

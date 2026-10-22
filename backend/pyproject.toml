@@ -1,16 +1,16 @@
 [tool.pyrefly]
 search-path = [
-    "backend/.venv/Lib/site-packages",
-    "tests/selenium"
+    ".venv/Lib/site-packages",
+    "../tests/selenium"
 ]
 site-package-path = [
-    "backend/.venv/Lib/site-packages"
+    ".venv/Lib/site-packages"
 ]
 
 [tool.pytest.ini_options]
 pythonpath = [
-    "backend",
-    "."
+    ".",
+    ".."
 ]
 filterwarnings = [
     "ignore::DeprecationWarning",

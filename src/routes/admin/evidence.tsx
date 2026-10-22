@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { EvidenceCard } from "@/components/ui-kit/Cards";
+import { EvidencePreviewModal } from "@/components/evidence/EvidencePreviewModal";
 import {
   ConfirmDialog,
   ErrorState,
@@ -119,52 +120,27 @@ function Page() {
         </>
       )}
 
-      <Modal
-        open={!!selected}
-        title={selected?.original_name || "Evidence"}
-        onClose={() => setSelected(null)}
-      >
-        {selected && (
-          <div className="space-y-2 text-sm text-muted-foreground">
-            <p className="text-foreground">
-              <span className="text-muted-foreground">Case:</span>{" "}
-              {selected.case_number || selected.case_id}
-            </p>
-            <p>
-              Type: <span className="text-foreground font-medium">{selected.file_type}</span> ·
-              Size: {formatBytes(selected.file_size)}
-            </p>
-            <p>Uploaded: {new Date(selected.upload_date).toLocaleString()}</p>
-            <p className="break-all font-mono text-xs text-muted-foreground">
-              SHA-256: {selected.sha256_hash}
-            </p>
-            <p>Duplicate: {selected.is_duplicate ? "Yes (placeholder detection)" : "No"}</p>
-            <p className="text-xs text-muted-foreground">
-              AI fields reserved: ocr_text, speech_text, entities, embeddings…
-            </p>
-            <div className="mt-4 flex gap-2">
-              <button
-                type="button"
-                className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 transition-colors"
-                onClick={() =>
-                  void investigationApi
-                    .adminDownloadEvidence(selected.id, selected.original_name)
-                    .then(() => toast.success("Download started"))
-                    .catch((e) => toast.error(apiMessage(e)))
-                }
-              >
-                Download
-              </button>
-              <GhostButton
-                className="border-rose-500/30 text-rose-600 hover:bg-rose-500/10 dark:text-rose-300"
-                onClick={() => setDeleteId(selected.id)}
-              >
-                Delete
-              </GhostButton>
-            </div>
-          </div>
-        )}
-      </Modal>
+      {selected && (
+        <EvidencePreviewModal
+          evidence={{
+            id: selected.id,
+            name: selected.original_name,
+            type:
+              selected.file_type === "pdf"
+                ? "pdf"
+                : ["image", "video", "audio", "document"].includes(selected.file_type)
+                  ? (selected.file_type as "image" | "video" | "audio" | "document" | "pdf")
+                  : "other",
+            size: formatBytes(selected.file_size),
+            caseNumber: selected.case_number || "CASE-REF",
+            uploadedBy: selected.uploaded_by?.full_name || "Investigator",
+            uploadedAt: new Date(selected.upload_date).toLocaleDateString(),
+            tags: selected.tags || [selected.file_type],
+            sha256: selected.sha256_hash,
+          }}
+          onClose={() => setSelected(null)}
+        />
+      )}
 
       <ConfirmDialog
         open={!!deleteId}
