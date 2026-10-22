@@ -1,0 +1,5 @@
+backend/
+tests/
+scratch/
+*.html
+*.png
