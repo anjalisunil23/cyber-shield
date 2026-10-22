@@ -1,0 +1,17 @@
+[tool.pyrefly]
+project-roots = [
+    "backend",
+    "tests/selenium"
+]
+search-path = [
+    "backend",
+    "backend/app",
+    "backend/.venv/Lib/site-packages",
+    "tests/selenium",
+    "C:/Users/anjal/AppData/Local/Programs/Python/Python312/Lib/site-packages"
+]
+site-package-path = [
+    "backend/.venv/Lib/site-packages",
+    "C:/Users/anjal/AppData/Local/Programs/Python/Python312/Lib/site-packages"
+]
+

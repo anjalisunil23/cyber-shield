@@ -193,5 +193,9 @@ def run_hierarchy_and_chat_tests():
         db.close()
 
 
+def test_case_hierarchy_and_chat():
+    run_hierarchy_and_chat_tests()
+
+
 if __name__ == "__main__":
     run_hierarchy_and_chat_tests()

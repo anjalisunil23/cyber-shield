@@ -1,0 +1,179 @@
+===============================================================================
+CYBERSHIELD SELENIUM AUTOMATED TESTING REPORT
+===============================================================================
+
+1. APPLICATION UNDER TEST
+-------------------------------------------------------------------------------
+Application Name:      CyberShield Investigation Support Platform
+Testing Technology:    Selenium WebDriver (v4.49.0) + Python (v3.12.10) + pytest (v9.1.1) + pytest-html (v4.2.0)
+Browser:               Headless Chrome / Chrome
+Environment:           Windows 11 / Automated Selenium Environment
+Testing Date:          September 30, 2026
+Target Application URL: https://cyber-shield-portal.vercel.app
+Backend API URL:       https://cyber-shield-portal-i0rf.onrender.com
+
+2. TESTING SCOPE
+-------------------------------------------------------------------------------
+The automated end-to-end Selenium testing framework covers the core functional workflows of CyberShield:
+1. Authentication & Session Persistence: Form visibility, field validation, invalid credentials handling, valid login, logout, and protected route redirection.
+2. Dashboard & Navigation: Dashboard card rendering, sidebar navigation, module routing (Cases, Evidence, Messages, Intelligence), and browser back/forward history navigation.
+3. Case Management: Case list loading, new case creation form validation, dynamic case creation by Superior Officer, searching/filtering, and case details view.
+4. Evidence Management: Evidence list section loading, upload page initialization, file selection upload, and evidence item details rendering.
+5. Investigator Management: Superior officer team view, investigator listing, team member cards, and RBAC permission checks for regular investigators.
+6. Chat & Messaging: Communication group view, conversation list rendering, and automated message submission into active threads.
+7. AI Analysis / Case Intelligence Hub: Intelligence Hub page rendering, case selector dropdown, tab switching (Intelligence vs Graph view), and AI pipeline trigger execution.
+8. Role-Based Access Control (RBAC): Landing dashboards per user role (Investigator, Superior Officer, Admin, Major Admin) and unauthorized route redirection.
+
+3. TEST SUITE SUMMARY
+-------------------------------------------------------------------------------
+Suite 1: test_01_authentication.py        | Feature: Authentication & Logout       | Total: 7 | Passed: 7 | Failed: 0 | Skipped: 0
+Suite 2: test_02_dashboard_navigation.py  | Feature: Dashboard & Navigation       | Total: 6 | Passed: 6 | Failed: 0 | Skipped: 0
+Suite 3: test_03_case_management.py       | Feature: Case Management               | Total: 5 | Passed: 5 | Failed: 0 | Skipped: 0
+Suite 4: test_04_evidence_management.py   | Feature: Evidence Management           | Total: 4 | Passed: 4 | Failed: 0 | Skipped: 0
+Suite 5: test_05_investigator_management.py| Feature: Investigator Management       | Total: 3 | Passed: 3 | Failed: 0 | Skipped: 0
+Suite 6: test_06_chat_messaging.py        | Feature: Chat & Messaging              | Total: 3 | Passed: 3 | Failed: 0 | Skipped: 0
+Suite 7: test_07_ai_analysis.py           | Feature: AI Analysis & Intelligence Hub | Total: 4 | Passed: 4 | Failed: 0 | Skipped: 0
+Suite 8: test_08_role_permissions.py      | Feature: Role Permissions & RBAC       | Total: 5 | Passed: 5 | Failed: 0 | Skipped: 0
+-------------------------------------------------------------------------------
+TOTAL SUMMARY: 37 Executed | 37 Passed | 0 Failed | 0 Skipped | Pass Rate: 100%
+
+4. DETAILED TEST RESULTS BY SUITE
+-------------------------------------------------------------------------------
+Full Suite Summary Screenshots:
+  Execution Screenshot:   tests/selenium/screenshots/pytest_exec_full_suite.png
+  HTML Report Screenshot: tests/selenium/screenshots/html_report_full_suite.png
+  HTML Report File:       tests/selenium/reports/report_suite_full.html
+
+Suite 1 -- Authentication & Logout
+  File: tests/selenium/test_01_authentication.py
+  Command: backend\.venv\Scripts\pytest.exe tests/selenium/test_01_authentication.py -v
+  Result: 7 Passed, 0 Failed, 0 Skipped (Duration: 50.00s)
+  Execution Screenshot:   tests/selenium/screenshots/pytest_exec_suite_01.png
+  HTML Report Screenshot: tests/selenium/screenshots/html_report_suite_01.png
+  HTML Report File:       tests/selenium/reports/report_suite_01.html
+
+Suite 2 -- Dashboard Navigation
+  File: tests/selenium/test_02_dashboard_navigation.py
+  Command: backend\.venv\Scripts\pytest.exe tests/selenium/test_02_dashboard_navigation.py -v
+  Result: 6 Passed, 0 Failed, 0 Skipped (Duration: 56.00s)
+  Execution Screenshot:   tests/selenium/screenshots/pytest_exec_suite_02.png
+  HTML Report Screenshot: tests/selenium/screenshots/html_report_suite_02.png
+  HTML Report File:       tests/selenium/reports/report_suite_02.html
+
+Suite 3 -- Case Management
+  File: tests/selenium/test_03_case_management.py
+  Command: backend\.venv\Scripts\pytest.exe tests/selenium/test_03_case_management.py -v
+  Result: 5 Passed, 0 Failed, 0 Skipped (Duration: 49.00s)
+  Execution Screenshot:   tests/selenium/screenshots/pytest_exec_suite_03.png
+  HTML Report Screenshot: tests/selenium/screenshots/html_report_suite_03.png
+  HTML Report File:       tests/selenium/reports/report_suite_03.html
+
+Suite 4 -- Evidence Management
+  File: tests/selenium/test_04_evidence_management.py
+  Command: backend\.venv\Scripts\pytest.exe tests/selenium/test_04_evidence_management.py -v
+  Result: 4 Passed, 0 Failed, 0 Skipped (Duration: 37.00s)
+  Execution Screenshot:   tests/selenium/screenshots/pytest_exec_suite_04.png
+  HTML Report Screenshot: tests/selenium/screenshots/html_report_suite_04.png
+  HTML Report File:       tests/selenium/reports/report_suite_04.html
+
+Suite 5 -- Investigator Management
+  File: tests/selenium/test_05_investigator_management.py
+  Command: backend\.venv\Scripts\pytest.exe tests/selenium/test_05_investigator_management.py -v
+  Result: 3 Passed, 0 Failed, 0 Skipped (Duration: 28.00s)
+  Execution Screenshot:   tests/selenium/screenshots/pytest_exec_suite_05.png
+  HTML Report Screenshot: tests/selenium/screenshots/html_report_suite_05.png
+  HTML Report File:       tests/selenium/reports/report_suite_05.html
+
+Suite 6 -- Chat Messaging
+  File: tests/selenium/test_06_chat_messaging.py
+  Command: backend\.venv\Scripts\pytest.exe tests/selenium/test_06_chat_messaging.py -v
+  Result: 3 Passed, 0 Failed, 0 Skipped (Duration: 54.00s)
+  Execution Screenshot:   tests/selenium/screenshots/pytest_exec_suite_06.png
+  HTML Report Screenshot: tests/selenium/screenshots/html_report_suite_06.png
+  HTML Report File:       tests/selenium/reports/report_suite_06.html
+
+Suite 7 -- AI Analysis & Intelligence Hub
+  File: tests/selenium/test_07_ai_analysis.py
+  Command: backend\.venv\Scripts\pytest.exe tests/selenium/test_07_ai_analysis.py -v
+  Result: 4 Passed, 0 Failed, 0 Skipped (Duration: 40.00s)
+  Execution Screenshot:   tests/selenium/screenshots/pytest_exec_suite_07.png
+  HTML Report Screenshot: tests/selenium/screenshots/html_report_suite_07.png
+  HTML Report File:       tests/selenium/reports/report_suite_07.html
+
+Suite 8 -- Role Permissions & RBAC
+  File: tests/selenium/test_08_role_permissions.py
+  Command: backend\.venv\Scripts\pytest.exe tests/selenium/test_08_role_permissions.py -v
+  Result: 5 Passed, 0 Failed, 0 Skipped (Duration: 44.00s)
+  Execution Screenshot:   tests/selenium/screenshots/pytest_exec_suite_08.png
+  HTML Report Screenshot: tests/selenium/screenshots/html_report_suite_08.png
+  HTML Report File:       tests/selenium/reports/report_suite_08.html
+
+5. INDIVIDUAL TEST CASES RESULTS TABLE
+-------------------------------------------------------------------------------
+[TC-AUTH-001] Verify login page renders                | Expected: /login URL & input render      | Actual: Form rendered       | Status: PASS
+[TC-AUTH-002] Verify login form elements              | Expected: Email, password, submit visible | Actual: Elements visible    | Status: PASS
+[TC-AUTH-003] Empty login validation                  | Expected: Form submission blocked       | Actual: URL remains /login  | Status: PASS
+[TC-AUTH-004] Invalid credentials validation          | Expected: Error message displayed        | Actual: Alert rendered      | Status: PASS
+[TC-AUTH-005] Valid login execution                   | Expected: Redirect to /dashboard         | Actual: Redirected cleanly  | Status: PASS
+[TC-AUTH-006] Logout functional check                 | Expected: Sign out redirects to /login   | Actual: Redirected to /login| Status: PASS
+[TC-AUTH-007] Protected route redirection             | Expected: Protected URL redirects /login | Actual: Redirect enforced   | Status: PASS
+[TC-NAV-001]  Dashboard main container loads          | Expected: Main container renders         | Actual: Container visible   | Status: PASS
+[TC-NAV-002]  Sidebar navigation links                | Expected: Cases/Evidence links visible   | Actual: Links interactive   | Status: PASS
+[TC-NAV-003]  Major module navigation                 | Expected: Clicking links navigates pages | Actual: Routes navigated    | Status: PASS
+[TC-NAV-004]  Browser back & forward                  | Expected: History navigation works       | Actual: History navigated   | Status: PASS
+[TC-NAV-005]  Dashboard metrics render                | Expected: Stat widgets render            | Actual: Cards rendered      | Status: PASS
+[TC-NAV-006]  No error page displayed                 | Expected: No 404 or crash errors         | Actual: Zero errors         | Status: PASS
+[TC-CASE-001] Open cases page                         | Expected: Cases list loads               | Actual: Page rendered       | Status: PASS
+[TC-CASE-002] Create case validation                  | Expected: Empty submission prevented     | Actual: Validation intact   | Status: PASS
+[TC-CASE-003] Dynamic case creation                   | Expected: Superior Officer creates case  | Actual: Case created        | Status: PASS
+[TC-CASE-004] Search & filter cases                   | Expected: Search box filters list        | Actual: Filter accepts query | Status: PASS
+[TC-CASE-005] View case details                       | Expected: Case detail opens              | Actual: Page loaded         | Status: PASS
+[TC-EVD-001]  Open evidence section                   | Expected: Evidence list renders          | Actual: Page loaded         | Status: PASS
+[TC-EVD-002]  Upload page initialization              | Expected: Case select & dropzone render  | Actual: Form initialized    | Status: PASS
+[TC-EVD-003]  File upload execution                   | Expected: Safe test file uploaded        | Actual: File uploaded       | Status: PASS
+[TC-EVD-004]  Evidence details view                   | Expected: Evidence items clickable       | Actual: Item view clickable | Status: PASS
+[TC-INV-001]  Open investigator team list             | Expected: Team list loads                | Actual: List rendered       | Status: PASS
+[TC-INV-002]  View team member cards                  | Expected: Active member cards render     | Actual: Cards visible       | Status: PASS
+[TC-INV-003]  RBAC permission restriction             | Expected: Investigator blocked from admin| Actual: Redirected home     | Status: PASS
+[TC-CHAT-001] Open messages page                      | Expected: Chat view renders              | Actual: View loaded         | Status: PASS
+[TC-CHAT-002] Chat group list visible                 | Expected: Channels visible               | Actual: List loaded         | Status: PASS
+[TC-CHAT-003] Send automated chat message             | Expected: Message sent into thread       | Actual: Message submitted   | Status: PASS
+[TC-AI-001]   Intelligence Hub loads                  | Expected: Intelligence Hub renders       | Actual: Main view loaded    | Status: PASS
+[TC-AI-002]   Case selector available                 | Expected: Dropdown lists cases           | Actual: Dropdown active     | Status: PASS
+[TC-AI-003]   Tab navigation                          | Expected: Toggle Intelligence & Graph    | Actual: Tabs toggling       | Status: PASS
+[TC-AI-004]   AI Pipeline trigger                     | Expected: Pipeline execution triggered   | Actual: Trigger handled     | Status: PASS
+[TC-RBAC-001] Investigator landing page               | Expected: Lands on /investigator/dashboard| Actual: Dashboard reached   | Status: PASS
+[TC-RBAC-002] Officer landing page                    | Expected: Lands on /superior/dashboard    | Actual: Dashboard reached   | Status: PASS
+[TC-RBAC-003] Admin landing page                      | Expected: Lands on /admin/dashboard       | Actual: Dashboard reached   | Status: PASS
+[TC-RBAC-004] Major Admin landing page                | Expected: Lands on /major-admin/dashboard | Actual: Dashboard reached   | Status: PASS
+[TC-RBAC-005] Unauthorized route redirect             | Expected: Redirects to role home          | Actual: Redirect enforced   | Status: PASS
+
+6. EXECUTION COMMANDS
+-------------------------------------------------------------------------------
+Run Suite 1: backend\.venv\Scripts\pytest.exe tests/selenium/test_01_authentication.py -v
+Run Suite 2: backend\.venv\Scripts\pytest.exe tests/selenium/test_02_dashboard_navigation.py -v
+Run Suite 3: backend\.venv\Scripts\pytest.exe tests/selenium/test_03_case_management.py -v
+Run Suite 4: backend\.venv\Scripts\pytest.exe tests/selenium/test_04_evidence_management.py -v
+Run Suite 5: backend\.venv\Scripts\pytest.exe tests/selenium/test_05_investigator_management.py -v
+Run Suite 6: backend\.venv\Scripts\pytest.exe tests/selenium/test_06_chat_messaging.py -v
+Run Suite 7: backend\.venv\Scripts\pytest.exe tests/selenium/test_07_ai_analysis.py -v
+Run Suite 8: backend\.venv\Scripts\pytest.exe tests/selenium/test_08_role_permissions.py -v
+
+Run All Suites & HTML Report:
+backend\.venv\Scripts\pytest.exe tests/selenium -v --html=tests/selenium/reports/cybershield_test_report.html --self-contained-html
+
+7. TEST ENVIRONMENT
+-------------------------------------------------------------------------------
+OS:                     Windows 11
+Python:                 3.12.10
+Selenium:               4.49.0
+pytest:                 9.1.1
+pytest-html:            4.2.0
+Browser / Driver:       Chrome (Headless) / ChromeDriverManager (4.1.2)
+Target Application URL: https://cyber-shield-portal.vercel.app
+Backend API URL:        https://cyber-shield-portal-i0rf.onrender.com
+
+8. CONCLUSION
+-------------------------------------------------------------------------------
+All 37 test cases across all 8 test suites passed successfully (100% pass rate).
+===============================================================================

@@ -7,15 +7,16 @@ from app.db.session import get_db
 from app.models.user import User
 
 def run_suite():
-    print("[TEST] Initializing AI Test Suite...")
+    print("[TEST] Initializing AI Test Suite...", flush=True)
     client = TestClient(app)
     db = next(get_db())
     try:
         user = db.query(User).first()
         if not user:
-            print("[ERROR] No user found in DB")
+            print("[ERROR] No user found in DB", flush=True)
             sys.exit(1)
-        token = create_access_token(subject=str(user.id), role=user.role)
+        role_val = user.role.value if hasattr(user.role, "value") else str(user.role)
+        token = create_access_token(subject=str(user.id), role=role_val)
     finally:
         db.close()
 
@@ -116,6 +117,10 @@ def run_suite():
     print("\n" + "=" * 60)
     print(" ALL 7 AI INTELLIGENCE TEST GROUPS PASSED WITH 100% SUCCESS!")
     print("=" * 60)
+
+def test_ai_intelligence_suite():
+    run_suite()
+
 
 if __name__ == "__main__":
     run_suite()

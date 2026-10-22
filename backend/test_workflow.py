@@ -136,5 +136,9 @@ def run_workflow_tests():
         db.close()
 
 
+def test_case_workflow():
+    run_workflow_tests()
+
+
 if __name__ == "__main__":
     run_workflow_tests()

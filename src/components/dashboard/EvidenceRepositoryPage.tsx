@@ -95,7 +95,7 @@ export function EvidenceRepositoryPage({
     queryKey: ["cases"],
     queryFn: () => investigationApi.listCases({ page_size: 100 }),
   });
-  const cases = casesQ.data?.items || [];
+  const cases = useMemo(() => casesQ.data?.items || [], [casesQ.data?.items]);
 
   // Initialize all folders as expanded when cases load
   useEffect(() => {
@@ -193,7 +193,7 @@ export function EvidenceRepositoryPage({
     onError: (e: unknown) => toast.error(e instanceof Error ? e.message : "Reset failed"),
   });
 
-  const items = repoQ.data?.items || [];
+  const items = useMemo(() => repoQ.data?.items || [], [repoQ.data?.items]);
   const total = repoQ.data?.total || 0;
   const pages = repoQ.data?.pages || 1;
 
@@ -218,7 +218,8 @@ export function EvidenceRepositoryPage({
     if (item.category === "video" || item.file_type === "video") return Video;
     if (item.category === "location") return Compass;
     if (item.category === "call_logs") return Phone;
-    if (item.category === "social_export" || item.category === "communications") return FileSpreadsheet;
+    if (item.category === "social_export" || item.category === "communications")
+      return FileSpreadsheet;
     return FileText;
   };
 
@@ -272,8 +273,7 @@ export function EvidenceRepositoryPage({
               c.title.toLowerCase().includes(searchLower);
 
             const entities = ((it.metadata_json as Record<string, unknown>)?.entities || []) as (
-              | string
-              | Record<string, string>
+              string | Record<string, string>
             )[];
             const matchesEntities = Array.isArray(entities)
               ? entities.some((e) =>
@@ -595,10 +595,7 @@ export function EvidenceRepositoryPage({
                   </div>
 
                   {/* Folder Quick Actions */}
-                  <div
-                    className="flex items-center gap-2"
-                    onClick={(e) => e.stopPropagation()}
-                  >
+                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                     <button
                       type="button"
                       onClick={() => {
@@ -632,7 +629,8 @@ export function EvidenceRepositoryPage({
                         <Folder className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
                         <p className="text-sm font-semibold text-foreground">Folder is empty</p>
                         <p className="mt-1 text-xs text-muted-foreground">
-                          No synthetic demonstration evidence generated yet for {caseData.case_number}.
+                          No synthetic demonstration evidence generated yet for{" "}
+                          {caseData.case_number}.
                         </p>
                         <div className="mt-3">
                           <PrimaryButton
@@ -695,8 +693,7 @@ export function EvidenceRepositoryPage({
                             const Icon = iconFor(item);
                             const entities = (
                               ((item.metadata_json as Record<string, unknown>)?.entities || []) as (
-                                | string
-                                | Record<string, string>
+                                string | Record<string, string>
                               )[]
                             ).filter((e) => typeof e === "string") as string[];
 
@@ -754,7 +751,8 @@ export function EvidenceRepositoryPage({
                                 )}
 
                                 <p className="font-mono text-[10px] text-muted-foreground break-all">
-                                  SHA-256: {item.sha256_hash.slice(0, 10)}…{item.sha256_hash.slice(-4)}
+                                  SHA-256: {item.sha256_hash.slice(0, 10)}…
+                                  {item.sha256_hash.slice(-4)}
                                 </p>
 
                                 <div className="flex flex-wrap gap-2 pt-1 border-t border-border/40">
@@ -807,7 +805,9 @@ export function EvidenceRepositoryPage({
             <Panel>
               <div className="py-10 text-center">
                 <Archive className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
-                <p className="text-sm font-semibold text-foreground">No synthetic evidence available</p>
+                <p className="text-sm font-semibold text-foreground">
+                  No synthetic evidence available
+                </p>
                 <p className="mt-1 text-xs text-muted-foreground">{emptyHint}</p>
                 <div className="mt-4 flex justify-center gap-2">
                   <PrimaryButton
@@ -985,8 +985,8 @@ export function EvidenceRepositoryPage({
           <div className="w-full max-w-md space-y-4 rounded-2xl border border-border bg-card p-5">
             <h3 className="text-sm font-bold">Add to case</h3>
             <p className="text-xs text-muted-foreground">
-              Imports <strong>{addTarget.original_name}</strong> through the existing evidence pipeline
-              (hash, duplicates, metadata, AI preprocessing).
+              Imports <strong>{addTarget.original_name}</strong> through the existing evidence
+              pipeline (hash, duplicates, metadata, AI preprocessing).
             </p>
             <select
               value={addCaseId}

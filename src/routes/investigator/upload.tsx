@@ -27,7 +27,9 @@ function Page() {
           title: c.title,
         }));
         setApiCases(items);
-        if (items[0] && !selectedCaseId) setSelectedCaseId(items[0].id);
+        if (items[0]) {
+          setSelectedCaseId((prev) => prev || items[0].id);
+        }
       })
       .catch(() => toast.error("Unable to load assigned cases"));
   }, []);

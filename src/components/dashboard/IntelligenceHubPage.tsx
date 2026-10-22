@@ -46,8 +46,7 @@ export function CaseIntelligenceHubPage() {
       return res.items || [];
     },
   });
-
-  const cases = casesQ.data || [];
+  const cases = useMemo(() => casesQ.data || [], [casesQ.data]);
 
   // Default to CS-2026-0003 or the first case if none selected
   const activeCase = useMemo(() => {
