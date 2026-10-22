@@ -31,17 +31,21 @@ tests/
 ## 🛠️ Installation & Environment Setup
 
 ### 1. Install Dependencies
+
 ```bash
 pip install selenium pytest pytest-html webdriver-manager python-dotenv
 ```
 
 ### 2. Configure Environment Variables
+
 Copy `.env.example` to `.env` inside `tests/selenium/` or set variables in your shell:
+
 ```bash
 cp tests/selenium/.env.example tests/selenium/.env
 ```
 
 Default configuration:
+
 ```env
 CYBERSHIELD_URL=https://cyber-shield-portal.vercel.app
 CYBERSHIELD_TEST_EMAIL=investigator@cybershield.gov
@@ -68,11 +72,13 @@ BROWSER=chrome
 ## 🚀 Running Test Suites
 
 ### Run All 8 Test Suites
+
 ```bash
 pytest tests/selenium -v
 ```
 
 ### Run an Individual Test Suite
+
 ```bash
 # Suite 1: Authentication
 pytest tests/selenium/test_01_authentication.py -v
@@ -100,7 +106,9 @@ pytest tests/selenium/test_08_role_permissions.py -v
 ```
 
 ### Headed vs Headless Mode
+
 To run tests with Chrome browser visible:
+
 ```bash
 HEADLESS=false pytest tests/selenium -v
 ```
@@ -110,6 +118,7 @@ HEADLESS=false pytest tests/selenium -v
 ## 📊 Reports & Screenshots
 
 ### Generate HTML Test Report
+
 ```bash
 pytest tests/selenium -v --html=tests/selenium/reports/cybershield_test_report.html --self-contained-html
 ```

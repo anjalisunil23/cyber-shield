@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   DataTable,
@@ -14,6 +14,7 @@ import { SecureVaultVisual } from "@/components/cyber/SecureVaultVisual";
 import { investigationApi } from "@/services/investigationApi";
 import type { AdminEvidence } from "@/services/types";
 import type { MockEvidence } from "@/data/mock/platform";
+import { EvidencePreviewModal } from "@/components/evidence/EvidencePreviewModal";
 
 export const Route = createFileRoute("/investigator/evidence")({ component: Page });
 
@@ -24,6 +25,7 @@ function Page() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedItem, setSelectedItem] = useState<MockEvidence | null>(null);
 
   const loadAllEvidence = async () => {
     setLoading(true);
@@ -99,28 +101,27 @@ function Page() {
         <EmptyState title="No evidence uploaded yet." visual={<SecureVaultVisual />} />
       ) : view === "grid" ? (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {pageItems.map((e) => (
-            <Link key={e.id} to="/investigator/evidence/$evidenceId" params={{ evidenceId: e.id }}>
-              <EvidenceCard
-                item={{
-                  id: e.id,
-                  name: e.original_name,
-                  type:
-                    e.file_type === "pdf"
-                      ? "pdf"
-                      : ["image", "video", "audio", "document"].includes(e.file_type)
-                        ? (e.file_type as MockEvidence["type"])
-                        : "other",
-                  size: `${(e.file_size / 1024).toFixed(1)} KB`,
-                  caseNumber: e.case_number || "N/A",
-                  uploadedBy: e.uploaded_by?.full_name || "Investigator",
-                  uploadedAt: new Date(e.upload_date).toLocaleDateString(),
-                  tags: e.tags || [],
-                  sha256: e.sha256_hash,
-                }}
-              />
-            </Link>
-          ))}
+          {pageItems.map((e) => {
+            const cardItem: MockEvidence = {
+              id: e.id,
+              name: e.original_name,
+              type:
+                e.file_type === "pdf"
+                  ? "pdf"
+                  : ["image", "video", "audio", "document"].includes(e.file_type)
+                    ? (e.file_type as MockEvidence["type"])
+                    : "other",
+              size: `${(e.file_size / 1024).toFixed(1)} KB`,
+              caseNumber: e.case_number || "N/A",
+              uploadedBy: e.uploaded_by?.full_name || "Investigator",
+              uploadedAt: new Date(e.upload_date).toLocaleDateString(),
+              tags: e.tags || [],
+              sha256: e.sha256_hash,
+            };
+            return (
+              <EvidenceCard key={e.id} item={cardItem} onOpen={() => setSelectedItem(cardItem)} />
+            );
+          })}
         </div>
       ) : (
         <DataTable
@@ -130,13 +131,30 @@ function Page() {
               key: "original_name",
               header: "File",
               render: (r: AdminEvidence) => (
-                <Link
-                  to="/investigator/evidence/$evidenceId"
-                  params={{ evidenceId: r.id }}
-                  className="text-primary hover:underline font-semibold"
+                <button
+                  type="button"
+                  onClick={() =>
+                    setSelectedItem({
+                      id: r.id,
+                      name: r.original_name,
+                      type:
+                        r.file_type === "pdf"
+                          ? "pdf"
+                          : ["image", "video", "audio", "document"].includes(r.file_type)
+                            ? (r.file_type as MockEvidence["type"])
+                            : "other",
+                      size: `${(r.file_size / 1024).toFixed(1)} KB`,
+                      caseNumber: r.case_number || "N/A",
+                      uploadedBy: r.uploaded_by?.full_name || "Investigator",
+                      uploadedAt: new Date(r.upload_date).toLocaleDateString(),
+                      tags: r.tags || [],
+                      sha256: r.sha256_hash,
+                    })
+                  }
+                  className="text-primary hover:underline font-semibold text-left cursor-pointer"
                 >
                   {r.original_name}
-                </Link>
+                </button>
               ),
             },
             {
@@ -163,6 +181,11 @@ function Page() {
         />
       )}
       <Pagination page={page} pages={totalPages} onPage={setPage} />
+
+      {selectedItem && (
+        <EvidencePreviewModal evidence={selectedItem} onClose={() => setSelectedItem(null)} />
+      )}
+      <Outlet />
     </PageScaffold>
   );
 }

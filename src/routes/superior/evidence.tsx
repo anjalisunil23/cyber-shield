@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
+import { createFileRoute, useNavigate, Outlet } from "@tanstack/react-router";
 import { Upload } from "lucide-react";
 import {
   PageScaffold,
@@ -11,6 +11,8 @@ import {
 import { EvidenceCard } from "@/components/ui-kit/Cards";
 import { useEvidenceList, deleteEvidenceItem } from "@/data/mock/platformState";
 import { UploadEvidenceModal } from "@/components/superior/UploadEvidenceModal";
+import { EvidencePreviewModal } from "@/components/evidence/EvidencePreviewModal";
+import type { MockEvidence } from "@/data/mock/platform";
 
 export const Route = createFileRoute("/superior/evidence")({ component: Page });
 
@@ -18,12 +20,54 @@ function Page() {
   const evidenceList = useEvidenceList();
   const navigate = useNavigate();
   const [isUploadOpen, setIsUploadOpen] = useState(false);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [selectedEvidence, setSelectedEvidence] = useState<MockEvidence | null>(null);
 
   const table = useClientTable(evidenceList, 6);
 
+  // Check URL on mount or change to auto-open evidence if URL contains /superior/evidence/:id
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const path = window.location.pathname;
+    const match = path.match(/\/superior\/evidence\/([^/?#]+)/);
+    if (match && match[1]) {
+      const targetId = match[1];
+      const found = evidenceList.find((x) => x.id === targetId);
+      if (found) {
+        setSelectedEvidence(found);
+      }
+    }
+  }, [evidenceList]);
+
+  const handleOpenEvidence = (item: MockEvidence) => {
+    setSelectedEvidence(item);
+    try {
+      void navigate({
+        to: "/superior/evidence/$evidenceId",
+        params: { evidenceId: item.id },
+      });
+    } catch {
+      if (window.history && window.history.pushState) {
+        window.history.pushState(null, "", `/superior/evidence/${item.id}`);
+      }
+    }
+  };
+
+  const handleCloseEvidence = () => {
+    setSelectedEvidence(null);
+    try {
+      void navigate({ to: "/superior/evidence" });
+    } catch {
+      if (window.history && window.history.pushState) {
+        window.history.pushState(null, "", `/superior/evidence`);
+      }
+    }
+  };
+
   const handleDelete = (id: string, name: string) => {
     if (window.confirm(`Are you sure you want to delete evidence "${name}"?`)) {
+      if (selectedEvidence?.id === id) {
+        setSelectedEvidence(null);
+      }
       deleteEvidenceItem(id);
     }
   };
@@ -50,9 +94,7 @@ function Page() {
             <EvidenceCard
               key={e.id}
               item={e}
-              onOpen={() =>
-                navigate({ to: "/superior/evidence/$evidenceId", params: { evidenceId: e.id } })
-              }
+              onOpen={() => handleOpenEvidence(e)}
               onDelete={() => handleDelete(e.id, e.name)}
             />
           ))}
@@ -62,6 +104,14 @@ function Page() {
       <Pagination page={table.page} pages={table.pages} onPage={table.setPage} />
 
       <UploadEvidenceModal isOpen={isUploadOpen} onClose={() => setIsUploadOpen(false)} />
+
+      {/* Interactive Evidence Preview Modal */}
+      {selectedEvidence && (
+        <EvidencePreviewModal evidence={selectedEvidence} onClose={handleCloseEvidence} />
+      )}
+
+      {/* Support child route rendering if routed via TanStack Router */}
+      <Outlet />
     </PageScaffold>
   );
 }

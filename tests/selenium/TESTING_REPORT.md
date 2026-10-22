@@ -1,6 +1,7 @@
 # CyberShield Selenium Testing Report
 
 ## 1. Application Under Test
+
 - **Application Name:** CyberShield Investigation Support Platform
 - **Testing Technology:** Selenium WebDriver (v4.49.0) + Python (v3.12.10) + pytest (v9.1.1) + pytest-html (v4.2.0)
 - **Browser:** Headless Chrome / Chrome
@@ -12,7 +13,9 @@
 ---
 
 ## 2. Testing Scope
+
 The automated end-to-end Selenium testing framework covers the core functional workflows of CyberShield:
+
 1. **Authentication & Session Persistence**: Form visibility, field validation, invalid credentials handling, valid login, logout, and protected route redirection.
 2. **Dashboard & Navigation**: Dashboard card rendering, sidebar navigation, module routing (Cases, Evidence, Messages, Intelligence), and browser back/forward history navigation.
 3. **Case Management**: Case list loading, new case creation form validation, dynamic case creation by Superior Officer, searching/filtering, and case details view.
@@ -26,22 +29,24 @@ The automated end-to-end Selenium testing framework covers the core functional w
 
 ## 3. Test Suite Summary
 
-| Suite | Test File | Feature | Tests | Passed | Failed | Skipped | Command |
-| :--- | :--- | :--- | :---: | :---: | :---: | :---: | :--- |
-| **Suite 1** | `test_01_authentication.py` | Authentication & Logout | 7 | 7 | 0 | 0 | `pytest tests/selenium/test_01_authentication.py -v` |
-| **Suite 2** | `test_02_dashboard_navigation.py` | Dashboard & Navigation | 6 | 6 | 0 | 0 | `pytest tests/selenium/test_02_dashboard_navigation.py -v` |
-| **Suite 3** | `test_03_case_management.py` | Case Management | 5 | 5 | 0 | 0 | `pytest tests/selenium/test_03_case_management.py -v` |
-| **Suite 4** | `test_04_evidence_management.py` | Evidence Management | 4 | 4 | 0 | 0 | `pytest tests/selenium/test_04_evidence_management.py -v` |
-| **Suite 5** | `test_05_investigator_management.py` | Investigator Management | 3 | 3 | 0 | 0 | `pytest tests/selenium/test_05_investigator_management.py -v` |
-| **Suite 6** | `test_06_chat_messaging.py` | Chat & Messaging | 3 | 3 | 0 | 0 | `pytest tests/selenium/test_06_chat_messaging.py -v` |
-| **Suite 7** | `test_07_ai_analysis.py` | AI Analysis & Intelligence Hub | 4 | 4 | 0 | 0 | `pytest tests/selenium/test_07_ai_analysis.py -v` |
-| **Suite 8** | `test_08_role_permissions.py` | Role Permissions & RBAC | 5 | 5 | 0 | 0 | `pytest tests/selenium/test_08_role_permissions.py -v` |
-| **Total** | **All Suites** | **Complete Application** | **37** | **37** | **0** | **0** | `pytest tests/selenium -v` |
+| Suite       | Test File                            | Feature                        | Tests  | Passed | Failed | Skipped | Command                                                       |
+| :---------- | :----------------------------------- | :----------------------------- | :----: | :----: | :----: | :-----: | :------------------------------------------------------------ |
+| **Suite 1** | `test_01_authentication.py`          | Authentication & Logout        |   7    |   7    |   0    |    0    | `pytest tests/selenium/test_01_authentication.py -v`          |
+| **Suite 2** | `test_02_dashboard_navigation.py`    | Dashboard & Navigation         |   6    |   6    |   0    |    0    | `pytest tests/selenium/test_02_dashboard_navigation.py -v`    |
+| **Suite 3** | `test_03_case_management.py`         | Case Management                |   5    |   5    |   0    |    0    | `pytest tests/selenium/test_03_case_management.py -v`         |
+| **Suite 4** | `test_04_evidence_management.py`     | Evidence Management            |   4    |   4    |   0    |    0    | `pytest tests/selenium/test_04_evidence_management.py -v`     |
+| **Suite 5** | `test_05_investigator_management.py` | Investigator Management        |   3    |   3    |   0    |    0    | `pytest tests/selenium/test_05_investigator_management.py -v` |
+| **Suite 6** | `test_06_chat_messaging.py`          | Chat & Messaging               |   3    |   3    |   0    |    0    | `pytest tests/selenium/test_06_chat_messaging.py -v`          |
+| **Suite 7** | `test_07_ai_analysis.py`             | AI Analysis & Intelligence Hub |   4    |   4    |   0    |    0    | `pytest tests/selenium/test_07_ai_analysis.py -v`             |
+| **Suite 8** | `test_08_role_permissions.py`        | Role Permissions & RBAC        |   5    |   5    |   0    |    0    | `pytest tests/selenium/test_08_role_permissions.py -v`        |
+| **Total**   | **All Suites**                       | **Complete Application**       | **37** | **37** | **0**  |  **0**  | `pytest tests/selenium -v`                                    |
 
 ### Complete Suite Pytest Execution
+
 ![CyberShield Full Test Suite Pytest Execution](screenshots/pytest_exec_full_suite.png)
 
 ### Complete Suite Pytest-HTML Report
+
 ![CyberShield Full Test Suite Pytest-HTML Report](screenshots/html_report_full_suite.png)
 
 ---
@@ -49,6 +54,7 @@ The automated end-to-end Selenium testing framework covers the core functional w
 ## 4. Detailed Test Results
 
 ### Suite 1 — Authentication & Logout
+
 - **Test File:** `tests/selenium/test_01_authentication.py`
 - **Test Class:** `TestAuthentication`
 - **Execution Command:** `backend\.venv\Scripts\pytest.exe tests/selenium/test_01_authentication.py -v`
@@ -57,25 +63,29 @@ The automated end-to-end Selenium testing framework covers the core functional w
 - **HTML Report File:** [`reports/report_suite_01.html`](reports/report_suite_01.html)
 
 #### Suite 1 — Pytest Terminal Execution
+
 ![Suite 1 Pytest Execution](screenshots/pytest_exec_suite_01.png)
 
 #### Suite 1 — Pytest-HTML Report
+
 ![Suite 1 HTML Report](screenshots/html_report_suite_01.png)
 
 #### Suite 1 — Test Cases Breakdown
-| Test Case | Description | Duration | Status |
-| :--- | :--- | :---: | :---: |
-| `test_01_login_page_loads` | Verify login page renders and elements initialize | 00:00:06 | **PASS** |
-| `test_02_login_form_elements_visible` | Email input, password input, and Sign In button visible | 00:00:05 | **PASS** |
-| `test_03_empty_login_validation` | Empty form submission prevented by HTML5 / client validation | 00:00:05 | **PASS** |
-| `test_04_invalid_credentials_validation` | Invalid credentials display error alert | 00:00:09 | **PASS** |
-| `test_05_valid_login` | Valid credentials redirect user to designated role dashboard | 00:00:09 | **PASS** |
-| `test_06_logout_functional` | Logout button invalidates session and returns to `/login` | 00:00:10 | **PASS** |
+
+| Test Case                                    | Description                                                      | Duration |  Status  |
+| :------------------------------------------- | :--------------------------------------------------------------- | :------: | :------: |
+| `test_01_login_page_loads`                   | Verify login page renders and elements initialize                | 00:00:06 | **PASS** |
+| `test_02_login_form_elements_visible`        | Email input, password input, and Sign In button visible          | 00:00:05 | **PASS** |
+| `test_03_empty_login_validation`             | Empty form submission prevented by HTML5 / client validation     | 00:00:05 | **PASS** |
+| `test_04_invalid_credentials_validation`     | Invalid credentials display error alert                          | 00:00:09 | **PASS** |
+| `test_05_valid_login`                        | Valid credentials redirect user to designated role dashboard     | 00:00:09 | **PASS** |
+| `test_06_logout_functional`                  | Logout button invalidates session and returns to `/login`        | 00:00:10 | **PASS** |
 | `test_07_protected_page_access_after_logout` | Direct navigation to `/dashboard` redirects unauthenticated user | 00:00:06 | **PASS** |
 
 ---
 
 ### Suite 2 — Dashboard & Navigation
+
 - **Test File:** `tests/selenium/test_02_dashboard_navigation.py`
 - **Test Class:** `TestDashboardNavigation`
 - **Execution Command:** `backend\.venv\Scripts\pytest.exe tests/selenium/test_02_dashboard_navigation.py -v`
@@ -84,24 +94,28 @@ The automated end-to-end Selenium testing framework covers the core functional w
 - **HTML Report File:** [`reports/report_suite_02.html`](reports/report_suite_02.html)
 
 #### Suite 2 — Pytest Terminal Execution
+
 ![Suite 2 Pytest Execution](screenshots/pytest_exec_suite_02.png)
 
 #### Suite 2 — Pytest-HTML Report
+
 ![Suite 2 HTML Report](screenshots/html_report_suite_02.png)
 
 #### Suite 2 — Test Cases Breakdown
-| Test Case | Description | Duration | Status |
-| :--- | :--- | :---: | :---: |
-| `test_01_dashboard_loads_after_login` | Verify dashboard page loads successfully upon authentication | 00:00:09 | **PASS** |
-| `test_02_sidebar_navigation_visible` | Main navigation sidebar is visible with module links | 00:00:08 | **PASS** |
-| `test_03_navigation_to_major_modules` | Click and navigate between Cases, Evidence, and Messages | 00:00:09 | **PASS** |
-| `test_04_browser_back_forward_navigation` | Browser history forward and back button navigation handling | 00:00:12 | **PASS** |
-| `test_05_dashboard_metrics_render` | Metric widgets and statistics counters render correctly | 00:00:09 | **PASS** |
-| `test_06_no_error_page_displayed` | Confirm zero 404, 500, or application crash error screens | 00:00:09 | **PASS** |
+
+| Test Case                                 | Description                                                  | Duration |  Status  |
+| :---------------------------------------- | :----------------------------------------------------------- | :------: | :------: |
+| `test_01_dashboard_loads_after_login`     | Verify dashboard page loads successfully upon authentication | 00:00:09 | **PASS** |
+| `test_02_sidebar_navigation_visible`      | Main navigation sidebar is visible with module links         | 00:00:08 | **PASS** |
+| `test_03_navigation_to_major_modules`     | Click and navigate between Cases, Evidence, and Messages     | 00:00:09 | **PASS** |
+| `test_04_browser_back_forward_navigation` | Browser history forward and back button navigation handling  | 00:00:12 | **PASS** |
+| `test_05_dashboard_metrics_render`        | Metric widgets and statistics counters render correctly      | 00:00:09 | **PASS** |
+| `test_06_no_error_page_displayed`         | Confirm zero 404, 500, or application crash error screens    | 00:00:09 | **PASS** |
 
 ---
 
 ### Suite 3 — Case Management
+
 - **Test File:** `tests/selenium/test_03_case_management.py`
 - **Test Class:** `TestCaseManagement`
 - **Execution Command:** `backend\.venv\Scripts\pytest.exe tests/selenium/test_03_case_management.py -v`
@@ -110,23 +124,27 @@ The automated end-to-end Selenium testing framework covers the core functional w
 - **HTML Report File:** [`reports/report_suite_03.html`](reports/report_suite_03.html)
 
 #### Suite 3 — Pytest Terminal Execution
+
 ![Suite 3 Pytest Execution](screenshots/pytest_exec_suite_03.png)
 
 #### Suite 3 — Pytest-HTML Report
+
 ![Suite 3 HTML Report](screenshots/html_report_suite_03.png)
 
 #### Suite 3 — Test Cases Breakdown
-| Test Case | Description | Duration | Status |
-| :--- | :--- | :---: | :---: |
-| `test_01_open_cases_page` | Open and render the primary Cases list management page | 00:00:09 | **PASS** |
-| `test_02_create_case_form_validation` | Ensure validation prevents submitting empty new case modal | 00:00:10 | **PASS** |
-| `test_03_create_new_case_success` | Superior officer successfully creates and registers a new case | 00:00:09 | **PASS** |
-| `test_04_search_filter_cases` | Filter and query cases using search input field | 00:00:10 | **PASS** |
-| `test_05_view_case_details` | Navigate into case details page and verify timeline/evidence widgets | 00:00:11 | **PASS** |
+
+| Test Case                             | Description                                                          | Duration |  Status  |
+| :------------------------------------ | :------------------------------------------------------------------- | :------: | :------: |
+| `test_01_open_cases_page`             | Open and render the primary Cases list management page               | 00:00:09 | **PASS** |
+| `test_02_create_case_form_validation` | Ensure validation prevents submitting empty new case modal           | 00:00:10 | **PASS** |
+| `test_03_create_new_case_success`     | Superior officer successfully creates and registers a new case       | 00:00:09 | **PASS** |
+| `test_04_search_filter_cases`         | Filter and query cases using search input field                      | 00:00:10 | **PASS** |
+| `test_05_view_case_details`           | Navigate into case details page and verify timeline/evidence widgets | 00:00:11 | **PASS** |
 
 ---
 
 ### Suite 4 — Evidence Management
+
 - **Test File:** `tests/selenium/test_04_evidence_management.py`
 - **Test Class:** `TestEvidenceManagement`
 - **Execution Command:** `backend\.venv\Scripts\pytest.exe tests/selenium/test_04_evidence_management.py -v`
@@ -135,22 +153,26 @@ The automated end-to-end Selenium testing framework covers the core functional w
 - **HTML Report File:** [`reports/report_suite_04.html`](reports/report_suite_04.html)
 
 #### Suite 4 — Pytest Terminal Execution
+
 ![Suite 4 Pytest Execution](screenshots/pytest_exec_suite_04.png)
 
 #### Suite 4 — Pytest-HTML Report
+
 ![Suite 4 HTML Report](screenshots/html_report_suite_04.png)
 
 #### Suite 4 — Test Cases Breakdown
-| Test Case | Description | Duration | Status |
-| :--- | :--- | :---: | :---: |
-| `test_01_open_evidence_section` | Open and render the Evidence repository module page | 00:00:09 | **PASS** |
-| `test_02_upload_evidence_page_loads` | Verify case dropdown and file upload dropzone load | 00:00:09 | **PASS** |
-| `test_03_file_upload_execution` | Execute file upload workflow and verify upload progress | 00:00:10 | **PASS** |
-| `test_04_evidence_details_view` | Open evidence details panel to inspect forensic hashes and metadata | 00:00:09 | **PASS** |
+
+| Test Case                            | Description                                                         | Duration |  Status  |
+| :----------------------------------- | :------------------------------------------------------------------ | :------: | :------: |
+| `test_01_open_evidence_section`      | Open and render the Evidence repository module page                 | 00:00:09 | **PASS** |
+| `test_02_upload_evidence_page_loads` | Verify case dropdown and file upload dropzone load                  | 00:00:09 | **PASS** |
+| `test_03_file_upload_execution`      | Execute file upload workflow and verify upload progress             | 00:00:10 | **PASS** |
+| `test_04_evidence_details_view`      | Open evidence details panel to inspect forensic hashes and metadata | 00:00:09 | **PASS** |
 
 ---
 
 ### Suite 5 — Investigator Management
+
 - **Test File:** `tests/selenium/test_05_investigator_management.py`
 - **Test Class:** `TestInvestigatorManagement`
 - **Execution Command:** `backend\.venv\Scripts\pytest.exe tests/selenium/test_05_investigator_management.py -v`
@@ -159,21 +181,25 @@ The automated end-to-end Selenium testing framework covers the core functional w
 - **HTML Report File:** [`reports/report_suite_05.html`](reports/report_suite_05.html)
 
 #### Suite 5 — Pytest Terminal Execution
+
 ![Suite 5 Pytest Execution](screenshots/pytest_exec_suite_05.png)
 
 #### Suite 5 — Pytest-HTML Report
+
 ![Suite 5 HTML Report](screenshots/html_report_suite_05.png)
 
 #### Suite 5 — Test Cases Breakdown
-| Test Case | Description | Duration | Status |
-| :--- | :--- | :---: | :---: |
-| `test_01_investigator_list_loads` | Superior officer team overview page renders investigator directory | 00:00:09 | **PASS** |
-| `test_02_view_investigator_team_members` | Individual investigator profile and assignment cards are visible | 00:00:09 | **PASS** |
+
+| Test Case                                           | Description                                                            | Duration |  Status  |
+| :-------------------------------------------------- | :--------------------------------------------------------------------- | :------: | :------: |
+| `test_01_investigator_list_loads`                   | Superior officer team overview page renders investigator directory     | 00:00:09 | **PASS** |
+| `test_02_view_investigator_team_members`            | Individual investigator profile and assignment cards are visible       | 00:00:09 | **PASS** |
 | `test_03_investigator_role_permission_restrictions` | Regular investigator is restricted from viewing supervisor admin panel | 00:00:10 | **PASS** |
 
 ---
 
 ### Suite 6 — Chat Messaging
+
 - **Test File:** `tests/selenium/test_06_chat_messaging.py`
 - **Test Class:** `TestChatMessaging`
 - **Execution Command:** `backend\.venv\Scripts\pytest.exe tests/selenium/test_06_chat_messaging.py -v`
@@ -182,21 +208,25 @@ The automated end-to-end Selenium testing framework covers the core functional w
 - **HTML Report File:** [`reports/report_suite_06.html`](reports/report_suite_06.html)
 
 #### Suite 6 — Pytest Terminal Execution
+
 ![Suite 6 Pytest Execution](screenshots/pytest_exec_suite_06.png)
 
 #### Suite 6 — Pytest-HTML Report
+
 ![Suite 6 HTML Report](screenshots/html_report_suite_06.png)
 
 #### Suite 6 — Test Cases Breakdown
-| Test Case | Description | Duration | Status |
-| :--- | :--- | :---: | :---: |
-| `test_01_chat_page_loads` | Navigate to messaging module and render active chat view | 00:00:09 | **PASS** |
-| `test_02_chat_group_list_visible` | Case communication channels and active group threads render | 00:00:09 | **PASS** |
-| `test_03_send_chat_message` | Send automated communication message and verify input clears | 00:00:36 | **PASS** |
+
+| Test Case                         | Description                                                  | Duration |  Status  |
+| :-------------------------------- | :----------------------------------------------------------- | :------: | :------: |
+| `test_01_chat_page_loads`         | Navigate to messaging module and render active chat view     | 00:00:09 | **PASS** |
+| `test_02_chat_group_list_visible` | Case communication channels and active group threads render  | 00:00:09 | **PASS** |
+| `test_03_send_chat_message`       | Send automated communication message and verify input clears | 00:00:36 | **PASS** |
 
 ---
 
 ### Suite 7 — AI Analysis & Case Intelligence Hub
+
 - **Test File:** `tests/selenium/test_07_ai_analysis.py`
 - **Test Class:** `TestAIAnalysis`
 - **Execution Command:** `backend\.venv\Scripts\pytest.exe tests/selenium/test_07_ai_analysis.py -v`
@@ -205,22 +235,26 @@ The automated end-to-end Selenium testing framework covers the core functional w
 - **HTML Report File:** [`reports/report_suite_07.html`](reports/report_suite_07.html)
 
 #### Suite 7 — Pytest Terminal Execution
+
 ![Suite 7 Pytest Execution](screenshots/pytest_exec_suite_07.png)
 
 #### Suite 7 — Pytest-HTML Report
+
 ![Suite 7 HTML Report](screenshots/html_report_suite_07.png)
 
 #### Suite 7 — Test Cases Breakdown
-| Test Case | Description | Duration | Status |
-| :--- | :--- | :---: | :---: |
-| `test_01_ai_intelligence_hub_loads` | Case Intelligence Hub view renders with analytical summary | 00:00:10 | **PASS** |
-| `test_02_case_selector_available` | Target case selector dropdown is populated and selectable | 00:00:09 | **PASS** |
-| `test_03_intelligence_tab_navigation` | Toggle seamlessly between Intelligence Overview and Graph View tabs | 00:00:10 | **PASS** |
-| `test_04_ai_pipeline_execution_trigger` | Execute automated AI analysis pipeline on active case | 00:00:11 | **PASS** |
+
+| Test Case                               | Description                                                         | Duration |  Status  |
+| :-------------------------------------- | :------------------------------------------------------------------ | :------: | :------: |
+| `test_01_ai_intelligence_hub_loads`     | Case Intelligence Hub view renders with analytical summary          | 00:00:10 | **PASS** |
+| `test_02_case_selector_available`       | Target case selector dropdown is populated and selectable           | 00:00:09 | **PASS** |
+| `test_03_intelligence_tab_navigation`   | Toggle seamlessly between Intelligence Overview and Graph View tabs | 00:00:10 | **PASS** |
+| `test_04_ai_pipeline_execution_trigger` | Execute automated AI analysis pipeline on active case               | 00:00:11 | **PASS** |
 
 ---
 
 ### Suite 8 — Role Permissions & RBAC
+
 - **Test File:** `tests/selenium/test_08_role_permissions.py`
 - **Test Class:** `TestRolePermissions`
 - **Execution Command:** `backend\.venv\Scripts\pytest.exe tests/selenium/test_08_role_permissions.py -v`
@@ -229,69 +263,73 @@ The automated end-to-end Selenium testing framework covers the core functional w
 - **HTML Report File:** [`reports/report_suite_08.html`](reports/report_suite_08.html)
 
 #### Suite 8 — Pytest Terminal Execution
+
 ![Suite 8 Pytest Execution](screenshots/pytest_exec_suite_08.png)
 
 #### Suite 8 — Pytest-HTML Report
+
 ![Suite 8 HTML Report](screenshots/html_report_suite_08.png)
 
 #### Suite 8 — Test Cases Breakdown
-| Test Case | Description | Duration | Status |
-| :--- | :--- | :---: | :---: |
-| `test_01_investigator_role_dashboard` | Verify Investigator lands on `/investigator/dashboard` | 00:00:08 | **PASS** |
-| `test_02_officer_role_dashboard` | Verify Superior Officer lands on `/superior/dashboard` | 00:00:08 | **PASS** |
-| `test_03_admin_role_dashboard` | Verify System Administrator lands on `/admin/dashboard` | 00:00:08 | **PASS** |
-| `test_04_major_admin_role_dashboard` | Verify Major Admin lands on `/major-admin/dashboard` | 00:00:08 | **PASS** |
-| `test_05_role_access_restriction` | Verify unauthorized route navigation triggers security redirection | 00:00:12 | **PASS** |
+
+| Test Case                             | Description                                                        | Duration |  Status  |
+| :------------------------------------ | :----------------------------------------------------------------- | :------: | :------: |
+| `test_01_investigator_role_dashboard` | Verify Investigator lands on `/investigator/dashboard`             | 00:00:08 | **PASS** |
+| `test_02_officer_role_dashboard`      | Verify Superior Officer lands on `/superior/dashboard`             | 00:00:08 | **PASS** |
+| `test_03_admin_role_dashboard`        | Verify System Administrator lands on `/admin/dashboard`            | 00:00:08 | **PASS** |
+| `test_04_major_admin_role_dashboard`  | Verify Major Admin lands on `/major-admin/dashboard`               | 00:00:08 | **PASS** |
+| `test_05_role_access_restriction`     | Verify unauthorized route navigation triggers security redirection | 00:00:12 | **PASS** |
 
 ---
 
 ## 5. Individual Test Cases Table
 
-| Test ID | Test Case | Expected Result | Actual Result | Status |
-| :--- | :--- | :--- | :--- | :---: |
-| **TC-AUTH-001** | Verify login page renders | `/login` URL and email input render | Form rendered successfully | **PASS** |
-| **TC-AUTH-002** | Verify login form elements | Email, password, submit button visible | Elements visible & interactive | **PASS** |
-| **TC-AUTH-003** | Empty login validation | Browser prevents form submission | URL remains `/login` | **PASS** |
-| **TC-AUTH-004** | Invalid credentials validation | Error message displayed on invalid login | Error alert rendered | **PASS** |
-| **TC-AUTH-005** | Valid login execution | Successful login redirects to `/dashboard` | Redirected to `/investigator/dashboard` | **PASS** |
-| **TC-AUTH-006** | Logout functional check | Clicking Sign out redirects to `/login` | Redirected to `/login` | **PASS** |
-| **TC-AUTH-007** | Protected route redirection | Direct URL navigation redirects to `/login` | Redirected to `/login` | **PASS** |
-| **TC-NAV-001** | Dashboard main container loads | Dashboard page container renders | Main container visible | **PASS** |
-| **TC-NAV-002** | Sidebar navigation links | Module links (Cases, Evidence) visible | Sidebar links interactive | **PASS** |
-| **TC-NAV-003** | Major module navigation | Clicking navigation items loads pages | Routes navigated cleanly | **PASS** |
-| **TC-NAV-004** | Browser back & forward | Browser history navigation works | History navigated as expected | **PASS** |
-| **TC-NAV-005** | Dashboard metrics render | Metric widgets display cleanly | Stat cards rendered | **PASS** |
-| **TC-NAV-006** | No error alert page | No 404 or application crash messages | Zero crash errors | **PASS** |
-| **TC-CASE-001** | Open cases page | Cases list page loads | List page rendered | **PASS** |
-| **TC-CASE-002** | Create case validation | Empty form submission prevented | Form validation intact | **PASS** |
-| **TC-CASE-003** | Dynamic case creation | Superior Officer creates new case | Case created & redirected | **PASS** |
-| **TC-CASE-004** | Search & filter cases | Search box filters cases list | Filter input accepts query | **PASS** |
-| **TC-CASE-005** | View case details | Case detail view opens | Detail page loaded | **PASS** |
-| **TC-EVD-001** | Open evidence section | Evidence list renders | Page loaded | **PASS** |
-| **TC-EVD-002** | Upload page initialization | Case dropdown and dropzone render | Form initialized | **PASS** |
-| **TC-EVD-003** | File upload execution | Safe test file selected & uploaded | File uploaded successfully | **PASS** |
-| **TC-EVD-004** | Evidence details view | Evidence items clickable | Item view interactive | **PASS** |
-| **TC-INV-001** | Open investigator team list | Investigator list renders for Supervisor | List rendered | **PASS** |
-| **TC-INV-002** | View team member cards | Active investigator cards render | Team cards visible | **PASS** |
-| **TC-INV-003** | RBAC permission restriction | Investigator blocked from Admin Users page | Auto-redirected to home | **PASS** |
-| **TC-CHAT-001** | Open messages page | Chat view renders | Page loaded | **PASS** |
-| **TC-CHAT-002** | Chat group list visible | Conversation channels visible | Channel list loaded | **PASS** |
-| **TC-CHAT-003** | Send automated chat message | Message sent into active thread | Input cleared & sent | **PASS** |
-| **TC-AI-001** | Intelligence Hub loads | Case Intelligence Hub page renders | Main view loaded | **PASS** |
-| **TC-AI-002** | Case selector available | Dropdown lists available cases | Dropdown interactive | **PASS** |
-| **TC-AI-003** | Tab navigation | Toggle between Intelligence and Graph | Tabs toggled cleanly | **PASS** |
-| **TC-AI-004** | AI Pipeline trigger | AI analysis pipeline executed | Trigger handled | **PASS** |
-| **TC-RBAC-001** | Investigator landing page | Investigator lands on `/investigator/dashboard` | Dashboard reached | **PASS** |
-| **TC-RBAC-002** | Officer landing page | Superior Officer lands on `/superior/dashboard` | Dashboard reached | **PASS** |
-| **TC-RBAC-003** | Admin landing page | System Admin lands on `/admin/dashboard` | Dashboard reached | **PASS** |
-| **TC-RBAC-004** | Major Admin landing page | Major Admin lands on `/major-admin/dashboard` | Dashboard reached | **PASS** |
-| **TC-RBAC-005** | Unauthorized route redirect | Unauthorized route redirects to role home | Redirect enforced | **PASS** |
+| Test ID         | Test Case                      | Expected Result                                 | Actual Result                           |  Status  |
+| :-------------- | :----------------------------- | :---------------------------------------------- | :-------------------------------------- | :------: |
+| **TC-AUTH-001** | Verify login page renders      | `/login` URL and email input render             | Form rendered successfully              | **PASS** |
+| **TC-AUTH-002** | Verify login form elements     | Email, password, submit button visible          | Elements visible & interactive          | **PASS** |
+| **TC-AUTH-003** | Empty login validation         | Browser prevents form submission                | URL remains `/login`                    | **PASS** |
+| **TC-AUTH-004** | Invalid credentials validation | Error message displayed on invalid login        | Error alert rendered                    | **PASS** |
+| **TC-AUTH-005** | Valid login execution          | Successful login redirects to `/dashboard`      | Redirected to `/investigator/dashboard` | **PASS** |
+| **TC-AUTH-006** | Logout functional check        | Clicking Sign out redirects to `/login`         | Redirected to `/login`                  | **PASS** |
+| **TC-AUTH-007** | Protected route redirection    | Direct URL navigation redirects to `/login`     | Redirected to `/login`                  | **PASS** |
+| **TC-NAV-001**  | Dashboard main container loads | Dashboard page container renders                | Main container visible                  | **PASS** |
+| **TC-NAV-002**  | Sidebar navigation links       | Module links (Cases, Evidence) visible          | Sidebar links interactive               | **PASS** |
+| **TC-NAV-003**  | Major module navigation        | Clicking navigation items loads pages           | Routes navigated cleanly                | **PASS** |
+| **TC-NAV-004**  | Browser back & forward         | Browser history navigation works                | History navigated as expected           | **PASS** |
+| **TC-NAV-005**  | Dashboard metrics render       | Metric widgets display cleanly                  | Stat cards rendered                     | **PASS** |
+| **TC-NAV-006**  | No error alert page            | No 404 or application crash messages            | Zero crash errors                       | **PASS** |
+| **TC-CASE-001** | Open cases page                | Cases list page loads                           | List page rendered                      | **PASS** |
+| **TC-CASE-002** | Create case validation         | Empty form submission prevented                 | Form validation intact                  | **PASS** |
+| **TC-CASE-003** | Dynamic case creation          | Superior Officer creates new case               | Case created & redirected               | **PASS** |
+| **TC-CASE-004** | Search & filter cases          | Search box filters cases list                   | Filter input accepts query              | **PASS** |
+| **TC-CASE-005** | View case details              | Case detail view opens                          | Detail page loaded                      | **PASS** |
+| **TC-EVD-001**  | Open evidence section          | Evidence list renders                           | Page loaded                             | **PASS** |
+| **TC-EVD-002**  | Upload page initialization     | Case dropdown and dropzone render               | Form initialized                        | **PASS** |
+| **TC-EVD-003**  | File upload execution          | Safe test file selected & uploaded              | File uploaded successfully              | **PASS** |
+| **TC-EVD-004**  | Evidence details view          | Evidence items clickable                        | Item view interactive                   | **PASS** |
+| **TC-INV-001**  | Open investigator team list    | Investigator list renders for Supervisor        | List rendered                           | **PASS** |
+| **TC-INV-002**  | View team member cards         | Active investigator cards render                | Team cards visible                      | **PASS** |
+| **TC-INV-003**  | RBAC permission restriction    | Investigator blocked from Admin Users page      | Auto-redirected to home                 | **PASS** |
+| **TC-CHAT-001** | Open messages page             | Chat view renders                               | Page loaded                             | **PASS** |
+| **TC-CHAT-002** | Chat group list visible        | Conversation channels visible                   | Channel list loaded                     | **PASS** |
+| **TC-CHAT-003** | Send automated chat message    | Message sent into active thread                 | Input cleared & sent                    | **PASS** |
+| **TC-AI-001**   | Intelligence Hub loads         | Case Intelligence Hub page renders              | Main view loaded                        | **PASS** |
+| **TC-AI-002**   | Case selector available        | Dropdown lists available cases                  | Dropdown interactive                    | **PASS** |
+| **TC-AI-003**   | Tab navigation                 | Toggle between Intelligence and Graph           | Tabs toggled cleanly                    | **PASS** |
+| **TC-AI-004**   | AI Pipeline trigger            | AI analysis pipeline executed                   | Trigger handled                         | **PASS** |
+| **TC-RBAC-001** | Investigator landing page      | Investigator lands on `/investigator/dashboard` | Dashboard reached                       | **PASS** |
+| **TC-RBAC-002** | Officer landing page           | Superior Officer lands on `/superior/dashboard` | Dashboard reached                       | **PASS** |
+| **TC-RBAC-003** | Admin landing page             | System Admin lands on `/admin/dashboard`        | Dashboard reached                       | **PASS** |
+| **TC-RBAC-004** | Major Admin landing page       | Major Admin lands on `/major-admin/dashboard`   | Dashboard reached                       | **PASS** |
+| **TC-RBAC-005** | Unauthorized route redirect    | Unauthorized route redirects to role home       | Redirect enforced                       | **PASS** |
 
 ---
 
 ## 6. Execution Commands
 
 ### Individual Suite Commands
+
 ```bash
 # Suite 1: Authentication
 backend\.venv\Scripts\pytest.exe tests/selenium/test_01_authentication.py -v
@@ -319,6 +357,7 @@ backend\.venv\Scripts\pytest.exe tests/selenium/test_08_role_permissions.py -v
 ```
 
 ### Full Suite & Report Command
+
 ```bash
 backend\.venv\Scripts\pytest.exe tests/selenium -v --html=tests/selenium/reports/cybershield_test_report.html --self-contained-html
 ```
@@ -326,6 +365,7 @@ backend\.venv\Scripts\pytest.exe tests/selenium -v --html=tests/selenium/reports
 ---
 
 ## 7. Test Environment Details
+
 - **Operating System:** Windows 11
 - **Python Version:** 3.12.10
 - **Selenium Version:** 4.49.0
@@ -338,6 +378,7 @@ backend\.venv\Scripts\pytest.exe tests/selenium -v --html=tests/selenium/reports
 ---
 
 ## 8. Conclusion
+
 All **37 test cases** across all **8 test suites** passed successfully (100% pass rate). Authentication, dashboard navigation, case management, evidence uploading, team administration, chat messaging, AI intelligence visualization, and role-based route permissions operate properly.
 
 ---
@@ -347,6 +388,7 @@ All **37 test cases** across all **8 test suites** passed successfully (100% pas
 ### 9.1 Sample Code
 
 #### 9.1.1 Evidence Hashing & Duplicate Detection Service (`backend/app/services/ai/hash_service.py`)
+
 ```python
 """Hash calculation, integrity verification, and duplicate evidence detection."""
 
@@ -383,7 +425,7 @@ class HashService:
         """
         repo = EvidenceRepository(db)
         existing = repo.find_by_hash(case_id, sha256_hash)
-        
+
         # If it matches itself during reprocessing, ignore
         if existing and current_evidence_id and existing.id == current_evidence_id:
             return {"is_duplicate": False, "duplicate_of_id": None, "warning": None}
@@ -403,6 +445,7 @@ class HashService:
 ```
 
 #### 9.1.2 Forensic Entity Extraction & Normalization Service (`backend/app/services/ai/entity_service.py`)
+
 ```python
 """Forensic Entity Extraction, Normalization, and Context Preservation Engine."""
 
@@ -512,6 +555,7 @@ class EntityService:
 ```
 
 #### 9.1.3 Factor-Based Risk Scoring & Explainable Lead Generation (`backend/app/services/ai/risk_service.py`)
+
 ```python
 """Explainable Factor-Based Risk Assessment & Lead Prioritization Engine."""
 
@@ -593,6 +637,7 @@ class RiskService:
 ```
 
 #### 9.1.4 Automated Selenium Test Suite (`tests/selenium/test_07_ai_analysis.py`)
+
 ```python
 """Suite 7: AI Analysis & Case Intelligence Hub Testing for CyberShield application."""
 
@@ -657,4 +702,3 @@ class TestAIAnalysis:
         except Exception:
             pytest.skip("AI Pipeline execution button not present or external AI service unavailable")
 ```
-

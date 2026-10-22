@@ -57,33 +57,38 @@ export function EvidenceCard({
   return (
     <motion.div
       whileHover={{ y: -3, scale: 1.01 }}
-      className="glass-card glow-hover group relative w-full p-4 text-left"
+      onClick={onOpen}
+      className="glass-card glow-hover group relative w-full p-4 text-left cursor-pointer transition-all border border-border/80 hover:border-cyan/50 hover:shadow-lg hover:shadow-cyan/5"
     >
       <div className="flex items-start justify-between">
-        <div
-          onClick={onOpen}
-          className="mb-3 grid h-10 w-10 cursor-pointer place-items-center rounded-xl border border-primary/30 bg-primary/10 text-primary"
-        >
+        <div className="mb-3 grid h-10 w-10 place-items-center rounded-xl border border-primary/30 bg-primary/10 text-primary group-hover:border-cyan/50 group-hover:bg-cyan/15 group-hover:text-cyan transition-colors">
           <Icon className="h-5 w-5" />
         </div>
-        {onDelete && (
-          <button
-            type="button"
-            title="Delete Evidence"
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              onDelete(e);
-            }}
-            className="rounded-lg p-1.5 text-muted-foreground hover:bg-rose-500/20 hover:text-rose-500 transition-colors"
-          >
-            <Trash2 className="h-4 w-4" />
-          </button>
-        )}
+        <div className="flex items-center gap-1.5">
+          <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-medium text-cyan px-2 py-0.5 rounded-md bg-cyan-500/10 border border-cyan-500/20">
+            Click to view
+          </span>
+          {onDelete && (
+            <button
+              type="button"
+              title="Delete Evidence"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                onDelete(e);
+              }}
+              className="rounded-lg p-1.5 text-muted-foreground hover:bg-rose-500/20 hover:text-rose-500 transition-colors"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          )}
+        </div>
       </div>
 
-      <div onClick={onOpen} className="cursor-pointer">
-        <p className="truncate text-sm font-medium text-foreground">{item.name}</p>
+      <div>
+        <p className="truncate text-sm font-semibold text-foreground group-hover:text-cyan transition-colors">
+          {item.name}
+        </p>
         <p className="mt-1 text-xs text-muted-foreground">
           {item.type} · {item.size}
         </p>
